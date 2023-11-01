@@ -1,0 +1,18 @@
+[submodule "car_detection"]
+	path = car_detection
+	url = https://github.com/zwh2119/car-detection.git
+[submodule "app_schedule"]
+	path = app_schedule
+	url = https://github.com/zwh2119/application-scheduler.git
+[submodule "aggregator"]
+	path = aggregator
+	url = https://github.com/zwh2119/data-aggregator.git
+[submodule "generator"]
+	path = generator
+	url = https://github.com/zwh2119/data-generator.git
+[submodule "edge_controller"]
+	path = edge_controller
+	url = https://github.com/zwh2119/edge-controller.git
+[submodule "cloud_controller"]
+	path = cloud_controller
+	url = https://github.com/zwh2119/cloud-controller.git
