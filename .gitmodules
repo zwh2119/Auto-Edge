@@ -16,3 +16,6 @@
 [submodule "cloud_controller"]
 	path = cloud_controller
 	url = https://github.com/zwh2119/cloud-controller.git
+[submodule "data-distributor"]
+	path = data-distributor
+	url = https://github.com/zwh2119/data-distributor.git
