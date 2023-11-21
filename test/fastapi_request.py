@@ -110,5 +110,11 @@ async def main():
     await asyncio.gather(*tasks)
 
 
+def post_request():
+    for i in range(30):
+        response = requests.post('http://127.0.0.1:9000/test', json={'id':i})
+        print(response.json())
+
 if __name__ == '__main__':
-    asyncio.run(main())
+    # asyncio.run(main())
+    post_request()
