@@ -21,3 +21,4 @@
 - cloud controller
 
 ## Development Version
+- 【current version】AutoEdge - v0.1.0: demo of car detection (without scheduler) test successfully
