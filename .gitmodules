@@ -19,3 +19,9 @@
 [submodule "data-distributor"]
 	path = data-distributor
 	url = https://github.com/zwh2119/data-distributor.git
+[submodule "face_detection"]
+	path = face_detection
+	url = https://github.com/zwh2119/face-detection.git
+[submodule "pose_estimator"]
+	path = pose_estimator
+	url = https://github.com/zwh2119/pose-estimator.git
