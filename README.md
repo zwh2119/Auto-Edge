@@ -1,4 +1,4 @@
-# Auto-Edge: an Auto scheduling Platform for Edge Computing based on KubeEdge
+# Auto-Edge: an Auto Scheduling Platform for Edge Computing based on KubeEdge
 
 
 
@@ -73,6 +73,6 @@ ffmpeg -re -i ./traffic2.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video2
 
 ## Development Version
 - 2023.11.25 AutoEdge - v0.1.0: demo of car detection (without scheduler) test successfully
-- 2023.11.28 AutoEdge - v0.2.0: demo of car detection (with scheduler) test successfully
+- 2023.11.29 AutoEdge - v0.2.0: demo of car detection (with scheduler) test successfully
 
 ## Citing
