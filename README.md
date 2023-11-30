@@ -14,7 +14,7 @@ Auto-Edge is an automated scheduling platform for edge computing. it's developed
 ### python start 
 (**for debug only**)
 
-(**will be discarded in the late version**)
+(**will be deprecated in the late version**)
 
 ```shell
 
@@ -65,14 +65,14 @@ ffmpeg -re -i ./traffic2.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video2
 ## Components
 - data generator
 - data distributor
-- data aggregator (**discard**)
+- data aggregator (**deprecated**)
 - service processor
 - scheduler
 - edge controller (**use as controller**)
-- cloud controller (**discard**)
+- cloud controller (**deprecated**)
 
 ## Development Version
 - 2023.11.25 AutoEdge - v0.1.0: demo of car detection (without scheduler) test successfully
-- 2023.11.29 AutoEdge - v0.2.0: demo of car detection (with scheduler) test successfully
+- 2023.11.30 AutoEdge - v0.2.0: demo of car detection (with scheduler) test successfully
 
 ## Citing

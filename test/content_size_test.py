@@ -9,7 +9,24 @@ from car_detection.car_detection_tmp import CarDetection
 import numpy as np
 import sys
 
+
+def compress_video(frames, fourcc, generator_id):
+    fourcc = cv2.VideoWriter_fourcc(*fourcc)
+    height, width, _ = frames[0].shape
+    buffer_path = f'temp_{generator_id}.mp4'
+    out = cv2.VideoWriter(buffer_path, fourcc, 30, (width, height))
+    for frame in frames:
+        out.write(frame)
+    out.release()
+    return buffer_path
+
+
+
+
+
 def main():
+    buffer_size = 8
+
     estimator = CarDetection({
         'weights': 'yolov5s.pt',
         'device': 'cpu'
@@ -27,10 +44,12 @@ def main():
         cv2.imwrite(f'pic.jpg', frame)
         print('frame size:', frame.__sizeof__())
         # cnt+=1
-        print('get a frame..')
-        if len(tmp_frame_buffer) < 1:
+        # print('get a frame..')
+        if len(tmp_frame_buffer) < buffer_size:
             continue
         else:
+            buffer_path = compress_video(tmp_frame_buffer, 'mp4v', 0)
+            print('video path:', buffer_path)
             result = estimator(tmp_frame_buffer)
             frame_result = result['result']
             bbox_frames = []
