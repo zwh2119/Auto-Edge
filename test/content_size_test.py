@@ -2,6 +2,7 @@
 compare video size with frame bounding box
 
 """
+import time
 
 import cv2
 import pickle
@@ -43,12 +44,17 @@ def main():
         tmp_frame_buffer.append(frame)
         cv2.imwrite(f'pic.jpg', frame)
         print('frame size:', frame.__sizeof__())
-        # cnt+=1
+        cnt+=1
         # print('get a frame..')
+        if cnt % 4 != 0:
+            continue
         if len(tmp_frame_buffer) < buffer_size:
             continue
         else:
+            start = time.time()
             buffer_path = compress_video(tmp_frame_buffer, 'mp4v', 0)
+            end = time.time()
+            print(f'compress time:{end-start}')
             print('video path:', buffer_path)
             result = estimator(tmp_frame_buffer)
             frame_result = result['result']
