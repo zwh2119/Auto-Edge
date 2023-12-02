@@ -70,6 +70,9 @@ docker tag d1a8fa82decd registry.cn-hangzhou.aliyuncs.com/auto-edge/controller-a
 docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/controller-arm:temp
 
 
+docker tag 69d23d4631de registry.cn-hangzhou.aliyuncs.com/auto-edge/car-detection-service:temp
+docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/car-detection-service:temp
+
 # arm version for edge
 ```
 
