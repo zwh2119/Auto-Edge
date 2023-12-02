@@ -48,6 +48,29 @@ ffmpeg -re -i ./traffic2.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video2
 ### docker start
 ```shell
 
+cd component_name
+# x86/amd version for cloud
+docker build -t "component_name:temp" -f ./Dockerfile .
+
+docker login --username=onecheck registry.cn-hangzhou.aliyuncs.com
+
+docker tag 195049bfcbcb registry.cn-hangzhou.aliyuncs.com/auto-edge/distributor:temp
+docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/distributor:temp
+
+docker tag ee31d2e73705 registry.cn-hangzhou.aliyuncs.com/auto-edge/scheduler:temp
+docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/scheduler:temp
+
+docker tag 03d66074b68b registry.cn-hangzhou.aliyuncs.com/auto-edge/controller:temp
+docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/controller:temp
+
+docker tag 30e10b53b69e registry.cn-hangzhou.aliyuncs.com/auto-edge/generator-arm:temp
+docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/generator-arm:temp
+
+docker tag d1a8fa82decd registry.cn-hangzhou.aliyuncs.com/auto-edge/controller-arm:temp
+docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/controller-arm:temp
+
+
+# arm version for edge
 ```
 
 ### KubeEdge start 
