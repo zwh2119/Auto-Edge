@@ -1,11 +1,11 @@
-# Auto-Edge: an Auto Scheduling Platform for Edge Computing based on KubeEdge
+# Auto-Edge
 
-
-
-## Brief Introduction
 <center>
     <img src="pic/logo.png" alt="logo" width="120">
 </center>
+
+## Brief Introduction
+
 
 Auto-Edge is an automated scheduling platform for edge computing. it's developed based on KubeEdge.
 
