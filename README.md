@@ -105,7 +105,7 @@ docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/car-detection-service-ar
 - 2023.11.25 AutoEdge - v0.1.0: demo of car detection (without scheduler) test successfully [single edge, single stage]
 - 2023.11.30 AutoEdge - v0.2.0: demo of car detection (with scheduler) test successfully [single edge, single stage]
 - 2023.12.02 AutoEdge - v0.3.0: build docker image of all components for car detection demo
-- 2023.12.03 AutoEdge - v0.4.0: demo of classroom detection (with scheduler) test successfully [single edge, multi stage]
+- 2023.12.04 AutoEdge - v0.4.0: demo of classroom detection (with scheduler) test successfully [single edge, multi stage]
 
 
 ## Citing
