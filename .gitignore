@@ -3,3 +3,4 @@
 *.pt
 expr_*
 *.tar.xz
+data_record*

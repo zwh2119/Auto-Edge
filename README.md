@@ -94,12 +94,12 @@ docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/car-detection-service-ar
 - [TensorRT](https://developer.nvidia.com/tensorrt)
 
 ## Components
-- data generator
-- data distributor
+- [data generator](https://github.com/zwh2119/data-generator)
+- [data distributor](https://github.com/zwh2119/data-distributor)
 - data aggregator (**deprecated**)
-- service processor
-- scheduler
-- edge controller (**use as controller**)
+- [service processor](https://github.com/zwh2119/car-detection)
+- [scheduler](https://github.com/zwh2119/application-scheduler)
+- [edge controller](https://github.com/zwh2119/edge-controller) (**use as controller**)
 - cloud controller (**deprecated**)
 
 ## Reference Deployment Device
@@ -110,6 +110,7 @@ docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/car-detection-service-ar
 - 2023.12.02 AutoEdge - v0.3.0: build docker image of all components for car detection demo
 - 2023.12.04 AutoEdge - v0.4.0: demo of classroom detection (with scheduler) test successfully [single edge, multi stage]
 - 2023.12.11 AutoEdge - v0.5.0: service of car detection has been transformed by TensorRT 
+- 2023.12.11 AutoEdge - v0.6.0: demo of car detection successfully test on multi-edge [multi edge, single stage]
 
 
 ## Citing
