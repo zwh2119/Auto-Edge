@@ -14,8 +14,6 @@ Auto-Edge is an automated scheduling platform for edge computing. it's developed
 ### python start 
 (**for debug only**)
 
-(**will be deprecated in the late version**)
-
 ```shell
 
 # cloud
@@ -101,6 +99,7 @@ docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/car-detection-service-ar
 - [scheduler](https://github.com/zwh2119/application-scheduler)
 - [edge controller](https://github.com/zwh2119/edge-controller) (**use as controller**)
 - cloud controller (**deprecated**)
+- [resource monitor](https://github.com/zwh2119/resource-monitor)
 
 ## Reference Deployment Device
 
