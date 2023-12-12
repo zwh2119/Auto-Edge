@@ -58,7 +58,7 @@ def generate():
         fps_raw = cap.get(cv2.CAP_PROP_FPS)
 
         # adjust resolution
-        frame = cv2.resize(frame, text2resolution(frame_resolution))
+        frame = cv2.resize(frame, (640,640))
 
         # adjust fps
         cnt += 1
