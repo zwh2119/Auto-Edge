@@ -11,7 +11,7 @@ Auto-Edge is an automated scheduling platform for edge computing. it's developed
 
 
 ## Quick Start
-### python start 
+### Python start 
 (**for debug only**)
 
 ```shell
@@ -43,7 +43,7 @@ ffmpeg -re -i ./traffic1.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video1
 ffmpeg -re -i ./traffic2.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video2
 ```
 
-### docker start
+### Docker start
 ```shell
 
 cd component_name
@@ -101,7 +101,9 @@ docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/car-detection-service-ar
 - cloud controller (**deprecated**)
 - [resource monitor](https://github.com/zwh2119/resource-monitor)
 
-## Reference Deployment Device
+## Deployment Device
+- Cloud: NVIDIA GeForce RTX 3090 *4
+- Edge: NVIDIA Jetson TX2
 
 ## Development Version
 - 2023.11.25 AutoEdge - v0.1.0: demo of car detection (without scheduler) test successfully [single edge, single stage]
@@ -110,6 +112,7 @@ docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/car-detection-service-ar
 - 2023.12.04 AutoEdge - v0.4.0: demo of classroom detection (with scheduler) test successfully [single edge, multi stage]
 - 2023.12.11 AutoEdge - v0.5.0: service of car detection has been transformed by TensorRT 
 - 2023.12.11 AutoEdge - v0.6.0: demo of car detection successfully test on multi-edge [multi edge, single stage]
+- 2023.12.13 AutoEdge - v0.7.0: add logger and collapse processing
 
 
 ## Citing
