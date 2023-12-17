@@ -1,8 +1,9 @@
 import json
 import os
 import shutil
+import threading
 import time
-import  random
+import random
 
 import cv2
 import requests
@@ -83,18 +84,11 @@ def generate():
             # compress frames in the buffer into a short video
             compressed_video_pth = compress_frames(temp_frame_buffer, frame_fourcc)
 
-            response = requests.post(service_address,
-                          data={'data': json.dumps(None)},
-                          files={'file': (f'tmp.mp4',
-                                          open(compressed_video_pth, 'rb'),
-                                          'video/mp4')})
-            data = response.json()['result']
-            for i in range(len(temp_frame_buffer)):
-                boxes = data[i]
-                frame = temp_frame_buffer[i]
-                for box in boxes:
-                    plot_one_box(box, frame, label='')
-                cv2.imwrite(os.path.join(write_dir, f'output_{i}.png'), frame)
+            for i in range(100):
+
+                threading.Thread(target=request_post_thread, args=(service_address, compressed_video_pth)).start()
+                if i % 2 == 0:
+                    time.sleep(0.5)
 
             cur_id += 1
             temp_frame_buffer = []
@@ -102,6 +96,22 @@ def generate():
 
             time.sleep(2)
             break
+
+
+def request_post_thread(service_address, compressed_video_pth):
+    try:
+        s = time.time()
+        response = requests.post(service_address,
+                                 data={'data': json.dumps(None)},
+                                 files={'file': (f'tmp.mp4',
+                                                 open(compressed_video_pth, 'rb'),
+                                                 'video/mp4')})
+        if response.status_code != 200:
+            raise Exception('request refused!')
+        print('time cost: ', time.time() - s)
+    except Exception as e:
+        print(e)
+
 
 def plot_one_box(x, img, color=None, label=None, line_thickness=None):
     """
@@ -118,7 +128,7 @@ def plot_one_box(x, img, color=None, label=None, line_thickness=None):
 
     """
     tl = (
-        line_thickness or round(0.002 * (img.shape[0] + img.shape[1]) / 2) + 1
+            line_thickness or round(0.002 * (img.shape[0] + img.shape[1]) / 2) + 1
     )  # line/font thickness
     color = color or [random.randint(0, 255) for _ in range(3)]
     c1, c2 = (int(x[0]), int(x[1])), (int(x[2]), int(x[3]))
