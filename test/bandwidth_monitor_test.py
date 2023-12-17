@@ -2,7 +2,10 @@ import time
 
 import psutil
 import iperf3
+import tcping
 
+destination_ip= '114.212.81.11'
+destination_port = 5201
 
 def total_bandwidth_test():
     start_upload = psutil.net_io_counters().bytes_sent * 8 / 1024 / 1024
@@ -12,10 +15,15 @@ def total_bandwidth_test():
 
 
 def iperf3_client():
+    p = tcping.Ping(destination_ip, destination_port)
+    if p._failed != 0:
+        print('connection failed!')
+        return
+
     client = iperf3.Client()
     client.duration = 1
-    client.server_hostname = '114.212.81.11'
-    client.port = 5201
+    client.server_hostname = destination_ip
+    client.port = destination_port
 
     print('Connecting to {0}:{1}'.format(client.server_hostname, client.port))
     result = client.run()
@@ -39,4 +47,6 @@ def iperf3_client():
 
 
 if __name__ == '__main__':
-    iperf3_client()
+    for i in range(3):
+        iperf3_client()
+        time.sleep(2)
