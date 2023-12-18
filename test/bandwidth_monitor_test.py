@@ -1,3 +1,4 @@
+import threading
 import time
 
 import psutil
@@ -16,6 +17,10 @@ def total_bandwidth_test():
 
 def iperf3_client():
     p = tcping.Ping(destination_ip, destination_port)
+    # try:
+    #     p.ping(1)
+    # except Exception as e:
+    #     pass
     if p._failed != 0:
         print('connection failed!')
         return
@@ -24,6 +29,7 @@ def iperf3_client():
     client.duration = 1
     client.server_hostname = destination_ip
     client.port = destination_port
+    client.protocol = 'tcp'
 
     print('Connecting to {0}:{1}'.format(client.server_hostname, client.port))
     result = client.run()
@@ -45,8 +51,13 @@ def iperf3_client():
         print('  KiloBytes per second (kB/s)  {0}'.format(result.sent_kB_s))
         print('  MegaBytes per second (MB/s)  {0}'.format(result.sent_MB_s))
 
+def print_test():
+    while True:
+        print('...')
+        time.sleep(0.1)
 
 if __name__ == '__main__':
-    for i in range(3):
+    threading.Thread(target=print_test).start()
+    while True:
         iperf3_client()
         time.sleep(2)

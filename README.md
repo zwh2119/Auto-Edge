@@ -113,6 +113,7 @@ docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/car-detection-service-ar
 - 2023.12.11 AutoEdge - v0.5.0: service of car detection has been transformed by TensorRT 
 - 2023.12.11 AutoEdge - v0.6.0: demo of car detection successfully test on multi-edge [multi edge, single stage]
 - 2023.12.13 AutoEdge - v0.7.0: add logger and collapse processing
+- 2023.12.17 AutoEdge - v0.8.0: add resource monitor component 
 
 
 ## Citing
