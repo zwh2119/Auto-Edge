@@ -9,10 +9,11 @@ destination_ip= '114.212.81.11'
 destination_port = 5201
 
 def total_bandwidth_test():
-    start_upload = psutil.net_io_counters().bytes_sent * 8 / 1024 / 1024
-    time.sleep(1)
-    end_upload = psutil.net_io_counters().bytes_sent * 8 / 1024 / 1024
-    print(end_upload - start_upload)
+    while True:
+        start_upload = psutil.net_io_counters().bytes_sent * 8 / 1024 / 1024
+        time.sleep(1)
+        end_upload = psutil.net_io_counters().bytes_sent * 8 / 1024 / 1024
+        print(end_upload - start_upload)
 
 
 def iperf3_client():
@@ -57,7 +58,9 @@ def print_test():
         time.sleep(0.1)
 
 if __name__ == '__main__':
-    threading.Thread(target=print_test).start()
-    while True:
-        iperf3_client()
-        time.sleep(2)
+    # threading.Thread(target=print_test).start()
+    # while True:
+    #     iperf3_client()
+    #     time.sleep(2)
+
+    total_bandwidth_test()

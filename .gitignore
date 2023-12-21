@@ -2,5 +2,6 @@
 *.mp4
 *.pt
 expr_*
+resource_data
 *.tar.xz
 data_record*
