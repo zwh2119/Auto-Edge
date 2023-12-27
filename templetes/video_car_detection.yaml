@@ -127,7 +127,16 @@ spec:
             name:  scheduler
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
-              -
+              - name: "output_dir"
+                value: "/data/record_data"
+            volumeMounts:
+              - name: output_dir
+                mountPath: "/data/record_data"
+        volumes:
+          - name: output_dir
+            hostPath:
+              path: "/home/hx/zwh/Auto-Edge/output_data"
+              type: Directory
 
 ---
 
