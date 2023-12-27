@@ -1,0 +1,235 @@
+apiVersion: sedna.io/v1alpha1
+kind: JointMultiEdgeService
+metadata:
+  name: generator
+  namespace: auto-edge
+spec:
+  edgeWorker:
+    - file:
+        path: "/home/nvidia/zwh/Auto-Edge/files"
+      logLevel:
+        level: "INFO"
+      template:
+        spec:
+          nodeName: edge1.kubeedge
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/generator:v0.8.0
+            imagePullPolicy: IfNotPresent
+            name: generator
+            env:
+              -
+
+    - file:
+        path: "/home/nvidia/zwh/Auto-Edge/files"
+      logLevel:
+        level: "INFO"
+      template:
+        spec:
+          nodeName: edge2
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/generator:v0.8.0
+            imagePullPolicy: IfNotPresent
+            name: generator
+            env:
+              -
+
+---
+
+apiVersion: sedna.io/v1alpha1
+kind: JointMultiEdgeService
+metadata:
+  name: controller
+  namespace: auto-edge
+spec:
+  edgeWorker:
+    - logLevel:
+        level: "INFO"
+      template:
+        spec:
+          nodeName: edge1.kubeedge
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/distributor:v0.8.0
+            imagePullPolicy: IfNotPresent
+            name: controller
+            env:
+              -
+
+    - file:
+        path: "/home/nvidia/zwh/Auto-Edge/files"
+      logLevel:
+        level: "INFO"
+      template:
+        spec:
+          nodeName: edge2
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/controller:v0.8.0
+            imagePullPolicy: IfNotPresent
+            name: controller
+            env:
+              -
+
+
+  cloudWorker:
+    file:
+      path: "/home/hx/zwh/Auto-Edge/files"
+    template:
+      spec:
+        nodeName: cloud.kubeedge
+        dnsPolicy: ClusterFirstWithHostNet
+        containers:
+          - image: onecheck/controller:v0.8.0
+            name:  controller
+            imagePullPolicy: IfNotPresent
+            env:  # user defined environments
+              -
+
+---
+
+apiVersion: sedna.io/v1alpha1
+kind: JointMultiEdgeService
+metadata:
+  name: distributor
+  namespace: auto-edge
+spec:
+  cloudWorker:
+    template:
+      spec:
+        nodeName: cloud.kubeedge
+        dnsPolicy: ClusterFirstWithHostNet
+        containers:
+          - image: onecheck/distributor:v0.8.0
+            name:  distributor
+            imagePullPolicy: IfNotPresent
+            env:  # user defined environments
+              -
+
+---
+
+apiVersion: sedna.io/v1alpha1
+kind: JointMultiEdgeService
+metadata:
+  name: scheduler
+  namespace: auto-edge
+spec:
+  cloudWorker:
+    file:
+      path: "/home/hx/zwh/Auto-Edge/files"
+    template:
+      spec:
+        nodeName: cloud.kubeedge
+        dnsPolicy: ClusterFirstWithHostNet
+        containers:
+          - image: onecheck/scheduler:v0.8.0
+            name:  scheduler
+            imagePullPolicy: IfNotPresent
+            env:  # user defined environments
+              -
+
+---
+
+apiVersion: sedna.io/v1alpha1
+kind: JointMultiEdgeService
+metadata:
+  name: monitor
+  namespace: auto-edge
+spec:
+  edgeWorker:
+    - logLevel:
+        level: "INFO"
+      template:
+        spec:
+          nodeName: edge1.kubeedge
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/monitor:v0.8.0
+            imagePullPolicy: IfNotPresent
+            name: monitor
+            env:
+              -
+
+    - file:
+        path: "/home/nvidia/zwh/Auto-Edge/files"
+      logLevel:
+        level: "INFO"
+      template:
+        spec:
+          nodeName: edge2
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/monitor:v0.8.0
+            imagePullPolicy: IfNotPresent
+            name: monitor
+            env:
+              -
+
+
+  cloudWorker:
+    file:
+      path: "/home/hx/zwh/Auto-Edge/files"
+    template:
+      spec:
+        nodeName: cloud.kubeedge
+        dnsPolicy: ClusterFirstWithHostNet
+        containers:
+          - image: onecheck/monitor:v0.8.0
+            name:  monitor
+            imagePullPolicy: IfNotPresent
+            env:  # user defined environments
+              -
+
+---
+
+apiVersion: sedna.io/v1alpha1
+kind: JointMultiEdgeService
+metadata:
+  name: car-detection-service
+  namespace: auto-edge
+spec:
+  edgeWorker:
+    - logLevel:
+        level: "INFO"
+      template:
+        spec:
+          nodeName: edge1.kubeedge
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/car-detection:v0.8.0
+            imagePullPolicy: IfNotPresent
+            name: car-detection
+            env:
+              -
+
+    - file:
+        path: "/home/nvidia/zwh/Auto-Edge/files"
+      logLevel:
+        level: "INFO"
+      template:
+        spec:
+          nodeName: edge2
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/car-detection:v0.8.0
+            imagePullPolicy: IfNotPresent
+            name: car-detection
+            env:
+              -
+
+
+  cloudWorker:
+    file:
+      path: "/home/hx/zwh/Auto-Edge/files"
+    template:
+      spec:
+        nodeName: cloud.kubeedge
+        dnsPolicy: ClusterFirstWithHostNet
+        containers:
+          - image: onecheck/car-detection:v0.8.0
+            name:  car-detection
+            imagePullPolicy: IfNotPresent
+            env:  # user defined environments
+              -
+
