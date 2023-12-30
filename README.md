@@ -64,11 +64,8 @@ docker buildx build --platform linux/arm64,linux/amd64 --build-arg GO_LDFLAGS=""
 
 # car-detection service
 #(amd)
-docker buildx build --platform linux/amd64 --build-arg GO_LDFLAGS="" -t onecheck/tensorrt:trt8_amd64 -f tensorrt.Dockerfile . --push
 docker buildx build --platform linux/amd64 --build-arg GO_LDFLAGS="" -t onecheck/car-detection:{tag} -f Dockerfile . --push
-
 #(arm)
-docker buildx build --platform linux/arm64 --build-arg GO_LDFLAGS="" -t onecheck/tensorrt:trt8_aarch64 -f tensorrt_arm64.Dockerfile . --push
 docker buildx build --platform linux/arm64 --build-arg GO_LDFLAGS="" -t onecheck/car-detection:{arm64-tag} -f Dockerfile . --push
 
 
