@@ -45,35 +45,40 @@ ffmpeg -re -i ./traffic2.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video2
 
 ### Docker start
 ```shell
+### docker build
 
-cd component_name
+# generator
+docker buildx build --platform linux/arm64 --build-arg GO_LDFLAGS="" -t onecheck/generator:{tag} -f Dockerfile . --push
 
-docker build -t "component_name:temp" -f ./Dockerfile .
+# controller
+docker buildx build --platform linux/arm64,linux/amd64 --build-arg GO_LDFLAGS="" -t onecheck/controller:{tag} -f Dockerfile . --push
 
-docker login --username=onecheck registry.cn-hangzhou.aliyuncs.com
+# distributor
+docker buildx build --platform linux/amd64 --build-arg GO_LDFLAGS="" -t onecheck/distributor:{tag} -f Dockerfile . --push
 
-# on cloud (x86/amd version)
-docker tag 195049bfcbcb registry.cn-hangzhou.aliyuncs.com/auto-edge/distributor:temp
-docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/distributor:temp
+# scheduler
+docker buildx build --platform linux/amd64 --build-arg GO_LDFLAGS="" -t onecheck/scheduler:{tag} -f Dockerfile . --push
 
-docker tag ee31d2e73705 registry.cn-hangzhou.aliyuncs.com/auto-edge/scheduler:temp
-docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/scheduler:temp
+# monitor
+docker buildx build --platform linux/arm64,linux/amd64 --build-arg GO_LDFLAGS="" -t onecheck/distributor:{tag} -f Dockerfile . --push
 
-docker tag 03d66074b68b registry.cn-hangzhou.aliyuncs.com/auto-edge/controller:temp
-docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/controller:temp
+# car-detection service
+#(amd)
+docker buildx build --platform linux/amd64 --build-arg GO_LDFLAGS="" -t onecheck/tensorrt:trt8_amd64 -f tensorrt.Dockerfile . --push
+docker buildx build --platform linux/amd64 --build-arg GO_LDFLAGS="" -t onecheck/car-detection:{tag} -f Dockerfile . --push
 
-docker tag 69d23d4631de registry.cn-hangzhou.aliyuncs.com/auto-edge/car-detection-service:temp
-docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/car-detection-service:temp
+#(arm)
+docker buildx build --platform linux/arm64 --build-arg GO_LDFLAGS="" -t onecheck/tensorrt:trt8_aarch64 -f tensorrt_arm64.Dockerfile . --push
+docker buildx build --platform linux/arm64 --build-arg GO_LDFLAGS="" -t onecheck/car-detection:{arm64-tag} -f Dockerfile . --push
 
-# on edge (arm version)
-docker tag 30e10b53b69e registry.cn-hangzhou.aliyuncs.com/auto-edge/generator-arm:temp
-docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/generator-arm:temp
 
-docker tag d1a8fa82decd registry.cn-hangzhou.aliyuncs.com/auto-edge/controller-arm:temp
-docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/controller-arm:temp
+### docker run
+### or docker can be deployed with docker-compose (in 'docker' folder)
+# cloud
+docker run onecheck/generator:{tag}
 
-docker tag 01890da27d39 registry.cn-hangzhou.aliyuncs.com/auto-edge/car-detection-service-arm:temp
-docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/car-detection-service-arm:temp
+#edge
+docker run --gpus all -v {code_dir}/car_detection/lib:/app/lib  onecheck/car-detection:{tag}
 
 
 ```
@@ -114,7 +119,7 @@ docker push registry.cn-hangzhou.aliyuncs.com/auto-edge/car-detection-service-ar
 - 2023.12.11 AutoEdge - v0.6.0: demo of car detection successfully test on multi-edge [multi edge, single stage]
 - 2023.12.13 AutoEdge - v0.7.0: add logger and collapse processing
 - 2023.12.17 AutoEdge - v0.8.0: add resource monitor component 
-- 2023.12.24 AutoEdge - v0.9.0: build docker image of all components 
+- 2023.12.30 AutoEdge - v0.9.0: build docker images of all components 
 
 
 ## Citing
