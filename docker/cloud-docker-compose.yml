@@ -1,0 +1,10 @@
+version: '0.9.0'
+services:
+  controller:
+    restart: never
+    image: onecheck/controller:v0.9.0
+    container_name: generator
+    privileged: true
+    ports:
+      - ""
+
