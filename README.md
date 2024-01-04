@@ -66,15 +66,22 @@ docker buildx build --platform linux/arm64,linux/amd64 --build-arg GO_LDFLAGS=""
 #(amd)
 docker buildx build --platform linux/amd64 --build-arg GO_LDFLAGS="" -t onecheck/car-detection:{tag} -f Dockerfile . --push
 #(arm)
-docker buildx build --platform linux/arm64 --build-arg GO_LDFLAGS="" -t onecheck/car-detection:{arm64-tag} -f Dockerfile . --push
+docker buildx build --platform linux/arm64 --build-arg GO_LDFLAGS="" -t onecheck/car-detection:arm64-{tag} -f Dockerfile . --push
 
 
 ### docker run
 ### or docker can be deployed with docker-compose (in 'docker' folder)
 # cloud
-docker run onecheck/generator:{tag}
+docker run onecheck/controller:{tag}
+docker run onecheck/distributor:{tag}
+docker run onecheck/scheduler:{tag}
+docker run onecheck/monitor:{tag}
+docker run --gpus all -v {code_dir}/car_detection/lib:/app/lib  onecheck/car-detection:{tag}
 
 #edge
+docker run onecheck/controller:{tag}
+docker run onecheck/monitor:{tag}
+docker run onecheck/generator:{tag}
 docker run --gpus all -v {code_dir}/car_detection/lib:/app/lib  onecheck/car-detection:{tag}
 
 
@@ -83,6 +90,7 @@ docker run --gpus all -v {code_dir}/car_detection/lib:/app/lib  onecheck/car-det
 ### KubeEdge start 
 (**recommend**)
 ```shell
+### yaml files can be found in 'templates' folder
 
 ```
 
