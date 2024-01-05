@@ -45,7 +45,7 @@ ffmpeg -re -i ./traffic2.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video2
 
 ### Docker start
 ```shell
-### docker build
+### docker build (docker buildx on x86 platform)
 
 # generator
 docker buildx build --platform linux/arm64 --build-arg GO_LDFLAGS="" -t onecheck/generator:{tag} -f Dockerfile . --push
@@ -124,7 +124,7 @@ docker run --gpus all -v {code_dir}/car_detection/lib:/app/lib  onecheck/car-det
 - 2023.12.11 AutoEdge - v0.6.0: demo of car detection successfully test on multi-edge [multi edge, single stage]
 - 2023.12.13 AutoEdge - v0.7.0: add logger and collapse processing
 - 2023.12.17 AutoEdge - v0.8.0: add resource monitor component 
-- 2023.12.30 AutoEdge - v0.9.0: build docker images of all components 
+- 2024.01.06 AutoEdge - v0.9.0: build docker images of all components 
 
 
 ## Citing
