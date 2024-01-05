@@ -10,3 +10,8 @@ services:
     environment:
     volumes:
       -
+  distributor:
+  scheduler:
+  monitor:
+  car-detection:
+

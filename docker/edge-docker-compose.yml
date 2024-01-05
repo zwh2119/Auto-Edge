@@ -1,0 +1,7 @@
+version: '0.9.0'
+services:
+  controller:
+  generator:
+  car-detection:
+  monitor:
+
