@@ -98,7 +98,7 @@ build_image() {
     local platform=$2
     local dockerfile=$3
     local tag_suffix=$4  # May be empty
-    local image_tag="${REPO}/${image}${tag_suffix}:${TAG}"
+    local image_tag="${REPO}/${image}:${tag_suffix}${TAG}"
     echo "Building image: $image_tag on platform: $platform using Dockerfile: $dockerfile"
     docker buildx build --platform "$platform" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" . --push
 }
@@ -116,7 +116,7 @@ if [ -n "$SELECTED_FILES" ]; then
                     local platform="${DETAILS[0]}"
                     local dockerfile="${DETAILS[1]}"
                     local tag_suffix=""
-                    [[ $platform == "linux/arm64" ]] && tag_suffix="-arm64"
+                    [[ $platform == "linux/arm64" ]] && tag_suffix="arm64-"
                     build_image $image $platform $dockerfile $tag_suffix
                 done
             else
@@ -136,7 +136,7 @@ else
                 local platform="${DETAILS[0]}"
                 local dockerfile="${DETAILS[1]}"
                 local tag_suffix=""
-                [[ $platform == "linux/arm64" ]] && tag_suffix="-arm64"
+                [[ $platform == "linux/arm64" ]] && tag_suffix="arm64-"
                 build_image $image $platform $dockerfile $tag_suffix
             done
         else
