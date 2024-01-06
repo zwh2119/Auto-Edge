@@ -3,7 +3,7 @@
 # Function: Display help information
 show_help() {
 cat << EOF
-Usage: ${0##*/} [--files [generator,distributor,controller,monitor,scheduler,car-detection...]] [--tag TAG] [--repo REPO] [--help]
+Usage: ${0##*/} [--files [generator,distributor,controller,monitor,scheduler,car-detection...]] [--tag TAG] [--repo REPO] [--no-cache] [--help]
 
 --files        Specify the images to build, separated by commas. Options include:
                generator
@@ -15,6 +15,7 @@ Usage: ${0##*/} [--files [generator,distributor,controller,monitor,scheduler,car
                Default is to select all.
 --tag          Specify the version tag for the Docker images. Default is "v1.0.0".
 --repo         Specify the repository for the Docker images. Default is "onecheck".
+--no-cache     Build the Docker images without using cache.
 --help         Display this help message and exit.
 EOF
 }
@@ -48,6 +49,7 @@ declare -A SPECIAL_BUILD=(
 SELECTED_FILES=""
 TAG="v1.0.0"  # Default tag
 REPO="onecheck"  # Default repository
+NO_CACHE=false  # Default is to use cache
 
 # Parse command line arguments
 while :; do
@@ -83,6 +85,9 @@ while :; do
                 exit 1
             fi
             ;;
+        --no-cache)
+            NO_CACHE=true
+            ;;
         --)              # End of options
             shift
             break
@@ -98,10 +103,17 @@ build_image() {
     local platform=$2
     local dockerfile=$3
     local tag_suffix=$4  # May be empty
+    local cache_option=$5  # --no-cache or empty
     local image_tag="${REPO}/${image}:${tag_suffix}${TAG}"
-    echo "Building image: $image_tag on platform: $platform using Dockerfile: $dockerfile"
-    docker buildx build --platform "$platform" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" . --push
+    echo "Building image: $image_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
+    docker buildx build $cache_option --platform "$platform" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" . --push
 }
+
+# Determine if --no-cache should be used
+CACHE_OPTION=""
+if [ "$NO_CACHE" = true ] ; then
+    CACHE_OPTION="--no-cache"
+fi
 
 # Compile Docker images based on --files argument and specified platforms
 if [ -n "$SELECTED_FILES" ]; then
@@ -117,10 +129,10 @@ if [ -n "$SELECTED_FILES" ]; then
                     local dockerfile="${DETAILS[1]}"
                     local tag_suffix=""
                     [[ $platform == "linux/arm64" ]] && tag_suffix="arm64-"
-                    build_image $image $platform $dockerfile $tag_suffix
+                    build_image $image $platform $dockerfile $tag_suffix $CACHE_OPTION
                 done
             else
-                build_image $image "${PLATFORMS[$image]}" "${DOCKERFILES[$image]}" ""
+                build_image $image "${PLATFORMS[$image]}" "${DOCKERFILES[$image]}" "" $CACHE_OPTION
             fi
         else
             echo "Unknown image or platform not specified: $image"
@@ -137,10 +149,10 @@ else
                 local dockerfile="${DETAILS[1]}"
                 local tag_suffix=""
                 [[ $platform == "linux/arm64" ]] && tag_suffix="arm64-"
-                build_image $image $platform $dockerfile $tag_suffix
+                build_image $image $platform $dockerfile $tag_suffix $CACHE_OPTION
             done
         else
-            build_image $image "${PLATFORMS[$image]}" "${DOCKERFILES[$image]}" ""
+            build_image $image "${PLATFORMS[$image]}" "${DOCKERFILES[$image]}" "" $CACHE_OPTION
         fi
     done
 fi
