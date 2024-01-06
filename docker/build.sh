@@ -105,8 +105,10 @@ build_image() {
     local tag_suffix=$4  # May be empty
     local cache_option=$5  # --no-cache or empty
     local image_tag="${REPO}/${image}:${tag_suffix}${TAG}"
+    local context_dir=$(dirname "$dockerfile")  # Get the directory of the Dockerfile
+
     echo "Building image: $image_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
-    docker buildx build $cache_option --platform "$platform" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" . --push
+    docker buildx build $cache_option --platform "$platform" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" --push
 }
 
 # Determine if --no-cache should be used
