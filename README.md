@@ -72,17 +72,17 @@ docker buildx build --platform linux/arm64 --build-arg GO_LDFLAGS="" -t onecheck
 ### docker run
 ### or docker can be deployed with docker-compose (in 'docker' folder)
 # cloud
-docker run onecheck/controller:{tag}
-docker run onecheck/distributor:{tag}
-docker run onecheck/scheduler:{tag}
+docker run onecheck/controller:{tag} -p 9200
+docker run onecheck/distributor:{tag} -p 9500
+docker run onecheck/scheduler:{tag} -p 9400
 docker run onecheck/monitor:{tag}
-docker run --gpus all -v {code_dir}/car_detection/lib:/app/lib  onecheck/car-detection:{tag}
+docker run --gpus all -v {code_dir}/car_detection/lib:/app/lib -p 9001  onecheck/car-detection:{tag}
 
 #edge
-docker run onecheck/controller:{tag}
+docker run onecheck/controller:{tag} -p 9200
 docker run onecheck/monitor:{tag}
 docker run onecheck/generator:{tag}
-docker run --gpus all -v {code_dir}/car_detection/lib:/app/lib  onecheck/car-detection:{tag}
+docker run --gpus all -v {code_dir}/car_detection/lib:/app/lib -p 9001  onecheck/car-detection:{tag}
 
 
 ```
