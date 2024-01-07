@@ -4,15 +4,24 @@
     <img src="pic/logo.png" alt="logo" width="120">
 </center>
 
+[toc]
+
 ## Brief Introduction
 
 
 Auto-Edge is an automated scheduling platform for edge computing. it's developed based on KubeEdge.
 
 
-## Quick Start
+## Features
 
-there are three ways to start Auto-Edge system: python start (start from python source code), docker start (start from compiled docker), KubEdge start (start with KubeEdge system deployment).
+Auto-Edge has the following features:
+
+## Architecture
+
+
+## Guides
+
+There are three ways to start Auto-Edge system: python start (start from python source code), docker start (start from compiled docker), KubEdge start (start with KubeEdge system deployment).
 
 ### Python start 
 (**for debug only, already been deprecated!**)
