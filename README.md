@@ -11,65 +11,23 @@ Auto-Edge is an automated scheduling platform for edge computing. it's developed
 
 
 ## Quick Start
+
+there are three ways to start Auto-Edge system: python start (start from python source code), docker start (start from compiled docker), KubEdge start (start with KubeEdge system deployment).
+
 ### Python start 
-(**for debug only**)
-
-```shell
-
-# cloud
-gunicorn controller_server:app -w 4 -k uvicorn.workers.UvicornWorker --log-level debug --bind 0.0.0.0:9002
-
-
-gunicorn distributor_server:app -w 1 -k uvicorn.workers.UvicornWorker --log-level debug --bind 0.0.0.0:5713
-
-
-gunicorn service_server:app -w 4 -k uvicorn.workers.UvicornWorker --log-level debug --bind 0.0.0.0:9001
-
-
-# edge
-python3 generator_server.py
-
-gunicorn controller_server:app -w 2 -k uvicorn.workers.UvicornWorker --log-level debug --bind 0.0.0.0:9002
-
-
-gunicorn service_server:app -w 1 -k uvicorn.workers.UvicornWorker --log-level debug --bind 0.0.0.0:9001 --timeout 60
-
-
-# video rtsp
-ffmpeg -re -i ./traffic0.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video0
-
-ffmpeg -re -i ./traffic1.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video1
-
-ffmpeg -re -i ./traffic2.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video2
-```
+(**for debug only, already been deprecated!**)
 
 ### Docker start
+#### docker build
+1. install docker buildx on x86 platform ([instruction](instructions/buildx.md))
+2. build docker with script
 ```shell
-### docker build (docker buildx on x86 platform)
+bash docker/build.sh
+```
+more args of docker building script can be found with --help 
 
-# generator
-docker buildx build --platform linux/arm64 --build-arg GO_LDFLAGS="" -t onecheck/generator:{tag} -f Dockerfile . --push
-
-# controller
-docker buildx build --platform linux/arm64,linux/amd64 --build-arg GO_LDFLAGS="" -t onecheck/controller:{tag} -f Dockerfile . --push
-
-# distributor
-docker buildx build --platform linux/amd64 --build-arg GO_LDFLAGS="" -t onecheck/distributor:{tag} -f Dockerfile . --push
-
-# scheduler
-docker buildx build --platform linux/amd64 --build-arg GO_LDFLAGS="" -t onecheck/scheduler:{tag} -f Dockerfile . --push
-
-# monitor
-docker buildx build --platform linux/arm64,linux/amd64 --build-arg GO_LDFLAGS="" -t onecheck/distributor:{tag} -f Dockerfile . --push
-
-# car-detection service
-#(amd)
-docker buildx build --platform linux/amd64 --build-arg GO_LDFLAGS="" -t onecheck/car-detection:{tag} -f Dockerfile . --push
-#(arm)
-docker buildx build --platform linux/arm64 --build-arg GO_LDFLAGS="" -t onecheck/car-detection:arm64-{tag} -f Dockerfile . --push
-
-
-### docker run
+#### docker run
+```shell
 ### or docker can be deployed with docker-compose (in 'docker' folder)
 # cloud
 docker run onecheck/controller:{tag} -p 9200
@@ -92,6 +50,16 @@ docker run --gpus all -v {code_dir}/car_detection/lib:/app/lib -p 9001  onecheck
 ```shell
 ### yaml files can be found in 'templates' folder
 
+```
+
+### RTSP video 
+```shell
+# video rtsp
+ffmpeg -re -i ./traffic0.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video0
+
+ffmpeg -re -i ./traffic1.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video1
+
+ffmpeg -re -i ./traffic2.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video2
 ```
 
 ## Related Framework
@@ -127,4 +95,4 @@ docker run --gpus all -v {code_dir}/car_detection/lib:/app/lib -p 9001  onecheck
 - 2024.01.06 AutoEdge - v0.9.0: build docker images of all components 
 
 
-## Citing
+## Citation
