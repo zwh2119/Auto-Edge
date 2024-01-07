@@ -4,8 +4,6 @@
     <img src="pic/logo.png" alt="logo" width="120">
 </center>
 
-[toc]
-
 ## Brief Introduction
 
 
