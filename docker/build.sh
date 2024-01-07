@@ -102,8 +102,8 @@ build_image() {
     local image=$1
     local platform=$2
     local dockerfile=$3
-    local tag_suffix=${4:-}  # May be empty
-    local cache_option=${5:-}  # --no-cache or empty
+    local tag_suffix=$4  # May be empty
+    local cache_option=$5  # --no-cache or empty
     local image_tag="${REPO}/${image}:${tag_suffix}${TAG}"
     local context_dir=$(dirname "$dockerfile")  # Get the directory of the Dockerfile
 
@@ -131,10 +131,10 @@ if [ -n "$SELECTED_FILES" ]; then
                     dockerfile="${DETAILS[1]}"
                     tag_suffix=""
                     [[ $platform == "linux/arm64" ]] && tag_suffix="arm64-"
-                    build_image $image $platform $dockerfile $tag_suffix $CACHE_OPTION
+                    build_image "$image" "$platform" "$dockerfile" "$tag_suffix" "$CACHE_OPTION"
                 done
             else
-                build_image $image "${PLATFORMS[$image]}" "${DOCKERFILES[$image]}" "" $CACHE_OPTION
+                build_image "$image" "${PLATFORMS[$image]}" "${DOCKERFILES[$image]}" "" "$CACHE_OPTION"
             fi
         else
             echo "Unknown image or platform not specified: $image"
@@ -151,10 +151,10 @@ else
                 dockerfile="${DETAILS[1]}"
                 tag_suffix=""
                 [[ $platform == "linux/arm64" ]] && tag_suffix="arm64-"
-                build_image $image $platform $dockerfile $tag_suffix $CACHE_OPTION
+                build_image "$image" "$platform" "$dockerfile" "$tag_suffix" "$CACHE_OPTION"
             done
         else
-            build_image $image "${PLATFORMS[$image]}" "${DOCKERFILES[$image]}" "" $CACHE_OPTION
+            build_image "$image" "${PLATFORMS[$image]}" "${DOCKERFILES[$image]}" "" "$CACHE_OPTION"
         fi
     done
 fi
