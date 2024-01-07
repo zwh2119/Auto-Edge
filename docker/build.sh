@@ -127,9 +127,9 @@ if [ -n "$SELECTED_FILES" ]; then
                 IFS=',' read -ra SPECIAL_PLATFORMS <<< "${SPECIAL_BUILD[$image]}"
                 for entry in "${SPECIAL_PLATFORMS[@]}"; do
                     IFS=':' read -ra DETAILS <<< "$entry"
-                    local platform="${DETAILS[0]}"
-                    local dockerfile="${DETAILS[1]}"
-                    local tag_suffix=""
+                    platform="${DETAILS[0]}"
+                    dockerfile="${DETAILS[1]}"
+                    tag_suffix=""
                     [[ $platform == "linux/arm64" ]] && tag_suffix="arm64-"
                     build_image $image $platform $dockerfile $tag_suffix $CACHE_OPTION
                 done
@@ -147,9 +147,9 @@ else
             IFS=',' read -ra SPECIAL_PLATFORMS <<< "${SPECIAL_BUILD[$image]}"
             for entry in "${SPECIAL_PLATFORMS[@]}"; do
                 IFS=':' read -ra DETAILS <<< "$entry"
-                local platform="${DETAILS[0]}"
-                local dockerfile="${DETAILS[1]}"
-                local tag_suffix=""
+                platform="${DETAILS[0]}"
+                dockerfile="${DETAILS[1]}"
+                tag_suffix=""
                 [[ $platform == "linux/arm64" ]] && tag_suffix="arm64-"
                 build_image $image $platform $dockerfile $tag_suffix $CACHE_OPTION
             done
