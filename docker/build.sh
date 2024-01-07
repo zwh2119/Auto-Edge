@@ -108,7 +108,12 @@ build_image() {
     local context_dir=$(dirname "$dockerfile")  # Get the directory of the Dockerfile
 
     echo "Building image: $image_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
-    docker buildx build  --platform "$platform" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
+
+    if [ -z "$cache_option" ]; then
+        docker buildx build --platform "$platform" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" --push
+    else
+        docker buildx build  --platform "$platform" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
+    fi
 }
 
 # Determine if --no-cache should be used
