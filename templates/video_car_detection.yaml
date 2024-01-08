@@ -19,9 +19,9 @@ spec:
             name: generator
             env:
               - name: scheduler_port
-                value: 39400
+                value: "39400"
               - name: controller_port
-                value: 39200
+                value: "39200"
               - name: scheduler_name
                 value: cloud.kubeedge
     - file:
@@ -38,9 +38,9 @@ spec:
               name: generator
               env:
                 - name: scheduler_port
-                  value: 39400
+                  value: "39400"
                 - name: controller_port
-                  value: 39200
+                  value: "39200"
                 - name: scheduler_name
                   value: cloud.kubeedge
 ---
