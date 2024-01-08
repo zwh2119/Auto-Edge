@@ -14,7 +14,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/generator:v0.9.0
+          - image: onecheck/generator:v1.0.0
             imagePullPolicy: IfNotPresent
             name: generator
             env:
@@ -33,7 +33,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-            - image: onecheck/generator:v0.9.0
+            - image: onecheck/generator:v1.0.0
               imagePullPolicy: IfNotPresent
               name: generator
               env:
@@ -59,7 +59,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/controller:v0.9.0
+          - image: onecheck/controller:v1.0.0
             imagePullPolicy: IfNotPresent
             name: controller
             env:
@@ -79,7 +79,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/controller:v0.9.0
+          - image: onecheck/controller:v1.0.0
             imagePullPolicy: IfNotPresent
             name: controller
             env:
@@ -98,7 +98,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/controller:v0.9.0
+          - image: onecheck/controller:v1.0.0
             name:  controller
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
@@ -126,7 +126,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/distributor:v0.9.0
+          - image: onecheck/distributor:v1.0.0
             name:  distributor
             imagePullPolicy: IfNotPresent
             env: # user defined environments
@@ -165,7 +165,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/scheduler:v0.9.0
+          - image: onecheck/scheduler:v1.0.0
             name:  scheduler
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
@@ -193,7 +193,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/monitor:v0.9.0
+          - image: onecheck/monitor:v1.0.0
             imagePullPolicy: IfNotPresent
             name: monitor
             env:
@@ -218,7 +218,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/monitor:v0.9.0
+          - image: onecheck/monitor:v1.0.0
             imagePullPolicy: IfNotPresent
             name: monitor
             env:
@@ -242,7 +242,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/monitor:v0.9.0
+          - image: onecheck/monitor:v1.0.0
             name:  monitor
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
@@ -277,7 +277,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:v0.9.0
+          - image: onecheck/car-detection:v1.0.0
             imagePullPolicy: IfNotPresent
             name: car-detection
             ports:
@@ -292,7 +292,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:v0.9.0
+          - image: onecheck/car-detection:v1.0.0
             imagePullPolicy: IfNotPresent
             name: car-detection
             ports:
@@ -306,7 +306,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/car-detection:v0.9.0
+          - image: onecheck/car-detection:v1.0.0
             name:  car-detection
             imagePullPolicy: IfNotPresent
             ports:
