@@ -19,13 +19,12 @@ Auto-Edge has the following features:
 
 ## Guides
 
-There are three ways to start Auto-Edge system: python start (start from python source code), docker start (start from compiled docker), KubEdge start (start with KubeEdge system deployment).
+### build environment on cloud and edge devices
+1. deploy Kubernetes on cloud device
+2. deploy KubeEdge on cloud and edge devices
+3. deploy Sedna (modified version) on cloud and edge devices
 
-### Python start 
-(**for debug only, already been deprecated!**)
-
-### Docker start
-#### docker build
+### build docker images of Auto-Edge components
 1. install docker buildx on x86 platform ([instruction](instructions/buildx.md))
 2. build docker with script
 ```shell
@@ -33,27 +32,10 @@ bash docker/build.sh
 ```
 more args of docker building script can be found with --help 
 
-#### docker run
-```shell
-### or docker can be deployed with docker-compose (in 'docker' folder)
-# cloud
-docker run onecheck/controller:{tag} -p 9200
-docker run onecheck/distributor:{tag} -p 9500
-docker run onecheck/scheduler:{tag} -p 9400
-docker run onecheck/monitor:{tag}
-docker run --gpus all -v {code_dir}/car_detection/lib:/app/lib -p 9001  onecheck/car-detection:{tag}
-
-#edge
-docker run onecheck/controller:{tag} -p 9200
-docker run onecheck/monitor:{tag}
-docker run onecheck/generator:{tag}
-docker run --gpus all -v {code_dir}/car_detection/lib:/app/lib -p 9001  onecheck/car-detection:{tag}
+up-to-date images has been built on [dockerhub](https://hub.docker.com/u/onecheck).
 
 
-```
-
-### KubeEdge start 
-(**recommend**)
+### start Auto-Edge system on KubeEdge
 ```shell
 ### yaml files can be found in 'templates' folder
 kubectl apply -f <file-name>
@@ -66,7 +48,7 @@ kubectl describe pod <pod-name>
 
 ```
 
-### RTSP video 
+### start rtsp video stream
 ```shell
 # video rtsp
 ffmpeg -re -i ./traffic0.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video0
@@ -84,14 +66,12 @@ ffmpeg -re -i ./traffic2.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video2
 - [TensorRT](https://developer.nvidia.com/tensorrt)
 
 ## Components
-- [data generator](https://github.com/zwh2119/data-generator)
-- [data distributor](https://github.com/zwh2119/data-distributor)
-- data aggregator (**deprecated**)
+- [generator](https://github.com/zwh2119/data-generator)
+- [distributor](https://github.com/zwh2119/data-distributor)
 - [service processor](https://github.com/zwh2119/car-detection)
 - [scheduler](https://github.com/zwh2119/application-scheduler)
-- [edge controller](https://github.com/zwh2119/edge-controller) (**use as controller**)
-- cloud controller (**deprecated**)
-- [resource monitor](https://github.com/zwh2119/resource-monitor)
+- [controller](https://github.com/zwh2119/edge-controller)
+- [monitor](https://github.com/zwh2119/resource-monitor)
 
 ## Deployment Device
 - Cloud: NVIDIA GeForce RTX 3090 *4
