@@ -25,6 +25,6 @@
 [submodule "pose_estimator"]
 	path = pose_estimator
 	url = https://github.com/zwh2119/pose-estimator.git
-[submodule "resource_monitor"]
-	path = resource_monitor
+[submodule "monitor"]
+	path = monitor
 	url = https://github.com/zwh2119/resource-monitor.git
