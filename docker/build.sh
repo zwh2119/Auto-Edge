@@ -23,10 +23,10 @@ EOF
 # Default Dockerfiles and their platforms
 declare -A DOCKERFILES=(
     [generator]="generator/Dockerfile"
-    [distributor]="data-distributor/Dockerfile"
-    [controller]="edge_controller/Dockerfile"
-    [monitor]="resource_monitor/Dockerfile"
-    [scheduler]="app_schedule/Dockerfile"
+    [distributor]="distributor/Dockerfile"
+    [controller]="controller/Dockerfile"
+    [monitor]="monitor/Dockerfile"
+    [scheduler]="scheduler/Dockerfile"
     [car-detection]="car_detection/Dockerfile"
 )
 
