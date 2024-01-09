@@ -50,7 +50,7 @@ def print_result(result):
             if ip in addr:
                 if i != 0:
                     execute_device += ','
-                execute_device += device['ip']
+                execute_device += device[ip]
                 break
 
     print(PrintColors.RED + f'[source:{result["source"]} task:{result["task"]}] ' + PrintColors.END, end='')
@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     time_slot = 0
     request_size = 10
-    url = 'http://114.212.81.11:9500/result'
+    url = 'http://114.212.81.11:39500/result'
     while True:
         time.sleep(1)
         res = http_request(url, json={'time_ticket': time_slot, "size": request_size})
