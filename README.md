@@ -56,6 +56,13 @@ docker run --gpus all -v {code_dir}/car_detection/lib:/app/lib -p 9001  onecheck
 (**recommend**)
 ```shell
 ### yaml files can be found in 'templates' folder
+kubectl apply -f <file-name>
+
+kubectl get pods -n <namespace-name>
+
+kubectl logs <pod-name>
+
+kubectl describe pod <pod-name>
 
 ```
 
