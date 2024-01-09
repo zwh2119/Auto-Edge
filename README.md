@@ -35,28 +35,64 @@ more args of docker building script can be found with --help
 up-to-date images has been built on [dockerhub](https://hub.docker.com/u/onecheck).
 
 
+### deploy necessary files on cloud and edge
+Some customized files needed to be deployed on devices previously. Corresponding paths need to be filled in yaml files of templates
+
+file structure:
+```
+cloud device:
+- {code_dir}/files
+  - schedule_config.yaml
+- {code_dir}/model_lib
+  - libmyplugins.so
+  - yolov5s.engine
+
+edge device:
+- {code_dir}/files
+  - video_config.yaml
+- {code_dir}/model_lib
+  - libmyplugins.so
+  - yolov5s.engine
+```
+model_lib folder contains files for service inference, and it differs among different services.(current is for car-detection)
+
 ### start Auto-Edge system on KubeEdge
+start system with yaml files (eg:[video_car_detection.yaml](templates/video_car_detection.yaml))
 ```shell
-### yaml files can be found in 'templates' folder
+# yaml files can be found in 'templates' folder
 kubectl apply -f <file-name>
+```
 
+find pods of system, default namespace is 'auto-edge'.
+```shell
 kubectl get pods -n <namespace-name>
+```
 
+query the log of pods.
+```shell
 kubectl logs <pod-name>
+```
 
+describe resource for pods.
+```shell
 kubectl describe pod <pod-name>
 
 ```
 
 ### start rtsp video stream
 ```shell
-# video rtsp
+# multiple video stream binding to different edge
 ffmpeg -re -i ./traffic0.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video0
-
 ffmpeg -re -i ./traffic1.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video1
-
 ffmpeg -re -i ./traffic2.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video2
 ```
+
+### collect result from Auto-Edge
+```shell
+python tools/result_collector.py
+```
+
+or you can mount the data record folder in distributor to volume on physical device
 
 ## Related Framework
 - [docker container](https://github.com/docker/docker-ce)
@@ -76,6 +112,10 @@ ffmpeg -re -i ./traffic2.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video2
 ## Deployment Device
 - Cloud: NVIDIA GeForce RTX 3090 *4
 - Edge: NVIDIA Jetson TX2
+
+## Supported Service Pipeline
+- Car Detection: [detection]
+- Classroom Detection: [face detection, pose estimation] (not completely support now)
 
 ## Development Version
 - 2023.11.25 AutoEdge - v0.1.0: demo of car detection (without scheduler) test successfully [single edge, single stage]
