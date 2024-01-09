@@ -22,3 +22,6 @@
 [submodule "monitor"]
 	path = monitor
 	url = https://github.com/zwh2119/resource-monitor.git
+[submodule "sedna"]
+	path = sedna
+	url = https://github.com/AdaYangOlzz/sedna-modified.git
