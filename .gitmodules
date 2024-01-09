@@ -4,18 +4,12 @@
 [submodule "scheduler"]
 	path = scheduler
 	url = https://github.com/zwh2119/application-scheduler.git
-[submodule "aggregator"]
-	path = aggregator
-	url = https://github.com/zwh2119/data-aggregator.git
 [submodule "generator"]
 	path = generator
 	url = https://github.com/zwh2119/data-generator.git
 [submodule "controller"]
 	path = controller
 	url = https://github.com/zwh2119/edge-controller.git
-[submodule "cloud_controller"]
-	path = cloud_controller
-	url = https://github.com/zwh2119/cloud-controller.git
 [submodule "distributor"]
 	path = distributor
 	url = https://github.com/zwh2119/data-distributor.git
