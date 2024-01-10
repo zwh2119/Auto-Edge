@@ -1,27 +1,3 @@
-[submodule "car_detection"]
-	path = car_detection
-	url = https://github.com/zwh2119/car-detection.git
-[submodule "scheduler"]
-	path = scheduler
-	url = https://github.com/zwh2119/application-scheduler.git
-[submodule "generator"]
-	path = generator
-	url = https://github.com/zwh2119/data-generator.git
-[submodule "controller"]
-	path = controller
-	url = https://github.com/zwh2119/edge-controller.git
-[submodule "distributor"]
-	path = distributor
-	url = https://github.com/zwh2119/data-distributor.git
-[submodule "face_detection"]
-	path = face_detection
-	url = https://github.com/zwh2119/face-detection.git
-[submodule "pose_estimator"]
-	path = pose_estimator
-	url = https://github.com/zwh2119/pose-estimator.git
-[submodule "monitor"]
-	path = monitor
-	url = https://github.com/zwh2119/resource-monitor.git
 [submodule "sedna"]
 	path = sedna
 	url = https://github.com/AdaYangOlzz/sedna-modified.git
