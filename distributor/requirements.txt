@@ -1,0 +1,9 @@
+fastapi
+starlette
+uvicorn
+gunicorn
+numpy
+python-multipart
+colorlog
+requests
+kubernetes==20.11.0a1
