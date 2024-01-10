@@ -13,11 +13,13 @@ Auto-Edge is an automated scheduling platform for edge computing. it's developed
 ## Features
 
 Auto-Edge has the following features:
+- 
 
 ## Architecture
 
 
 ## Guides
+
 
 ### build environment on cloud and edge devices
 1. deploy Kubernetes on cloud device
@@ -30,7 +32,7 @@ Auto-Edge has the following features:
 ```shell
 bash docker/build.sh
 ```
-more args of docker building script can be found with --help 
+more args of docker building script can be found with `--help`
 
 up-to-date images has been built on [dockerhub](https://hub.docker.com/u/onecheck).
 
@@ -54,16 +56,21 @@ edge device:
   - libmyplugins.so
   - yolov5s.engine
 ```
-model_lib folder contains files for service inference, and it differs among different services.(current is for car-detection)
+'model_lib' folder contains files for service inference, and it differs among different services.(current is for car-detection)
+
+### delete former pods of Auto-Edge
+```shell
+bash docker/delete.sh
+```
 
 ### start Auto-Edge system on KubeEdge
 start system with yaml files (eg:[video_car_detection.yaml](templates/video_car_detection.yaml))
 ```shell
-# yaml files can be found in 'templates' folder
+# yaml files can be found in `templates` folder
 kubectl apply -f <file-name>
 ```
 
-find pods of system, default namespace is 'auto-edge'.
+find pods of system, default namespace is  `auto-edge`.
 ```shell
 kubectl get pods -n <namespace-name>
 ```
@@ -114,19 +121,19 @@ or you can mount the data record folder in distributor to volume on physical dev
 - Edge: NVIDIA Jetson TX2
 
 ## Supported Service Pipeline
-- Car Detection: [detection]
-- Classroom Detection: [face detection, pose estimation] (not completely support now)
+- `Car Detection`: [detection]
+- `Class Detection`: [face detection, pose estimation] (not completely support now)
 
 ## Development Version
-- 2023.11.25 AutoEdge - v0.1.0: demo of car detection (without scheduler) test successfully [single edge, single stage]
-- 2023.11.30 AutoEdge - v0.2.0: demo of car detection (with scheduler) test successfully [single edge, single stage]
-- 2023.12.02 AutoEdge - v0.3.0: build docker image of all components for car detection demo
-- 2023.12.04 AutoEdge - v0.4.0: demo of classroom detection (with scheduler) test successfully [single edge, multi stage]
-- 2023.12.11 AutoEdge - v0.5.0: service of car detection has been transformed by TensorRT 
-- 2023.12.11 AutoEdge - v0.6.0: demo of car detection successfully test on multi-edge [multi edge, single stage]
-- 2023.12.13 AutoEdge - v0.7.0: add logger and collapse processing
-- 2023.12.17 AutoEdge - v0.8.0: add resource monitor component 
-- 2024.01.06 AutoEdge - v0.9.0: build docker images of all components 
-
+- 2023.11.25 `AutoEdge` - `v0.1.0`: demo of car detection (without scheduler) test successfully [single edge, single stage]
+- 2023.11.30 `AutoEdge` - `v0.2.0`: demo of car detection (with scheduler) test successfully [single edge, single stage]
+- 2023.12.02 `AutoEdge` - `v0.3.0`: build docker image of all components for car detection demo
+- 2023.12.04 `AutoEdge` - `v0.4.0`: demo of classroom detection (with scheduler) test successfully [single edge, multi stage]
+- 2023.12.11 `AutoEdge` - `v0.5.0`: service of car detection has been transformed by TensorRT 
+- 2023.12.11 `AutoEdge` - `v0.6.0`: demo of car detection successfully test on multi-edge [multi edge, single stage]
+- 2023.12.13 `AutoEdge` - `v0.7.0`: add logger and collapse processing
+- 2023.12.17 `AutoEdge` - `v0.8.0`: add resource monitor component 
+- 2024.01.06 `AutoEdge` - `v0.9.0`: build docker images of all components 
+- 2024.01.11 `AutoEdge` - `v1.0.0`: complete the first formal version of Auto-Edge
 
 ## Citation

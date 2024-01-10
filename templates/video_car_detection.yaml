@@ -52,9 +52,7 @@ metadata:
   namespace: auto-edge
 spec:
   edgeWorker:
-    - file:
-        path: "/home/nvidia/zwh/Auto-Edge/files"
-      logLevel:
+    - logLevel:
         level: "DEBUG"
       template:
         spec:
@@ -74,9 +72,7 @@ spec:
             ports:
               - containerPort: 9200
                 hostPort: 39200
-    - file:
-        path: "/home/nvidia/zwh/Auto-Edge/files"
-      logLevel:
+    - logLevel:
         level: "DEBUG"
       template:
         spec:
@@ -97,8 +93,6 @@ spec:
               - containerPort: 9200
                 hostPort: 39200
   cloudWorker:
-    file:
-      path: "/home/hx/zwh/Auto-Edge/files"
     template:
       spec:
         nodeName: cloud.kubeedge
@@ -127,8 +121,6 @@ metadata:
   namespace: auto-edge
 spec:
   cloudWorker:
-    file:
-      path: "/home/hx/zwh/Auto-Edge/files"
     template:
       spec:
         nodeName: cloud.kubeedge
@@ -186,9 +178,7 @@ metadata:
   namespace: auto-edge
 spec:
   edgeWorker:
-    - file:
-        path: "/home/nvidia/zwh/Auto-Edge/files"
-      logLevel:
+    - logLevel:
         level: "DEBUG"
       template:
         spec:
@@ -211,9 +201,7 @@ spec:
                 value: cloud.kubeedge
               - name: scheduler_port
                 value: "39400"
-    - file:
-        path: "/home/nvidia/zwh/Auto-Edge/files"
-      logLevel:
+    - logLevel:
         level: "DEBUG"
       template:
         spec:
@@ -237,8 +225,6 @@ spec:
               - name: scheduler_port
                 value: "39400"
   cloudWorker:
-    file:
-      path: "/home/hx/zwh/Auto-Edge/files"
     template:
       spec:
         nodeName: cloud.kubeedge
