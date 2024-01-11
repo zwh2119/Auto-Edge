@@ -10,13 +10,8 @@
 Auto-Edge is an automated scheduling platform for edge computing. it's developed based on KubeEdge.
 
 
-## Features
-
-Auto-Edge has the following features:
-- 
-
 ## Architecture
-
+![](pic/structure.png)
 
 ## Guides
 
@@ -38,7 +33,7 @@ up-to-date images has been built on [dockerhub](https://hub.docker.com/u/onechec
 
 
 ### deploy necessary files on cloud and edge
-Some customized files needed to be deployed on devices previously. Corresponding paths need to be filled in yaml files of templates
+Some customized files needed to be deployed on devices previously and corresponding paths need to be filled in yaml files.
 
 file structure:
 ```
@@ -56,7 +51,9 @@ edge device:
   - libmyplugins.so
   - yolov5s.engine
 ```
-'model_lib' folder contains files for service inference, and it differs among different services.(current is for car-detection)
+The 'model_lib' folder contains files for service inference, and it differs among different services.(current is for car-detection).
+
+The template deploying files can be found in [shared link](https://box.nju.edu.cn/d/1c26b20dc733474c9a6b/)
 
 ### delete former pods of Auto-Edge
 ```shell
@@ -115,6 +112,7 @@ or you can mount the data record folder in distributor to volume on physical dev
 - [scheduler](https://github.com/zwh2119/application-scheduler)
 - [controller](https://github.com/zwh2119/edge-controller)
 - [monitor](https://github.com/zwh2119/resource-monitor)
+- [sedna](https://github.com/AdaYangOlzz/sedna-modified)
 
 ## Deployment Device
 - Cloud: NVIDIA GeForce RTX 3090 *4
