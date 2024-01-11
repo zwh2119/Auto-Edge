@@ -17,8 +17,8 @@ Auto-Edge is an automated scheduling platform for edge computing. it's developed
 
 
 ### build environment on cloud and edge devices
-1. deploy Kubernetes on cloud device
-2. deploy KubeEdge on cloud and edge devices
+1. deploy Kubernetes on cloud device([instruction](https://github.com/AdaYangOlzz/kubeedge-deploy))
+2. deploy KubeEdge on cloud and edge devices([instruction](https://github.com/AdaYangOlzz/kubeedge-deploy))
 3. deploy Sedna (modified version) on cloud and edge devices([instruction](https://github.com/AdaYangOlzz/sedna-modified/blob/master/README.md))
 
 ### build docker images of Auto-Edge components
