@@ -1,3 +1,8 @@
+## new in middle branch
+- support multi data stream of different modal
+- support task queue of multi priority
+- support task type of periodic tasks and abrupt tasks
+
 # Auto-Edge
 
 <center>
