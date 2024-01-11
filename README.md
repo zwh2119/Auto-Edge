@@ -7,11 +7,30 @@
 ## Brief Introduction
 
 
-Auto-Edge is an automated scheduling platform for edge computing. it's developed based on KubeEdge.
+Auto-Edge is an automated scheduling platform for edge computing. Auto-Edge supports pipeline service processing of multi data stream and focus on the scheduling policy in edge computing. It's developed based on KubeEdge.
+
+## Related Framework
+- [docker container](https://github.com/docker/docker-ce)
+- [Kubernetes](https://github.com/kubernetes/kubernetes)
+- [KubeEdge](https://github.com/kubeedge/kubeedge)
+- [Sedna](https://github.com/kubeedge/sedna)
+- [TensorRT](https://developer.nvidia.com/tensorrt)
 
 
 ## Architecture
 ![](pic/structure.png)
+
+Auto-Edge is built on KubeEdge system and depends on interfaces from sedna. The components Auto-Edge includes generator, controller, service-processor, distributor, scheduler and monitor. 
+
+## Components
+- [`generator`]: bind to a data stream and complete the segmentation of data package based on schedule policy from scheduler. 
+- [`controller`]: control the whole process of data dealing and forwarding among cloud and edge devices.
+- [`service processor`]: process data with AI algorithms, a service pipeline may include more than one stage processor.
+- [`distributor`]: collect data processing results and processing information from multi data stream and distribute according to different requirements.
+- [`scheduler`]: generate schedule policy based on resource state and task state, schedule policy includes task offloading and data configuration.
+- [`monitor`]: monitor resource usage like CPU usage, memory usage and network bandwidth.
+- [`sedna`](https://github.com/AdaYangOlzz/sedna-modified): include global manager(GM) and local controller(LC), offer underlying platform interface for Auto-Edge based on KubeEdge.
+
 
 ## Guides
 
@@ -104,21 +123,6 @@ python tools/result_collector.py
 
 or you can mount the data record folder in distributor to volume on physical device
 
-## Related Framework
-- [docker container](https://github.com/docker/docker-ce)
-- [Kubernetes](https://github.com/kubernetes/kubernetes)
-- [KubeEdge](https://github.com/kubeedge/kubeedge)
-- [Sedna](https://github.com/kubeedge/sedna)
-- [TensorRT](https://developer.nvidia.com/tensorrt)
-
-## Components
-- [`generator`](https://github.com/zwh2119/data-generator): bind to a data stream and complete the segmentation of data package based on schedule policy from scheduler. 
-- [`controller`](https://github.com/zwh2119/edge-controller): control the whole process of data dealing and forwarding among cloud and edge devices.
-- [`service processor`](https://github.com/zwh2119/car-detection): process data with AI algorithms, a service pipeline may include more than one stage processor.
-- [`distributor`](https://github.com/zwh2119/data-distributor): collect data processing results and processing information from multi data stream and distribute according to different requirements.
-- [`scheduler`](https://github.com/zwh2119/application-scheduler): generate schedule policy based on resource state and task state, schedule policy includes task offloading and data configuration.
-- [`monitor`](https://github.com/zwh2119/resource-monitor): monitor resource usage like CPU usage, memory usage and network bandwidth.
-- [`sedna`](https://github.com/AdaYangOlzz/sedna-modified): include global manager(GM) and local controller(LC), offer underlying platform interface for Auto-Edge based on KubeEdge.
 
 ## Deployment Device
 - Cloud: NVIDIA GeForce RTX 3090 *4
