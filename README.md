@@ -23,12 +23,12 @@ Auto-Edge is an automated scheduling platform for edge computing. Auto-Edge supp
 Auto-Edge is built on KubeEdge system and depends on interfaces from sedna. The components Auto-Edge includes generator, controller, service-processor, distributor, scheduler and monitor. 
 
 ## Components
-- [`generator`]: bind to a data stream and complete the segmentation of data package based on schedule policy from scheduler. 
-- [`controller`]: control the whole process of data dealing and forwarding among cloud and edge devices.
-- [`service processor`]: process data with AI algorithms, a service pipeline may include more than one stage processor.
-- [`distributor`]: collect data processing results and processing information from multi data stream and distribute according to different requirements.
-- [`scheduler`]: generate schedule policy based on resource state and task state, schedule policy includes task offloading and data configuration.
-- [`monitor`]: monitor resource usage like CPU usage, memory usage and network bandwidth.
+- `generator`: bind to a data stream and complete the segmentation of data package based on schedule policy from scheduler. 
+- `controller`: control the whole process of data dealing and forwarding among cloud and edge devices.
+- `service processor`: process data with AI algorithms, a service pipeline may include more than one stage processor.
+- `distributor`: collect data processing results and processing information from multi data stream and distribute according to different requirements.
+- `scheduler`: generate schedule policy based on resource state and task state, schedule policy includes task offloading and data configuration.
+- `monitor`: monitor resource usage like CPU usage, memory usage and network bandwidth.
 - [`sedna`](https://github.com/AdaYangOlzz/sedna-modified): include global manager(GM) and local controller(LC), offer underlying platform interface for Auto-Edge based on KubeEdge.
 
 
@@ -80,7 +80,7 @@ bash docker/delete.sh
 ```
 
 ### start Auto-Edge system on KubeEdge
-start system with yaml files (eg:[video_car_detection.yaml](templates/video_car_detection.yaml))
+start system with yaml files (eg:  [video_car_detection.yaml](templates/video_car_detection.yaml))
 ```shell
 # yaml files can be found in `templates` folder
 kubectl apply -f <file-name>
@@ -103,11 +103,16 @@ kubectl describe pod <pod-name>
 ```
 
 ### start rtsp video stream
-Install [`easyDarwin`](https://github.com/EasyDarwin/EasyDarwin) and start rtsp server.
+Install [`easyDarwin`](https://github.com/EasyDarwin/EasyDarwin) for rtsp server. easyDarwin compiled for arm-64 platform can be found in [shared link](https://box.nju.edu.cn/f/c30a8c8cad1d49938b4b/)
 
-easyDarwin compiled for arm-64 platform can be found in [shared link](https://box.nju.edu.cn/f/c30a8c8cad1d49938b4b/)
+Start easyDarwin rtsp server.
+```shell
+cd easyDarwin
+chmod +x easydarwin start.sh
+./start.sh
+```
 
-Install `ffmpeg` and start rtsp video stream
+Install `ffmpeg` and start rtsp video stream.
 ```shell
 # multiple video stream binding to different edge
 ffmpeg -re -i ./traffic0.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video0
@@ -125,12 +130,12 @@ or you can mount the data record folder in distributor to volume on physical dev
 
 
 ## Deployment Device
-- Cloud: NVIDIA GeForce RTX 3090 *4
+- Cloud: Server with NVIDIA GeForce RTX 3090 *4
 - Edge: NVIDIA Jetson TX2
 
 ## Supported Service Pipeline
-- `Car Detection`: [detection]
-- `Class Detection`: [face detection, pose estimation] (not completely support now)
+- Car Detection: [`car detection`]
+- Class Detection: [`face detection`, `pose estimation`] (not completely support now)
 
 ## Development Version
 - 2023.11.25 `AutoEdge` - `v0.1.0`: demo of car detection (without scheduler) test successfully [single edge, single stage]
