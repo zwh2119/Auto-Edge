@@ -19,7 +19,7 @@ Auto-Edge is an automated scheduling platform for edge computing. it's developed
 ### build environment on cloud and edge devices
 1. deploy Kubernetes on cloud device
 2. deploy KubeEdge on cloud and edge devices
-3. deploy Sedna (modified version) on cloud and edge devices
+3. deploy Sedna (modified version) on cloud and edge devices([instruction](https://github.com/AdaYangOlzz/sedna-modified/blob/master/README.md))
 
 ### build docker images of Auto-Edge components
 1. install docker buildx on x86 platform ([instruction](instructions/buildx.md))
@@ -84,6 +84,11 @@ kubectl describe pod <pod-name>
 ```
 
 ### start rtsp video stream
+Install [`easyDarwin`](https://github.com/EasyDarwin/EasyDarwin) and start rtsp server.
+
+easyDarwin compiled for arm-64 platform can be found in [shared link](https://box.nju.edu.cn/f/c30a8c8cad1d49938b4b/)
+
+Install `ffmpeg` and start rtsp video stream
 ```shell
 # multiple video stream binding to different edge
 ffmpeg -re -i ./traffic0.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video0
@@ -92,6 +97,7 @@ ffmpeg -re -i ./traffic2.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video2
 ```
 
 ### collect result from Auto-Edge
+use the script to check the system output.
 ```shell
 python tools/result_collector.py
 ```
@@ -106,13 +112,13 @@ or you can mount the data record folder in distributor to volume on physical dev
 - [TensorRT](https://developer.nvidia.com/tensorrt)
 
 ## Components
-- [generator](https://github.com/zwh2119/data-generator)
-- [distributor](https://github.com/zwh2119/data-distributor)
-- [service processor](https://github.com/zwh2119/car-detection)
-- [scheduler](https://github.com/zwh2119/application-scheduler)
-- [controller](https://github.com/zwh2119/edge-controller)
-- [monitor](https://github.com/zwh2119/resource-monitor)
-- [sedna](https://github.com/AdaYangOlzz/sedna-modified)
+- [`generator`](https://github.com/zwh2119/data-generator): bind to a data stream and complete the segmentation of data package based on schedule policy from scheduler. 
+- [`controller`](https://github.com/zwh2119/edge-controller): control the whole process of data dealing and forwarding among cloud and edge devices.
+- [`service processor`](https://github.com/zwh2119/car-detection): process data with AI algorithms, a service pipeline may include more than one stage processor.
+- [`distributor`](https://github.com/zwh2119/data-distributor): collect data processing results and processing information from multi data stream and distribute according to different requirements.
+- [`scheduler`](https://github.com/zwh2119/application-scheduler): generate schedule policy based on resource state and task state, schedule policy includes task offloading and data configuration.
+- [`monitor`](https://github.com/zwh2119/resource-monitor): monitor resource usage like CPU usage, memory usage and network bandwidth.
+- [`sedna`](https://github.com/AdaYangOlzz/sedna-modified): include global manager(GM) and local controller(LC), offer underlying platform interface for Auto-Edge based on KubeEdge.
 
 ## Deployment Device
 - Cloud: NVIDIA GeForce RTX 3090 *4
