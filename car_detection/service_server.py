@@ -1,10 +1,11 @@
 import os
 import shutil
+import threading
 import time
 
 import cv2
 import uvicorn
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form
 from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,6 +14,10 @@ from car_detection_trt import CarDetection
 
 from log import LOGGER
 from config import Context
+from queue import PriorityQueue
+from task import Task
+
+task_queue = PriorityQueue()
 
 
 class ServiceServer:
@@ -20,7 +25,7 @@ class ServiceServer:
     def __init__(self):
         self.app = FastAPI(routes=[
             APIRoute('/predict',
-                     self.cal,
+                     self.deal_request,
                      response_class=JSONResponse,
                      methods=['POST']
 
@@ -46,15 +51,9 @@ class ServiceServer:
             allow_methods=["*"], allow_headers=["*"],
         )
 
-    async def cal(self, file: UploadFile = File(...), data: str = Form(...)):
-
-        tmp_path = f'tmp_receive_{time.time()}.mp4'
-        with open(tmp_path, 'wb') as buffer:
-            shutil.copyfileobj(file.file, buffer)
-            del file
-
+    def cal(self, file_path):
         content = []
-        video_cap = cv2.VideoCapture(tmp_path)
+        video_cap = cv2.VideoCapture(file_path)
 
         start = time.time()
         while True:
@@ -62,7 +61,7 @@ class ServiceServer:
             if not ret:
                 break
             content.append(frame)
-        os.remove(tmp_path)
+        os.remove(file_path)
         end = time.time()
         LOGGER.debug(f'decode time:{end - start}s')
 
@@ -74,6 +73,28 @@ class ServiceServer:
 
         return result
 
+    def deal_service(self, data, file):
+        tmp_path = f'tmp_receive_{time.time()}.mp4'
+        with open(tmp_path, 'wb') as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            del file
 
-app_server = ServiceServer()
-app = app_server.app
+    async def deal_request(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
+        backtask.add_task(self.deal_service, data, file)
+        return {'msg': 'data send success!'}
+
+    def start_uvicorn_server(self):
+        pass
+
+    def main_loop(self):
+        while True:
+            if not task_queue.empty():
+                pass
+
+
+if __name__ == '__main__':
+    service_server = ServiceServer()
+
+    threading.Thread(target=service_server.start_uvicorn_server)
+
+    service_server.main_loop()
