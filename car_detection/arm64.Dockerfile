@@ -11,6 +11,7 @@ COPY ./requirements.txt ./
 RUN pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 WORKDIR /app
-COPY ${dir}/car_detection_trt.py ${dir}/service_server.py ${dir}/log.py ${dir}/config.py  /app/
+COPY ${dir}/car_detection_trt.py ${dir}/service_server.py ${dir}/log.py ${dir}/config.py ${dir}/client.py ${dir}/utils.py ${dir}/task.py ${dir}/task_queue.py   /app/
 
-CMD ["uvicorn", "service_server:app", "--host=0.0.0.0", "--port=9001", "--log-level=debug", "--workers=2", "--limit-concurrency=3"]
+CMD ["python", "service_server.py"]
+

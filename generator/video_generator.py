@@ -50,7 +50,7 @@ class VideoGenerator:
         frame_fourcc = self.encoding
         frames_per_task = self.buffer_size
         fps = self.raw_meta_data['fps_raw']
-        priority = self.priority
+        priority = {'importance': self.priority, 'urgency': 0, 'priority': 0}
         pipeline = self.task_pipeline
 
         response = http_request(url=self.schedule_address, method='GET', json={'source_id': self.generator_id,
@@ -63,7 +63,7 @@ class VideoGenerator:
 
             frame_resolution = tuned_parameters['resolution']
             fps = tuned_parameters['fps']
-            priority = tuned_parameters['priority']
+            # priority = tuned_parameters['priority']
             pipeline = tuned_parameters['pipeline']
 
         fps = min(fps, fps_raw)

@@ -26,13 +26,17 @@ class ControllerServer:
         ], log_level='trace', timeout=6000)
 
         node_info = get_nodes_info()
+
         self.service_ports_dict = json.loads(Context.get_parameters('service_port'))
         self.distributor_port = Context.get_parameters('distributor_port')
         self.distributor_ip = node_info[Context.get_parameters('distributor_name')]
+        self.distribute_address = get_merge_address(self.distributor_ip, port=self.distributor_port, path='distribute')
 
         self.local_ip = node_info[Context.get_parameters('NODE_NAME')]
 
-        self.distribute_address = get_merge_address(self.distributor_ip, port=self.distributor_port, path='distribute')
+        self.scheduler_ip = node_info[Context.get_parameters('scheduler_name')]
+        self.scheduler_port = Context.get_parameters('scheduler_port')
+        self.scheduler_address = get_merge_address(self.scheduler_ip, port=self.scheduler_port, path='priority')
 
         self.app.add_middleware(
             CORSMiddleware, allow_origins=["*"], allow_credentials=True,
@@ -47,6 +51,7 @@ class ControllerServer:
         source_id = data['source_id']
         task_id = data['task_id']
         pipeline = data['pipeline_flow']
+        priority = data['priority']
         tmp_data = data['tmp_data']
         index = data['cur_flow_index']
         scenario = data['scenario_data']
@@ -99,11 +104,15 @@ class ControllerServer:
             tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
             assert service_time == -1
 
+            response = http_request(url=self.scheduler_address, json=data)
+            priority = response['priority']
+
             data['pipeline_flow'] = pipeline
             data['tmp_data'] = tmp_data
             data['cur_flow_index'] = index
             data['content_data'] = content
             data['scenario_data'] = scenario
+            data['priority'] = priority
 
             # post to service
             service_name = pipeline[index]['service_name']

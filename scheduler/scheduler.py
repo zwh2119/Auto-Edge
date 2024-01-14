@@ -82,14 +82,13 @@ class Scheduler:
             'resolution': '720p',
             'fps': 20,
             'encoding': 'mp4v',
-            'priority': 0,
             'pipeline': info['pipeline']
         }
         return cold_plan
 
     def run(self):
         while True:
-            LOGGER.debug('update schedule')
+            # LOGGER.debug('update schedule')
             for source_id in self.schedule_table:
                 task_schedule = self.schedule_table[source_id]
 
@@ -112,7 +111,7 @@ class Scheduler:
                 LOGGER.info(f'id:{source_id} latency:{latency} pid:{pid_out} plan:{plan}')
 
             # schedule interval
-            time.sleep(self.schedule_interval)
+            # time.sleep(self.schedule_interval)
 
     def adjust_plan_configuration(self, pid_out, meta_data, pipeline):
         position = self.map_pipeline_2_position(pipeline)

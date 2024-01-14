@@ -57,7 +57,7 @@ class ScheduleServer:
 
     async def generate_task_priority(self, request: Request):
         data = await request.json()
-        return get_task_priority(data)
+        return {'priority': get_task_priority(data)}
 
     async def update_resource_state(self, request: Request):
         data = await request.json()

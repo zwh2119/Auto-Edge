@@ -69,6 +69,10 @@ spec:
                 value: "39500"
               - name: distributor_name
                 value: cloud.kubeedge
+              - name: scheduler_name
+                value: cloud.kubeedge
+              - name: scheduler_port
+                value: "39400"
             ports:
               - containerPort: 9200
                 hostPort: 39200
@@ -89,6 +93,10 @@ spec:
                 value: "39500"
               - name: distributor_name
                 value: cloud.kubeedge
+              - name: scheduler_name
+                value: cloud.kubeedge
+              - name: scheduler_port
+                value: "39400"
             ports:
               - containerPort: 9200
                 hostPort: 39200
@@ -108,6 +116,10 @@ spec:
                 value: "39500"
               - name: distributor_name
                 value: cloud.kubeedge
+              - name: scheduler_name
+                value: cloud.kubeedge
+              - name: scheduler_port
+                value: "39400"
             ports:
               - containerPort: 9200
                 hostPort: 39200
