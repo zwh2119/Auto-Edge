@@ -1,3 +1,5 @@
+import copy
+import json
 import os
 import shutil
 import threading
@@ -14,10 +16,10 @@ from car_detection_trt import CarDetection
 
 from log import LOGGER
 from config import Context
-from queue import PriorityQueue
+from client import http_request
+from utils import *
+from task_queue import LocalPriorityQueue
 from task import Task
-
-task_queue = PriorityQueue()
 
 
 class ServiceServer:
@@ -31,6 +33,12 @@ class ServiceServer:
 
                      ),
         ], log_level='trace', timeout=6000)
+
+        node_info = get_nodes_info()
+        self.local_ip = node_info[Context.get_parameters('NODE_NAME')]
+        self.controller_port = Context.get_parameters('controller_port')
+
+        self.controller_address = get_merge_address(self.local_ip, port=self.controller_port, path='submit_task')
 
         self.batch_size = 8
         self.device = 0
@@ -50,6 +58,8 @@ class ServiceServer:
             CORSMiddleware, allow_origins=["*"], allow_credentials=True,
             allow_methods=["*"], allow_headers=["*"],
         )
+
+        self.task_queue = LocalPriorityQueue()
 
     def cal(self, file_path):
         content = []
@@ -74,27 +84,69 @@ class ServiceServer:
         return result
 
     def deal_service(self, data, file):
-        tmp_path = f'tmp_receive_{time.time()}.mp4'
+        data = json.loads(data)
+        source_id = data['source_id']
+        task_id = data['task_id']
+
+        tmp_path = f'tmp_receive_source_{source_id}_task_{task_id}_{time.time()}.mp4'
         with open(tmp_path, 'wb') as buffer:
             shutil.copyfileobj(file.file, buffer)
             del file
+
+        self.task_queue.put(Task(data, tmp_path))
 
     async def deal_request(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
         backtask.add_task(self.deal_service, data, file)
         return {'msg': 'data send success!'}
 
     def start_uvicorn_server(self):
-        pass
+        uvicorn.run(app=self.app, host='0.0.0.0', port=9001, log_level='debug')
 
     def main_loop(self):
         while True:
-            if not task_queue.empty():
-                pass
+            if not self.task_queue.empty():
+                task = self.task_queue.get()
+                if task is not None:
+                    source_id = task.metadata['source_id']
+                    task_id = task.metadata['task_id']
+                    pipeline = task.metadata['pipeline_flow']
+                    tmp_data = task.metadata['tmp_data']
+                    index = task.metadata['cur_flow_index']
+                    scenario = task.metadata['scenario_data']
+                    content = task.metadata['content_data']
+
+                    result = self.cal(task.file_path)
+                    if 'parameters' in result:
+                        scenario.update(result['parameters'])
+                    content = copy.deepcopy(result['result'])
+
+                    # end record service time
+                    tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
+                    assert service_time != -1
+                    pipeline[index]['execute_data']['service_time'] = service_time
+                    LOGGER.debug(f'service_time of {source_id}:{service_time}s')
+
+                    index += 1
+
+                    data = task.metadata
+                    data['pipeline_flow'] = pipeline
+                    data['tmp_data'] = tmp_data
+                    data['cur_flow_index'] = index
+                    data['content_data'] = content
+                    data['scenario_data'] = scenario
+
+                    http_request(url=self.controller_address, method='POST',
+                                 data={'data': json.dumps(data)},
+                                 files={'file': (f'tmp_{source_id}.mp4',
+                                                 open(task.file_path, 'rb'),
+                                                 'video/mp4')}
+                                 )
+                    os.remove(task.file_path)
 
 
 if __name__ == '__main__':
     service_server = ServiceServer()
 
-    threading.Thread(target=service_server.start_uvicorn_server)
+    threading.Thread(target=service_server.start_uvicorn_server).start()
 
     service_server.main_loop()

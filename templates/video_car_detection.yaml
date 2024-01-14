@@ -14,7 +14,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/generator:v1.0.0
+          - image: onecheck/generator:mid-v1.0.0
             imagePullPolicy: IfNotPresent
             name: generator
             env:
@@ -33,7 +33,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-            - image: onecheck/generator:v1.0.0
+            - image: onecheck/generator:mid-v1.0.0
               imagePullPolicy: IfNotPresent
               name: generator
               env:
@@ -59,7 +59,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/controller:v1.0.0
+          - image: onecheck/controller:mid-v1.0.0
             imagePullPolicy: IfNotPresent
             name: controller
             env:
@@ -79,7 +79,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/controller:v1.0.0
+          - image: onecheck/controller:mid-v1.0.0
             imagePullPolicy: IfNotPresent
             name: controller
             env:
@@ -98,7 +98,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/controller:v1.0.0
+          - image: onecheck/controller:mid-v1.0.0
             name:  controller
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
@@ -126,7 +126,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/distributor:v1.0.0
+          - image: onecheck/distributor:mid-v1.0.0
             name:  distributor
             imagePullPolicy: IfNotPresent
             env: # user defined environments
@@ -157,7 +157,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/scheduler:v1.0.0
+          - image: onecheck/scheduler:mid-v1.0.0
             name:  scheduler
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
@@ -185,7 +185,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/monitor:v1.0.0
+          - image: onecheck/monitor:mid-v1.0.0
             imagePullPolicy: IfNotPresent
             name: monitor
             env:
@@ -208,7 +208,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/monitor:v1.0.0
+          - image: onecheck/monitor:mid-v1.0.0
             imagePullPolicy: IfNotPresent
             name: monitor
             env:
@@ -230,7 +230,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/monitor:v1.0.0
+          - image: onecheck/monitor:mid-v1.0.0
             name:  monitor
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
@@ -270,9 +270,12 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:arm64-v1.0.0
+          - image: onecheck/car-detection:arm64-mid-v1.0.0
             imagePullPolicy: IfNotPresent
             name: car-detection
+            env:
+              - name: controller_port
+              - value: "39200"
             ports:
               - containerPort: 9001
                 hostPort: 39001
@@ -285,9 +288,12 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:arm64-v1.0.0
+          - image: onecheck/car-detection:arm64-mid-v1.0.0
             imagePullPolicy: IfNotPresent
             name: car-detection
+            env:
+              - name: controller_port
+              - value: "39200"
             ports:
               - containerPort: 9001
                 hostPort: 39001
@@ -299,9 +305,12 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/car-detection:v1.0.0
+          - image: onecheck/car-detection:mid-v1.0.0
             name:  car-detection
             imagePullPolicy: IfNotPresent
+            env:
+              - name: controller_port
+              - value: "39200"
             ports:
               - containerPort: 9001
                 hostPort: 39001

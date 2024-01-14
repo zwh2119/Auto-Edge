@@ -128,15 +128,16 @@ or you can mount the data record folder in distributor to volume on physical dev
 - `Class Detection`: [face detection, pose estimation] (not completely support now)
 
 ## Development Version
-- 2023.11.25 `AutoEdge` - `v0.1.0`: demo of car detection (without scheduler) test successfully [single edge, single stage]
-- 2023.11.30 `AutoEdge` - `v0.2.0`: demo of car detection (with scheduler) test successfully [single edge, single stage]
-- 2023.12.02 `AutoEdge` - `v0.3.0`: build docker image of all components for car detection demo
-- 2023.12.04 `AutoEdge` - `v0.4.0`: demo of classroom detection (with scheduler) test successfully [single edge, multi stage]
-- 2023.12.11 `AutoEdge` - `v0.5.0`: service of car detection has been transformed by TensorRT 
-- 2023.12.11 `AutoEdge` - `v0.6.0`: demo of car detection successfully test on multi-edge [multi edge, single stage]
-- 2023.12.13 `AutoEdge` - `v0.7.0`: add logger and collapse processing
-- 2023.12.17 `AutoEdge` - `v0.8.0`: add resource monitor component 
-- 2024.01.06 `AutoEdge` - `v0.9.0`: build docker images of all components 
-- 2024.01.11 `AutoEdge` - `v1.0.0`: complete the first formal version of Auto-Edge
+- 2023.11.25 `AutoEdge` - `v0.1.0`: demo of car detection (without scheduler) test successfully [single edge, single stage].
+- 2023.11.30 `AutoEdge` - `v0.2.0`: demo of car detection (with scheduler) test successfully [single edge, single stage].
+- 2023.12.02 `AutoEdge` - `v0.3.0`: build docker image of all components for car detection demo.
+- 2023.12.04 `AutoEdge` - `v0.4.0`: demo of classroom detection (with scheduler) test successfully [single edge, multi stage].
+- 2023.12.11 `AutoEdge` - `v0.5.0`: service of car detection has been transformed by TensorRT.
+- 2023.12.11 `AutoEdge` - `v0.6.0`: demo of car detection successfully test on multi-edge [multi edge, single stage].
+- 2023.12.13 `AutoEdge` - `v0.7.0`: add logger and collapse processing.
+- 2023.12.17 `AutoEdge` - `v0.8.0`: add resource monitor component.
+- 2024.01.06 `AutoEdge` - `v0.9.0`: build docker images of all components. 
+- 2024.01.11 `AutoEdge` - `v1.0.0`: complete the first formal version of Auto-Edge.
+- 2024.01.14 `AutoEdge` - `mid-v0.1.0`: complete supporting multi-priority task queue.
 
 ## Citation

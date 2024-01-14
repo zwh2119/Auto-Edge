@@ -7,7 +7,9 @@ from starlette.responses import JSONResponse
 from starlette.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from scheduler import Scheduler
+from priority_schedule import *
+
+from .scheduler import Scheduler
 
 
 class ScheduleServer:
@@ -28,6 +30,11 @@ class ScheduleServer:
                      response_class=JSONResponse,
                      methods=['POST']
                      ),
+            APIRoute('/priority',
+                     self.generate_task_priority,
+                     response_class=JSONResponse,
+                     methods=['GET']
+                     )
         ], log_level='trace', timeout=6000)
 
         self.app.add_middleware(
@@ -47,6 +54,10 @@ class ScheduleServer:
         plan = self.scheduler.get_schedule_plan(data)
 
         return {'plan': plan}
+
+    async def generate_task_priority(self, request: Request):
+        data = await request.json()
+        return get_task_priority(data)
 
     async def update_resource_state(self, request: Request):
         data = await request.json()

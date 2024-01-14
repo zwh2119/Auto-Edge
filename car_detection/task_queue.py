@@ -21,3 +21,7 @@ class LocalPriorityQueue:
     def size(self) -> int:
         with self.lock:
             return self._queue.qsize()
+
+    def empty(self) -> bool:
+        return self._queue.empty()
+

@@ -61,12 +61,12 @@ class ControllerServer:
             del file
 
         # end record transmit time
-        tmp_data, transmit_time = record_time(tmp_data, f'transmit_time_{index}')
-        assert transmit_time != -1
-        pipeline[index]['execute_data']['transmit_time'] = transmit_time
+        tmp_data, transmit_time = record_time(tmp_data, f'transmit_time_{index}', read_only=True)
+        if transmit_time != -1:
+            pipeline[index]['execute_data']['transmit_time'] = transmit_time
 
         # execute pipeline
-        while index < len(pipeline) - 1:
+        if index < len(pipeline) - 1:
             cur_service = pipeline[index]
 
             # transfer to another controller
@@ -92,8 +92,6 @@ class ControllerServer:
                              )
 
                 LOGGER.debug(f'controller post data from source {source_id} to other controller')
-                os.remove(tmp_path)
-                return
             else:
                 pipeline[index]['execute_data']['transmit_time'] = 0
 
@@ -101,46 +99,37 @@ class ControllerServer:
             tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
             assert service_time == -1
 
+            data['pipeline_flow'] = pipeline
+            data['tmp_data'] = tmp_data
+            data['cur_flow_index'] = index
+            data['content_data'] = content
+            data['scenario_data'] = scenario
+
             # post to service
             service_name = pipeline[index]['service_name']
             assert service_name in self.service_ports_dict
             service_address = get_merge_address(self.local_ip, port=self.service_ports_dict[service_name],
                                                 path='predict')
-            service_return = http_request(url=service_address, method='POST',
-                                          data={'data': json.dumps(content)},
-                                          files={'file': (f'tmp_{source_id}.mp4', open(tmp_path, 'rb'), 'video/mp4')}
-                                          )
+            http_request(url=service_address, method='POST',
+                         data={'data': json.dumps(data)},
+                         files={'file': (f'tmp_{source_id}.mp4', open(tmp_path, 'rb'), 'video/mp4')}
+                         )
 
-            if service_return is None:
-                content = 'discard'
-                break
+        else:
 
-            # end record service time
-            tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
-            assert service_time != -1
-            pipeline[index]['execute_data']['service_time'] = service_time
-            LOGGER.debug(f'service_time of {source_id}:{service_time}s')
+            # start record transmit time
+            tmp_data, transmit_time = record_time(tmp_data, f'transmit_time_{index}')
+            assert transmit_time == -1
 
-            # deal with service result
-            if 'parameters' in service_return:
-                scenario.update(service_return['parameters'])
-            content = copy.deepcopy(service_return['result'])
+            data['pipeline_flow'] = pipeline
+            data['tmp_data'] = tmp_data
+            data['cur_flow_index'] = index
+            data['content_data'] = content
+            data['scenario_data'] = scenario
 
-            index += 1
-
-        # start record transmit time
-        tmp_data, transmit_time = record_time(tmp_data, f'transmit_time_{index}')
-        assert transmit_time == -1
-
-        data['pipeline_flow'] = pipeline
-        data['tmp_data'] = tmp_data
-        data['cur_flow_index'] = index
-        data['content_data'] = content
-        data['scenario_data'] = scenario
-
-        # post to distributor
-        http_request(url=self.distribute_address, method='POST', json=data)
-        LOGGER.debug(f'controller post data from source {source_id} to distributor')
+            # post to distributor
+            http_request(url=self.distribute_address, method='POST', json=data)
+            LOGGER.debug(f'controller post data from source {source_id} to distributor')
 
         os.remove(tmp_path)
 

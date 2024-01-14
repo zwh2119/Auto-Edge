@@ -4,15 +4,14 @@ import time
 from kubernetes import client, config
 
 
-def record_time(data: dict, time_sign: str, read_only: bool = False):
+def record_time(data: dict, time_sign: str):
     if time_sign in data:
         start_time = data[time_sign]
         end_time = time.time()
         del data[time_sign]
         return data, end_time - start_time
     else:
-        if not read_only:
-            data[time_sign] = time.time()
+        data[time_sign] = time.time()
         return data, -1
 
 
