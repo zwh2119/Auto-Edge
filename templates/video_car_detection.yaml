@@ -6,7 +6,7 @@ metadata:
 spec:
   edgeWorker:
     - file:
-        path: "/home/nvidia/zwh/Auto-Edge/files"
+        path: "/home/nvidia/zwh/Auto-Edge/files-mid"
       logLevel:
         level: "DEBUG"
       template:
@@ -25,7 +25,7 @@ spec:
               - name: scheduler_name
                 value: cloud.kubeedge
     - file:
-        path: "/home/nvidia/zwh/Auto-Edge/files"
+        path: "/home/nvidia/zwh/Auto-Edge/files-mid"
       logLevel:
         level: "DEBUG"
       template:
@@ -163,7 +163,7 @@ metadata:
 spec:
   cloudWorker:
     file:
-      path: "/home/hx/zwh/Auto-Edge/files"
+      path: "/home/hx/zwh/Auto-Edge/files-mid"
     template:
       spec:
         nodeName: cloud.kubeedge
@@ -177,6 +177,10 @@ spec:
                 value: "0.1"
               - name: controller_port
                 value: "39200"
+              - name: importance_weight
+                value: "0.4"
+              - name: urgency_weight
+                value: "0.6"
             ports:
               - containerPort: 9400
                 hostPort: 39400

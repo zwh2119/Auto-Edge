@@ -126,6 +126,7 @@ class VideoGenerator:
                              'fps': fps, 'frame_number': frames_per_task, 'encoding': frame_fourcc,
                              'source_ip': self.local_ip}
 
+                priority['start_time'] = time.time()
                 data = {'source_id': self.generator_id, 'task_id': cur_id, 'priority': priority,
                         'meta_data': meta_data, 'pipeline_flow': pipeline, 'tmp_data': {}, 'cur_flow_index': 0,
                         'content_data': None, 'scenario_data': {}}
@@ -157,7 +158,7 @@ class VideoGenerator:
                     frame_resolution = tuned_parameters['resolution']
                     frame_fourcc = tuned_parameters['encoding']
                     fps = tuned_parameters['fps']
-                    priority = tuned_parameters['priority']
+                    # priority = tuned_parameters['priority']
                     pipeline = tuned_parameters['pipeline']
 
                 fps = min(fps, fps_raw)

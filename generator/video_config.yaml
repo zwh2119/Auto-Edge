@@ -4,6 +4,7 @@ video:
     resolution: "1080p"
     fps: 25
     url: "rtsp://192.168.1.4/video0"
+    priority: 2
     pipeline:
       - service_name: "car_detection"
         service_port: 9001
@@ -12,6 +13,7 @@ video:
     resolution: "1080p"
     fps: 30
     url: "rtsp://192.168.1.4/video1"
+    priority: 5
     pipeline:
       - service_name: "car_detection"
         service_port: 9001
@@ -20,6 +22,7 @@ video:
     resolution: "1080p"
     fps: 30
     url: "rtsp://192.168.1.4/video2"
+    priority: 9
     pipeline:
       - service_name: "car_detection"
         service_port: 9001

@@ -14,6 +14,8 @@ from log import LOGGER
 from config import Context
 from yaml_utils import *
 
+from priority_schedule import PriorityProfiler
+
 
 class Scheduler:
     def __init__(self):
@@ -41,6 +43,10 @@ class Scheduler:
                                                                path='submit_task')
 
         self.address_diverse_dict = {v: k for k, v in self.address_dict.items()}
+
+        self.priority_profiler = PriorityProfiler(importance_weight=Context.get_parameters('importance_weight'),
+                                                  urgency_weight=Context.get_parameters('urgency_weight'),
+                                                  deadline=self.user_constraint)
 
     def register_schedule_table(self, source_id):
         if source_id in self.schedule_table:
@@ -205,3 +211,6 @@ class Scheduler:
             pipeline[i]['execute_address'] = self.address_dict[pos]
 
         return pipeline
+
+    def get_task_priority(self, data):
+        return self.priority_profiler.get_task_priority(data['pipeline_flow'][data['cur_flow_index']]['service_name'], data['priority'])
