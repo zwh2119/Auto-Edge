@@ -396,7 +396,7 @@ class CarDetection:
             output_ctx['parameters']['obj_size'] = size / cnt if cnt != 0 else 0
         return output_ctx
 
-    async def __call__(self, images):
+    def __call__(self, images):
 
         assert type(images) is list
         return self.infer(images)

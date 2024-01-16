@@ -8,7 +8,7 @@ from starlette.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 
 
-from .scheduler import Scheduler
+from task_schedule import Scheduler
 
 
 class ScheduleServer:

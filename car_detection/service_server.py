@@ -76,7 +76,7 @@ class ServiceServer:
         LOGGER.debug(f'decode time:{end - start}s')
 
         start = time.time()
-        result = await self.estimator(content)
+        result = self.estimator(content)
         end = time.time()
         LOGGER.debug(f'process time:{end - start}s')
         assert type(result) is dict
