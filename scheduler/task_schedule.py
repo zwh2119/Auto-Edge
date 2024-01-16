@@ -44,8 +44,8 @@ class Scheduler:
 
         self.address_diverse_dict = {v: k for k, v in self.address_dict.items()}
 
-        self.priority_profiler = PriorityProfiler(importance_weight=Context.get_parameters('importance_weight'),
-                                                  urgency_weight=Context.get_parameters('urgency_weight'),
+        self.priority_profiler = PriorityProfiler(importance_weight=eval(Context.get_parameters('importance_weight')),
+                                                  urgency_weight=eval(Context.get_parameters('urgency_weight')),
                                                   deadline=self.user_constraint)
 
     def register_schedule_table(self, source_id):
