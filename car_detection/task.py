@@ -4,4 +4,4 @@ class Task:
         self.file_path = file
 
     def __lt__(self, other):
-        return self.metadata['priority'] > other.metadata['priority']
+        return self.metadata['priority']['priority'] > other.metadata['priority']['priority']
