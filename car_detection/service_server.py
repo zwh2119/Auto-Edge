@@ -1,9 +1,9 @@
+import asyncio
 import copy
 import json
 import os
 import shutil
 import threading
-import time
 
 import cv2
 import uvicorn
@@ -101,7 +101,14 @@ class ServiceServer:
 
     def start_uvicorn_server(self):
         LOGGER.info(f'start uvicorn server on {9001} port')
-        uvicorn.run(app=self.app, host='0.0.0.0', port=9001, log_level='debug')
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        # Configure and run the server
+        config = uvicorn.Config(app=self.app, host="0.0.0.0", port=9001, log_level="debug")
+        server = uvicorn.Server(config)
+        loop.run_until_complete(server.serve())
 
     def main_loop(self):
         LOGGER.info('start main loop..')
