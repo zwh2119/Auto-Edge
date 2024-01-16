@@ -71,7 +71,6 @@ class ServiceServer:
             if not ret:
                 break
             content.append(frame)
-        os.remove(file_path)
         end = time.time()
         LOGGER.debug(f'decode time:{end - start}s')
 
@@ -107,8 +106,8 @@ class ServiceServer:
         asyncio.set_event_loop(loop)
 
         # Configure and run the server
-        config = uvicorn.Config(app=self.app, host="0.0.0.0", port=9001, log_level="debug")
-        server = uvicorn.Server(config)
+        uvicorn_config = uvicorn.Config(app=self.app, host="0.0.0.0", port=9001, log_level="debug")
+        server = uvicorn.Server(uvicorn_config)
         loop.run_until_complete(server.serve())
 
     def main_loop(self):
