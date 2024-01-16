@@ -9,6 +9,8 @@ spec:
         path: "/home/nvidia/zwh/Auto-Edge/files-mid"
       logLevel:
         level: "DEBUG"
+      kubeConfig:
+        path: "/home/nvidia/.kube"
       template:
         spec:
           nodeName: edge1
@@ -28,6 +30,8 @@ spec:
         path: "/home/nvidia/zwh/Auto-Edge/files-mid"
       logLevel:
         level: "DEBUG"
+      kubeConfig:
+        path: "/home/nvidia/.kube"
       template:
         spec:
           nodeName: edge2
@@ -54,6 +58,8 @@ spec:
   edgeWorker:
     - logLevel:
         level: "DEBUG"
+      kubeConfig:
+        path: "/home/nvidia/.kube"
       template:
         spec:
           nodeName: edge1
@@ -78,6 +84,8 @@ spec:
                 hostPort: 39200
     - logLevel:
         level: "DEBUG"
+      kubeConfig:
+        path: "/home/nvidia/.kube"
       template:
         spec:
           nodeName: edge2
@@ -101,6 +109,8 @@ spec:
               - containerPort: 9200
                 hostPort: 39200
   cloudWorker:
+    kubeConfig:
+      path: "/home/hx/.kube"
     template:
       spec:
         nodeName: cloud.kubeedge
@@ -133,6 +143,8 @@ metadata:
   namespace: auto-edge
 spec:
   cloudWorker:
+    kubeConfig:
+      path: "/home/hx/.kube"
     template:
       spec:
         nodeName: cloud.kubeedge
@@ -164,6 +176,8 @@ spec:
   cloudWorker:
     file:
       path: "/home/hx/zwh/Auto-Edge/files-mid"
+    kubeConfig:
+      path: "/home/hx/.kube"
     template:
       spec:
         nodeName: cloud.kubeedge
@@ -196,6 +210,8 @@ spec:
   edgeWorker:
     - logLevel:
         level: "DEBUG"
+      kubeConfig:
+        path: "/home/nvidia/.kube"
       template:
         spec:
           nodeName: edge1
@@ -219,6 +235,8 @@ spec:
                 value: "39400"
     - logLevel:
         level: "DEBUG"
+      kubeConfig:
+        path: "/home/nvidia/.kube"
       template:
         spec:
           nodeName: edge2
@@ -241,6 +259,8 @@ spec:
               - name: scheduler_port
                 value: "39400"
   cloudWorker:
+    kubeConfig:
+      path: "/home/hx/.kube"
     template:
       spec:
         nodeName: cloud.kubeedge
@@ -279,6 +299,8 @@ spec:
   edgeWorker:
     - file:
         path: "/home/nvidia/zwh/Auto-Edge/model_lib"
+      kubeConfig:
+        path: "/home/nvidia/.kube"
       logLevel:
         level: "DEBUG"
       template:
@@ -291,12 +313,14 @@ spec:
             name: car-detection
             env:
               - name: controller_port
-              - value: "39200"
+                value: "39200"
             ports:
               - containerPort: 9001
                 hostPort: 39001
     - file:
         path: "/home/nvidia/zwh/Auto-Edge/model_lib"
+      kubeConfig:
+        path: "/home/nvidia/.kube"
       logLevel:
         level: "DEBUG"
       template:
@@ -309,13 +333,15 @@ spec:
             name: car-detection
             env:
               - name: controller_port
-              - value: "39200"
+                value: "39200"
             ports:
               - containerPort: 9001
                 hostPort: 39001
   cloudWorker:
     file:
       path: "/home/hx/zwh/Auto-Edge/model_lib"
+    kubeConfig:
+      path: "/home/hx/.kube"
     template:
       spec:
         nodeName: cloud.kubeedge
@@ -326,7 +352,7 @@ spec:
             imagePullPolicy: IfNotPresent
             env:
               - name: controller_port
-              - value: "39200"
+                value: "39200"
             ports:
               - containerPort: 9001
                 hostPort: 39001
