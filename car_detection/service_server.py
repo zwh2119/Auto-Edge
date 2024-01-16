@@ -100,9 +100,11 @@ class ServiceServer:
         return {'msg': 'data send success!'}
 
     def start_uvicorn_server(self):
+        LOGGER.info(f'start uvicorn server on {9001} port')
         uvicorn.run(app=self.app, host='0.0.0.0', port=9001, log_level='debug')
 
     def main_loop(self):
+        LOGGER.info('start main loop..')
         while True:
             if not self.task_queue.empty():
                 task = self.task_queue.get()
