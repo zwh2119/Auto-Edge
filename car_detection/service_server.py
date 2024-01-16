@@ -84,6 +84,7 @@ class ServiceServer:
         return result
 
     def deal_service(self, data, file):
+        LOGGER.debug('receive task from controller')
         data = json.loads(data)
         source_id = data['source_id']
         task_id = data['task_id']
@@ -114,6 +115,7 @@ class ServiceServer:
         LOGGER.info('start main loop..')
         while True:
             if not self.task_queue.empty():
+                LOGGER.debug('get task input from queue')
                 task = self.task_queue.get()
                 if task is not None:
                     source_id = task.metadata['source_id']
@@ -143,6 +145,8 @@ class ServiceServer:
                     data['cur_flow_index'] = index
                     data['content_data'] = content
                     data['scenario_data'] = scenario
+
+                    LOGGER.debug('post task back to controller')
 
                     http_request(url=self.controller_address, method='POST',
                                  data={'data': json.dumps(data)},
