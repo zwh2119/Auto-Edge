@@ -13,5 +13,5 @@ RUN pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 WORKDIR /app
 COPY ${dir}/car_detection_trt.py ${dir}/service_server.py ${dir}/log.py ${dir}/config.py ${dir}/client.py ${dir}/utils.py ${dir}/task.py ${dir}/task_queue.py   /app/
 
-CMD ["python", "service_server.py"]
+CMD ["python3", "service_server.py"]
 
