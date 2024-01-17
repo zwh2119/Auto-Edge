@@ -70,7 +70,7 @@ spec:
             name: controller
             env:
               - name: service_port
-                value: '{"car-detection": 39001, "license-plate-detection:39002"}'
+                value: '{"car-detection": 39001, "license-plate-detection": 39002}'
               - name: distributor_port
                 value: "39500"
               - name: distributor_name
@@ -96,7 +96,7 @@ spec:
             name: controller
             env:
               - name: service_port
-                value: '{"car_detection": 39001}'
+                value: '{"car-detection": 39001, "license-plate-detection": 39002}'
               - name: distributor_port
                 value: "39500"
               - name: distributor_name
@@ -121,7 +121,7 @@ spec:
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
               - name: service_port
-                value: '{"car_detection": 39001}'
+                value: '{"car-detection": 39001, "license-plate-detection": 39002}'
               - name: distributor_port
                 value: "39500"
               - name: distributor_name
