@@ -1,0 +1,6 @@
+numpy
+python-multipart
+colorlog
+requests
+opencv-python-headless
+kubernetes==20.11.0a1

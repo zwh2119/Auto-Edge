@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import threading
+from PIL import Image
 
 import cv2
 import uvicorn
@@ -12,14 +13,14 @@ from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from car_detection_trt import CarDetection
-
 from log import LOGGER
 from config import Context
 from client import http_request
 from utils import *
 from task_queue import LocalPriorityQueue
 from task import Task
+
+from license_plate_detection import detect
 
 
 class ServiceServer:
@@ -40,20 +41,6 @@ class ServiceServer:
 
         self.controller_address = get_merge_address(self.local_ip, port=self.controller_port, path='submit_task')
 
-        self.batch_size = 8
-        self.device = 0
-        self.plugin_Library = Context.get_file_path('libmyplugins.so')
-        self.engine_file_path = Context.get_file_path('yolov5s.engine')
-
-        service_args = {
-            'weights': self.engine_file_path,
-            'plugin_library': self.plugin_Library,
-            'batch_size': self.batch_size,
-            'device': self.device
-        }
-
-        self.estimator = CarDetection(service_args)
-
         self.app.add_middleware(
             CORSMiddleware, allow_origins=["*"], allow_credentials=True,
             allow_methods=["*"], allow_headers=["*"],
@@ -61,20 +48,39 @@ class ServiceServer:
 
         self.task_queue = LocalPriorityQueue()
 
-    def cal(self, file_path):
-        content = []
+    def cal(self, file_path, content):
+        result = {}
+        result['parameters'] = {}
         video_cap = cv2.VideoCapture(file_path)
-
+        cnt = 0
+        content_result = []
+        content_num = []
         while True:
             ret, frame = video_cap.read()
             if not ret:
                 break
-            content.append(frame)
+            height, width, _ = frame.shape
+            cur_res = []
+            for x_min, y_min, x_max, y_max in content[cnt]:
+                x_min = int(max(x_min, 0))
+                y_min = int(max(y_min, 0))
+                x_max = int(min(width, x_max))
+                y_max = int(min(height, y_max))
+                img = Image.fromarray(frame[y_min:y_max, x_min:x_max])
 
-        result = self.estimator(content)
+                try:
+                    res = detect(img)
+                except Exception as e:
+                    res = None
+                if res is not None:
+                    cur_res.append(res)
 
-        assert type(result) is dict
+            content_result.append(cur_res)
+            content_num.append(len(cur_res))
+            cnt += 1
 
+        result['result'] = content_result
+        result['parameters']['plate_num'] = content_num
         return result
 
     def deal_service(self, data, file):
@@ -95,13 +101,13 @@ class ServiceServer:
         return {'msg': 'data send success!'}
 
     def start_uvicorn_server(self):
-        LOGGER.info(f'start uvicorn server on {9001} port')
+        LOGGER.info(f'start uvicorn server on {9002} port')
 
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
         # Configure and run the server
-        uvicorn_config = uvicorn.Config(app=self.app, host="0.0.0.0", port=9001, log_level="debug")
+        uvicorn_config = uvicorn.Config(app=self.app, host="0.0.0.0", port=9002, log_level="debug")
         server = uvicorn.Server(uvicorn_config)
         loop.run_until_complete(server.serve())
 
@@ -120,7 +126,7 @@ class ServiceServer:
                     scenario = task.metadata['scenario_data']
                     content = task.metadata['content_data']
 
-                    result = self.cal(task.file_path)
+                    result = self.cal(task.file_path, content)
                     if 'parameters' in result:
                         scenario.update(result['parameters'])
                     content = copy.deepcopy(result['result'])

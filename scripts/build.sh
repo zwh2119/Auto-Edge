@@ -12,6 +12,7 @@ Usage: ${0##*/} [--files [generator,distributor,controller,monitor,scheduler,car
                monitor
                scheduler
                car-detection
+               license-plate-detection
                Default is to select all.
 --tag          Specify the version tag for the Docker images. Default is "v1.0.0".
 --repo         Specify the repository for the Docker images. Default is "onecheck".
@@ -28,6 +29,7 @@ declare -A DOCKERFILES=(
     [monitor]="monitor/Dockerfile"
     [scheduler]="scheduler/Dockerfile"
     [car-detection]="car_detection/Dockerfile"
+    [license-plate-detection]="license_plate_detection/Dockerfile"
 )
 
 # Corresponding platforms
@@ -38,6 +40,7 @@ declare -A PLATFORMS=(
     [monitor]="linux/arm64,linux/amd64"
     [scheduler]="linux/amd64"
     [car-detection]="linux/amd64,linux/arm64"
+    [license-plate-detection]="linux/amd64,linux/arm64"
 )
 
 # Images requiring special treatment, their platforms, and Dockerfiles
