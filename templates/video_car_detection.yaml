@@ -70,7 +70,7 @@ spec:
             name: controller
             env:
               - name: service_port
-                value: '{"car_detection": 39001}'
+                value: '{"car-detection": 39001, "license-plate-detection:39002"}'
               - name: distributor_port
                 value: "39500"
               - name: distributor_name
@@ -357,3 +357,65 @@ spec:
               - containerPort: 9001
                 hostPort: 39001
 
+---
+
+apiVersion: sedna.io/v1alpha1
+kind: JointMultiEdgeService
+metadata:
+  name: license-plate-detection-service
+  namespace: auto-edge
+spec:
+  edgeWorker:
+    - kubeConfig:
+        path: "/home/nvidia/.kube"
+      logLevel:
+        level: "DEBUG"
+      template:
+        spec:
+          nodeName: edge1
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/license-plate-detection:arm64-mid-v0.1.0
+            imagePullPolicy: IfNotPresent
+            name: license-plate-detection
+            env:
+              - name: controller_port
+                value: "39200"
+            ports:
+              - containerPort: 9002
+                hostPort: 39002
+    - kubeConfig:
+        path: "/home/nvidia/.kube"
+      logLevel:
+        level: "DEBUG"
+      template:
+        spec:
+          nodeName: edge2
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/license-plate-detection:mid-v0.1.0
+            imagePullPolicy: IfNotPresent
+            name: license-plate-detection
+            env:
+              - name: controller_port
+                value: "39200"
+            ports:
+              - containerPort: 9002
+                hostPort: 39002
+  cloudWorker:
+    kubeConfig:
+      path: "/home/hx/.kube"
+    template:
+      spec:
+        nodeName: cloud.kubeedge
+        dnsPolicy: ClusterFirstWithHostNet
+        containers:
+          - image: onecheck/license-plate-detection:mid-v0.1.0
+            name:  license-plate-detection
+            imagePullPolicy: IfNotPresent
+            env:
+              - name: controller_port
+                value: "39200"
+            ports:
+              - containerPort: 9002
+                hostPort: 39002

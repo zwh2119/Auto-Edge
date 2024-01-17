@@ -7,7 +7,7 @@ MAINTAINER Wenhui Zhou
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install python3
-RUN apt-get install -y --no-install-recommends \
+RUN apt-get -y update && apt-get install -y --no-install-recommends \
       python3 \
       python3-pip \
       python3-dev \
