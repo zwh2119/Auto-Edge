@@ -61,7 +61,7 @@ class ServiceServer:
 
         self.task_queue = LocalPriorityQueue()
 
-    def cal(self, file_path):
+    def cal(self, file_path, task_type):
         content = []
         video_cap = cv2.VideoCapture(file_path)
 
@@ -71,7 +71,7 @@ class ServiceServer:
                 break
             content.append(frame)
 
-        result = self.estimator(content)
+        result = self.estimator(content, task_type)
 
         assert type(result) is dict
 
@@ -119,8 +119,9 @@ class ServiceServer:
                     index = task.metadata['cur_flow_index']
                     scenario = task.metadata['scenario_data']
                     content = task.metadata['content_data']
+                    task_type = task.metadata['task_type']
 
-                    result = self.cal(task.file_path)
+                    result = self.cal(task.file_path, task_type)
                     if 'parameters' in result:
                         scenario.update(result['parameters'])
                     content = copy.deepcopy(result['result'])

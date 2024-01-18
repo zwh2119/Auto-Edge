@@ -73,6 +73,7 @@ class DistributorServer:
 
         source_id = data['source_id']
         task_id = data['task_id']
+        task_type = data['task_type']
         meta_data = data['meta_data']
 
         if content == 'discard':
@@ -82,9 +83,9 @@ class DistributorServer:
         num = np.mean(scenario['obj_num'])
         size = np.mean(scenario['obj_size'])
 
-        LOGGER.info(f'source:{source_id}, task:{task_id}, average object number: {num}')
+        LOGGER.info(f'source:{source_id}, task:{task_id}')
 
-        record_data = {'source': source_id, 'task': task_id,
+        record_data = {'source': source_id, 'task': task_id, 'task_type':task_type,
                        'obj_num': num, 'obj_size': size,
                        'pipeline': pipeline,
                        'meta_data': meta_data}

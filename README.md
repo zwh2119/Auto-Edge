@@ -1,4 +1,5 @@
 ## new in middle branch
+based on [v1.0.0](https://github.com/zwh2119/Auto-Edge/tree/v1.0.0), add following functional requirements:
 - support multi data stream of different modal
 - support task queue of multi priority
 - support task type of periodic tasks and abrupt tasks

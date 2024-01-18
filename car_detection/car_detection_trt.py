@@ -14,6 +14,7 @@ import tensorrt as trt
 
 import cv2
 
+
 def parse_opt(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', type=str, help='model path or triton URL')
@@ -119,7 +120,7 @@ class CarDetection:
                            "teddy bear",
                            "hair drier", "toothbrush"]
 
-        self.target_categories = ["car", "bus", "truck"]
+        self.target_categories = {'car': ["car", "bus", "truck"], 'human': ["person"]}
 
         self.warm_up()  # warmup
 
@@ -314,7 +315,10 @@ class CarDetection:
         boxes = np.stack(keep_boxes, 0) if len(keep_boxes) else np.array([])
         return boxes
 
-    def infer(self, raw_image_generator):
+    def infer(self, raw_image_generator, task_type):
+
+        assert task_type == 'car' or task_type == 'human'
+
         # Make self the active context, pushing it on top of the context stack.
         self.ctx.push()
 
@@ -385,20 +389,18 @@ class CarDetection:
                 box = result_boxes[j]
                 box_class = self.categories[int(result_classid[j])]
                 score = result_scores[j]
-                if box_class in self.target_categories:
+                if box_class in self.target_categories[task_type]:
                     frame_boxes.append(box)
                     probs.append(score)
                     cnt += 1
-                    size += ((box[2] - box[0]) * (box[3]-box[1])) / (self.input_h*self.input_w)
+                    size += ((box[2] - box[0]) * (box[3] - box[1])) / (self.input_h * self.input_w)
             output_ctx['result'].append(frame_boxes)
             output_ctx['probs'].append(probs)
             output_ctx['parameters']['obj_num'] = cnt
             output_ctx['parameters']['obj_size'] = size / cnt if cnt != 0 else 0
         return output_ctx
 
-    def __call__(self, images):
+    def __call__(self, images, task_type):
 
         assert type(images) is list
-        return self.infer(images)
-
-
+        return self.infer(images, task_type)
