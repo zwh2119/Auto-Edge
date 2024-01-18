@@ -57,7 +57,7 @@ class ControllerServer:
         scenario = data['scenario_data']
         content = data['content_data']
 
-        LOGGER.debug(f'controller get data from source {source_id}')
+        # LOGGER.debug(f'controller get data from source {source_id}')
 
         # get file data(video)
         tmp_path = f'tmp_receive_source_{source_id}_task_{task_id}.mp4'
@@ -99,6 +99,7 @@ class ControllerServer:
                 LOGGER.debug(f'controller post data from source {source_id} to other controller')
 
             else:
+
                 pipeline[index]['execute_data']['transmit_time'] = 0
 
                 # start record service time
@@ -120,6 +121,7 @@ class ControllerServer:
                 assert service_name in self.service_ports_dict
                 service_address = get_merge_address(self.local_ip, port=self.service_ports_dict[service_name],
                                                     path='predict')
+                LOGGER.debug(f'post data to service {self.service_ports_dict[service_name]}')
                 http_request(url=service_address, method='POST',
                              data={'data': json.dumps(data)},
                              files={'file': (f'tmp_{source_id}.mp4', open(tmp_path, 'rb'), 'video/mp4')}
