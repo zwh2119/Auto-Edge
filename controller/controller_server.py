@@ -97,32 +97,33 @@ class ControllerServer:
                              )
 
                 LOGGER.debug(f'controller post data from source {source_id} to other controller')
+
             else:
                 pipeline[index]['execute_data']['transmit_time'] = 0
 
-            # start record service time
-            tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
-            assert service_time == -1
+                # start record service time
+                tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
+                assert service_time == -1
 
-            response = http_request(url=self.scheduler_address, json=data)
-            priority = response['priority']
+                response = http_request(url=self.scheduler_address, json=data)
+                priority = response['priority']
 
-            data['pipeline_flow'] = pipeline
-            data['tmp_data'] = tmp_data
-            data['cur_flow_index'] = index
-            data['content_data'] = content
-            data['scenario_data'] = scenario
-            data['priority'] = priority
+                data['pipeline_flow'] = pipeline
+                data['tmp_data'] = tmp_data
+                data['cur_flow_index'] = index
+                data['content_data'] = content
+                data['scenario_data'] = scenario
+                data['priority'] = priority
 
-            # post to service
-            service_name = pipeline[index]['service_name']
-            assert service_name in self.service_ports_dict
-            service_address = get_merge_address(self.local_ip, port=self.service_ports_dict[service_name],
-                                                path='predict')
-            http_request(url=service_address, method='POST',
-                         data={'data': json.dumps(data)},
-                         files={'file': (f'tmp_{source_id}.mp4', open(tmp_path, 'rb'), 'video/mp4')}
-                         )
+                # post to service
+                service_name = pipeline[index]['service_name']
+                assert service_name in self.service_ports_dict
+                service_address = get_merge_address(self.local_ip, port=self.service_ports_dict[service_name],
+                                                    path='predict')
+                http_request(url=service_address, method='POST',
+                             data={'data': json.dumps(data)},
+                             files={'file': (f'tmp_{source_id}.mp4', open(tmp_path, 'rb'), 'video/mp4')}
+                             )
 
         else:
 

@@ -65,6 +65,16 @@ def print_result(result):
     print(PrintColors.RED_3 + f'delay:{delay}s' + PrintColors.END, end='')
     print()
 
+    if result['task_type'] == 'car':
+        print('              car detection:  importance:{}, urgency:{} -> priority:{}')
+        print('    license plate detection:  importance:{}, urgency:{} -> priority:{}')
+    elif result['task_type'] == 'human':
+        print('            human detection:  importance:{}, urgency:{} -> priority:{}')
+    else:
+        assert None, 'invalid task type'
+
+    print('-----------------------------------------------------------------')
+
 
 if __name__ == '__main__':
 
