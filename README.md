@@ -139,5 +139,7 @@ or you can mount the data record folder in distributor to volume on physical dev
 - 2024.01.06 `AutoEdge` - `v0.9.0`: build docker images of all components. 
 - 2024.01.11 `AutoEdge` - `v1.0.0`: complete the first formal version of Auto-Edge.
 - 2024.01.17 `AutoEdge` - `mid-v0.1.0`: complete supporting multi-priority task queue.
+- 2024.01.18 `AutoEdge` - `mid-v0.2.0`: complete supporting task types of periodic tasks and abrupt tasks
+
 
 ## Citation

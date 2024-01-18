@@ -11,29 +11,22 @@ from config import Context
 
 class VideoGenerator:
     def __init__(self, data_source: str, generator_id: int, priority: int,
-                 task_pipeline: list, schedule_address: str, controller_port: str,
+                 schedule_address: str, controller_port: str,
                  resolution: str, fps: int):
 
         self.data_source = data_source
         self.data_source_capture = cv2.VideoCapture(data_source)
         self.schedule_address = schedule_address
+        self.controller_port = controller_port
         self.raw_meta_data = {'resolution_raw': resolution, 'fps_raw': fps}
         self.data_source = data_source
         self.generator_id = generator_id
         self.priority = priority
-        self.task_pipeline = task_pipeline
-        self.task_pipeline.append({'service_name': 'end', 'execute_address': '', 'execute_data': {}})
 
         self.buffer_size = 8
         self.encoding = 'mp4v'
 
         self.local_ip = get_nodes_info()[Context.get_parameters('NODE_NAME')]
-
-        for task in self.task_pipeline:
-            if task['service_name'] == 'end':
-                break
-            task['execute_address'] = get_merge_address(self.local_ip, port=controller_port, path='submit_task')
-            task['execute_data'] = {}
 
     # TODO： how to process video source in real-time.
     #        currently some frames from video source
@@ -51,7 +44,7 @@ class VideoGenerator:
         frames_per_task = self.buffer_size
         fps = self.raw_meta_data['fps_raw']
         priority = {'importance': self.priority, 'urgency': 0, 'priority': 0}
-        pipeline = self.task_pipeline
+        task_type, pipeline = self.get_pipeline()
 
         response = http_request(url=self.schedule_address, method='GET', json={'source_id': self.generator_id,
                                                                                'resolution_raw': resolution_raw,
@@ -132,7 +125,7 @@ class VideoGenerator:
                              'source_ip': self.local_ip}
 
                 priority['start_time'] = time.time()
-                data = {'source_id': self.generator_id, 'task_id': cur_id, 'priority': priority,
+                data = {'source_id': self.generator_id, 'task_id': cur_id, 'task_type': task_type, 'priority': priority,
                         'meta_data': meta_data, 'pipeline_flow': pipeline, 'tmp_data': {}, 'cur_flow_index': 0,
                         'content_data': None, 'scenario_data': {}}
 
@@ -151,6 +144,8 @@ class VideoGenerator:
                 cur_id += 1
                 temp_frame_buffer = []
                 os.remove(compressed_video_pth)
+
+                task_type, pipeline = self.get_pipeline()
 
                 response = http_request(url=self.schedule_address, method='GET', json={'source_id': self.generator_id,
                                                                                        'resolution_raw': resolution_raw,
@@ -193,3 +188,17 @@ class VideoGenerator:
         out.release()
 
         return buffer_path
+
+    def get_pipeline(self):
+        response = http_request(url='http://127.0.0.1:9600/task', method='GET', json={'id': self.generator_id})
+        task_type = response['task_type']
+        pipeline = response['pipeline']
+
+        pipeline.append({'service_name': 'end', 'execute_address': '', 'execute_data': {}})
+        for task in pipeline:
+            if task['service_name'] == 'end':
+                break
+            task['execute_address'] = get_merge_address(self.local_ip, port=self.controller_port, path='submit_task')
+            task['execute_data'] = {}
+
+        return task_type, pipeline

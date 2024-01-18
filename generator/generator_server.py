@@ -15,8 +15,21 @@ from config import Context
 
 
 class GeneratorServer:
-    def __init__(self, configs):
-        self.configs = configs
+    def __init__(self, configs: list):
+        self.configs = {}
+        task_types = configs[0]['task_type']
+        self.default_task_type = None
+        for task_type in task_types:
+            self.configs[task_type['type_name']] = task_type
+            if task_type['default']:
+                self.default_task_type = task_type['type_name']
+
+        assert self.default_task_type, 'None default task type in config file'
+
+        self.task_counter = {}
+        for video_config in configs:
+            self.task_counter[video_config['id']] = {'task_type': self.default_task_type, 'counter': 0}
+
         self.app = FastAPI(routes=[
             APIRoute('/task',
                      self.get_task_type,
@@ -50,11 +63,34 @@ class GeneratorServer:
 
     async def get_task_type(self, request: Request):
         data = await request.json()
+        source_id = data['id']
+        task_type = self.task_counter[source_id]['task_type']
+        pipeline = self.configs[task_type]['pipeline']
+
+        self.task_counter[source_id]['counter'] -= 1
+        if self.task_counter[source_id]['counter'] == 0:
+            self.task_counter[source_id]['task_type'] = self.default_task_type
+
+        return {'task_type': task_type, 'pipeline': pipeline}
 
     async def query_new_task(self, request: Request):
         data = await request.json()
+        task_type = data['task_type']
+        cycle_num = data['cycle_num']
 
-        return {'msg': 'task submit success'}
+        if task_type not in self.configs:
+            return {'msg': 'Invalid task type.', 'success': False}
+        if task_type != self.default_task_type and (task_type != type(cycle_num) != int or cycle_num <= 0):
+            return {'msg': 'Invalid cycle number.', 'success': False}
+
+        for source_id in self.task_counter:
+            counter = self.task_counter[source_id]
+            counter['task_type'] = task_type
+            if task_type == self.default_task_type:
+                counter['counter'] = 0
+            else:
+                counter['counter'] = cycle_num
+        return {'msg': 'Task submit success.', 'success': True}
 
 
 def main():
@@ -71,7 +107,7 @@ def main():
 
     scheduler_address = get_merge_address(scheduler_ip, port=scheduler_port, path=scheduler_path)
     for video in videos:
-        video_generator = VideoGenerator(video['url'], video['id'], video['priority'], video['pipeline'],
+        video_generator = VideoGenerator(video['url'], video['id'], video['priority'],
                                          scheduler_address, controller_port, video['resolution'], video['fps'])
         threading.Thread(target=video_generator.run).start()
 
