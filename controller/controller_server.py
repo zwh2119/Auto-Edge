@@ -100,19 +100,19 @@ class ControllerServer:
 
                 pipeline[index]['execute_data']['transmit_time'] = 0
 
-                data['pipeline_flow'] = pipeline
-                data['tmp_data'] = tmp_data
-                data['cur_flow_index'] = index
-                data['content_data'] = content
-                data['scenario_data'] = scenario
-                data['priority'] = priority
-
                 # start record service time
                 tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
                 assert service_time == -1
 
                 response = http_request(url=self.scheduler_address, json=data)
                 priority[index] = response['priority']
+
+                data['pipeline_flow'] = pipeline
+                data['tmp_data'] = tmp_data
+                data['cur_flow_index'] = index
+                data['content_data'] = content
+                data['scenario_data'] = scenario
+                data['priority'] = priority
 
                 # post to service
                 service_name = pipeline[index]['service_name']

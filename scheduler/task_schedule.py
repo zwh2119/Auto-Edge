@@ -215,4 +215,5 @@ class Scheduler:
     def get_task_priority(self, data):
         service_name = data['pipeline_flow'][data['cur_flow_index']]['service_name']
         priority = data['priority'][data['cur_flow_index']]
+        assert priority
         return self.priority_profiler.get_task_priority(service_name, priority)

@@ -75,6 +75,7 @@ class DistributorServer:
         task_id = data['task_id']
         task_type = data['task_type']
         meta_data = data['meta_data']
+        priority = data['priority']
 
         if content == 'discard':
             LOGGER.info(f'discard package: source {source_id} /task {task_id}')
@@ -85,10 +86,11 @@ class DistributorServer:
 
         LOGGER.info(f'source:{source_id}, task:{task_id}')
 
-        record_data = {'source': source_id, 'task': task_id, 'task_type':task_type,
+        record_data = {'source': source_id, 'task': task_id, 'task_type': task_type,
                        'obj_num': num, 'obj_size': size,
                        'pipeline': pipeline,
-                       'meta_data': meta_data}
+                       'meta_data': meta_data,
+                       'priority': priority}
         self.record_process_data(source_id, task_id, record_data)
 
         # post scenario data to scheduler
