@@ -11,12 +11,13 @@ from config import Context
 
 class VideoGenerator:
     def __init__(self, data_source: str, generator_id: int, priority: int,
-                 schedule_address: str, controller_port: str,
+                 schedule_address: str, task_manage_address: str, controller_port: str,
                  resolution: str, fps: int):
 
         self.data_source = data_source
         self.data_source_capture = cv2.VideoCapture(data_source)
         self.schedule_address = schedule_address
+        self.task_manage_address = task_manage_address
         self.controller_port = controller_port
         self.raw_meta_data = {'resolution_raw': resolution, 'fps_raw': fps}
         self.data_source = data_source
@@ -190,7 +191,7 @@ class VideoGenerator:
         return buffer_path
 
     def get_pipeline(self):
-        response = http_request(url='http://127.0.0.1:9600/task', method='GET', json={'id': self.generator_id})
+        response = http_request(url=self.task_manage_address, method='GET', json={'id': self.generator_id})
         task_type = response['task_type']
         pipeline = response['pipeline']
 

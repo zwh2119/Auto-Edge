@@ -44,14 +44,14 @@ Some customized files needed to be deployed on devices previously and correspond
 file structure:
 ```
 cloud device:
-- {code_dir}/files
+- {code_dir}/files-mid
   - schedule_config.yaml
 - {code_dir}/model_lib
   - libmyplugins.so
   - yolov5s.engine
 
 edge device:
-- {code_dir}/files
+- {code_dir}/files-mid
   - video_config.yaml
 - {code_dir}/model_lib
   - libmyplugins.so
