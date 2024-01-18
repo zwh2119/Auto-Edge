@@ -91,7 +91,7 @@ class ServiceServer:
 
         tmp_path = f'tmp_receive_source_{source_id}_task_{task_id}_{time.time()}.mp4'
         with open(tmp_path, 'wb') as buffer:
-            shutil.copyfileobj(file_data, buffer)
+            buffer.write(file_data)
 
         self.task_queue.put(Task(data, tmp_path))
 

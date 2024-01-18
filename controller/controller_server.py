@@ -97,7 +97,6 @@ class ControllerServer:
                              )
 
                 LOGGER.debug(f'controller post data from source {source_id} to other controller')
-
             else:
 
                 pipeline[index]['execute_data']['transmit_time'] = 0
@@ -122,6 +121,7 @@ class ControllerServer:
                 service_address = get_merge_address(self.local_ip, port=self.service_ports_dict[service_name],
                                                     path='predict')
                 LOGGER.debug(f'post data to service {service_name}')
+                LOGGER.debug(f'tmp_path file exist: {os.path.exists(tmp_path)}')
                 http_request(url=service_address, method='POST',
                              data={'data': json.dumps(data)},
                              files={'file': (f'tmp_{source_id}.mp4', open(tmp_path, 'rb'), 'video/mp4')}
