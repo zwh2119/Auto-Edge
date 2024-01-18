@@ -1,3 +1,4 @@
+import copy
 import json
 
 import cv2
@@ -45,7 +46,7 @@ class VideoGenerator:
         frames_per_task = self.buffer_size
         fps = self.raw_meta_data['fps_raw']
         task_type, pipeline = self.get_pipeline()
-        priority = {'importance': self.priority, 'urgency': 0, 'priority': 0}
+        priority_single = {'importance': self.priority, 'urgency': 0, 'priority': 0}
 
         response = http_request(url=self.schedule_address, method='GET', json={'source_id': self.generator_id,
                                                                                'resolution_raw': resolution_raw,
@@ -125,7 +126,8 @@ class VideoGenerator:
                              'fps': fps, 'frame_number': frames_per_task, 'encoding': frame_fourcc,
                              'source_ip': self.local_ip}
 
-                priority['start_time'] = time.time()
+                priority = [priority_single.update({'start_time': time.time()})
+                            for _ in range(len(pipeline)-1)]
                 data = {'source_id': self.generator_id, 'task_id': cur_id, 'task_type': task_type, 'priority': priority,
                         'meta_data': meta_data, 'pipeline_flow': pipeline, 'tmp_data': {}, 'cur_flow_index': 0,
                         'content_data': None, 'scenario_data': {}}

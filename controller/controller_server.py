@@ -43,7 +43,7 @@ class ControllerServer:
             allow_methods=["*"], allow_headers=["*"],
         )
 
-    def service_transmit(self, data, file):
+    def service_transmit(self, data, file_data):
 
         data = json.loads(data)
 
@@ -62,8 +62,7 @@ class ControllerServer:
         # get file data(video)
         tmp_path = f'tmp_receive_source_{source_id}_task_{task_id}.mp4'
         with open(tmp_path, 'wb') as buffer:
-            shutil.copyfileobj(file.file, buffer)
-            del file
+            buffer.write(file_data)
 
         # end record transmit time
         tmp_data, transmit_time = record_time(tmp_data, f'transmit_time_{index}', read_only=True)
@@ -101,19 +100,19 @@ class ControllerServer:
 
                 pipeline[index]['execute_data']['transmit_time'] = 0
 
-                # start record service time
-                tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
-                assert service_time == -1
-
-                response = http_request(url=self.scheduler_address, json=data)
-                priority = response['priority']
-
                 data['pipeline_flow'] = pipeline
                 data['tmp_data'] = tmp_data
                 data['cur_flow_index'] = index
                 data['content_data'] = content
                 data['scenario_data'] = scenario
                 data['priority'] = priority
+
+                # start record service time
+                tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
+                assert service_time == -1
+
+                response = http_request(url=self.scheduler_address, json=data)
+                priority[index] = response['priority']
 
                 # post to service
                 service_name = pipeline[index]['service_name']
@@ -146,7 +145,8 @@ class ControllerServer:
         os.remove(tmp_path)
 
     async def deal_response(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
-        backtask.add_task(self.service_transmit, data, file)
+        file_data = await file.read()
+        backtask.add_task(self.service_transmit, data, file_data)
         return {'msg': 'data send success!'}
 
 
