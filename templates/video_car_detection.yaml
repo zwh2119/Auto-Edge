@@ -381,7 +381,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/license-plate-detection:arm64-mid-v0.1.0
+          - image: onecheck/license-plate-detection:mid-v0.1.0
             imagePullPolicy: IfNotPresent
             name: license-plate-detection
             env:
