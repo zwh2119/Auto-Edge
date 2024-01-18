@@ -1,5 +1,5 @@
 import requests
-
+import argparse
 
 def http_request(url,
                  method=None,
@@ -30,9 +30,20 @@ def http_request(url,
         print(f'Error occurred in request {url}: {err}')
 
 
-def abrupt_query():
-    pass
+def abrupt_query(task_type, task_num):
+    url = 'http://114.212.81.11:39400/task'
+    response = http_request(url, method='POST', json={'task_type': task_type, 'cycle_num': task_num})
+    if response is not None and response['success']:
+        print(f'query {task_type} for {task_num} tasks..')
+    else:
+        print(f'query {task_type} failed..')
 
 
 if __name__ == '__main__':
-    pass
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--task_type', default='human',help='task type, car or human')
+    parser.add_argument('--number', default=10, type=int, help='number of query tasks')
+
+    args = parser.parse_args()
+
+    abrupt_query(args.task_type, args.number)

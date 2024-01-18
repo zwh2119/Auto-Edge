@@ -54,7 +54,13 @@ def print_result(result):
                 break
 
     print(PrintColors.RED + f'[source:{result["source"]} task:{result["task"]}] ' + PrintColors.END, end='')
-    print(f'car_num:{result["obj_num"]} ', end='')
+    if result['task_type'] == 'car':
+        print(f'car_num:{result["obj_num"]} ', end='')
+    elif result['task_type'] == 'human':
+        print(f'human_num:{result["obj_num"]} ', end='')
+    else:
+        assert None, 'invalid task type'
+
     print(f'execute:{execute_device} ', end='')
     print(PrintColors.RED_3 + f'delay:{delay}s' + PrintColors.END, end='')
     print()
