@@ -2,5 +2,8 @@ pyyaml
 python-multipart
 colorlog
 requests
+uvicorn
+fastapi
+starlette
 opencv-python-headless
 kubernetes==20.11.0a1

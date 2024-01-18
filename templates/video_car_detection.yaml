@@ -26,6 +26,9 @@ spec:
                 value: "39200"
               - name: scheduler_name
                 value: cloud.kubeedge
+            ports:
+              - containerPort: 9600
+                hostPort: 39600
     - file:
         path: "/home/nvidia/zwh/Auto-Edge/files-mid"
       logLevel:
@@ -47,6 +50,9 @@ spec:
                   value: "39200"
                 - name: scheduler_name
                   value: cloud.kubeedge
+              ports:
+                - containerPort: 9600
+                  hostPort: 39600
 ---
 
 apiVersion: sedna.io/v1alpha1
