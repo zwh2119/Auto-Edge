@@ -83,7 +83,7 @@ class ServiceServer:
         result['parameters']['plate_num'] = content_num
         return result
 
-    def deal_service(self, data, file):
+    def deal_service(self, data, file_data):
         LOGGER.debug('receive task from controller')
         data = json.loads(data)
         source_id = data['source_id']
@@ -91,13 +91,13 @@ class ServiceServer:
 
         tmp_path = f'tmp_receive_source_{source_id}_task_{task_id}_{time.time()}.mp4'
         with open(tmp_path, 'wb') as buffer:
-            shutil.copyfileobj(file.file, buffer)
-            del file
+            shutil.copyfileobj(file_data, buffer)
 
         self.task_queue.put(Task(data, tmp_path))
 
     async def deal_request(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
-        backtask.add_task(self.deal_service, data, file)
+        file_data = await file.read()
+        backtask.add_task(self.deal_service, data, file_data)
         return {'msg': 'data send success!'}
 
     def start_uvicorn_server(self):

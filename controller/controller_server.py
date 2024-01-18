@@ -121,7 +121,7 @@ class ControllerServer:
                 assert service_name in self.service_ports_dict
                 service_address = get_merge_address(self.local_ip, port=self.service_ports_dict[service_name],
                                                     path='predict')
-                LOGGER.debug(f'post data to service {self.service_ports_dict[service_name]}')
+                LOGGER.debug(f'post data to service {service_name}')
                 http_request(url=service_address, method='POST',
                              data={'data': json.dumps(data)},
                              files={'file': (f'tmp_{source_id}.mp4', open(tmp_path, 'rb'), 'video/mp4')}
