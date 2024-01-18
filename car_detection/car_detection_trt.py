@@ -127,7 +127,7 @@ class CarDetection:
     def warm_up(self):
         for i in range(self.warm_up_turns):
             im = np.zeros([self.batch_size, self.input_h, self.input_w, 3], dtype=np.uint8)
-            self.infer(im)
+            self.infer(im, 'car')
             del im
 
     def __del__(self):
