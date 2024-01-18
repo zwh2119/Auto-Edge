@@ -126,7 +126,7 @@ class VideoGenerator:
                              'fps': fps, 'frame_number': frames_per_task, 'encoding': frame_fourcc,
                              'source_ip': self.local_ip}
 
-                priority = [priority_single.update({'start_time': time.time()})
+                priority = [copy.deepcopy(priority_single.update({'start_time': time.time()}))
                             for _ in range(len(pipeline)-1)]
                 data = {'source_id': self.generator_id, 'task_id': cur_id, 'task_type': task_type, 'priority': priority,
                         'meta_data': meta_data, 'pipeline_flow': pipeline, 'tmp_data': {}, 'cur_flow_index': 0,
