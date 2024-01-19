@@ -107,6 +107,7 @@ class ScheduleServer:
 
         for video_config in configs:
             self.task_counter[video_config['id']] = {'task_type': self.default_task_type, 'counter': 0}
+        return {'msg': 'register new config successfully'}
 
     async def get_task_type(self, request: Request):
         data = await request.json()
