@@ -104,6 +104,7 @@ class ControllerServer:
                 tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
                 assert service_time == -1
 
+                LOGGER.debug(f'before priority request: {data["priority"]}')
                 response = http_request(url=self.scheduler_address, json=data)
                 priority[index] = response['priority']
 
