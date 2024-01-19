@@ -95,7 +95,7 @@ class Scheduler:
     def run(self):
         while True:
             # LOGGER.debug('update schedule')
-            for source_id in self.schedule_table:
+            for source_id in list(self.schedule_table.keys()):
                 task_schedule = self.schedule_table[source_id]
 
                 if 'scenario' not in task_schedule:
