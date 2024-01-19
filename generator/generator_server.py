@@ -15,8 +15,10 @@ def main():
 
     video_config = yaml_utils.read_yaml(Context.get_file_path('video_config.yaml'))
     videos = video_config['video']
-    http_request(url=get_merge_address(scheduler_ip, port=scheduler_port, path='config'),
-                 method='POST', json={'config': videos})
+    response = None
+    while not response:
+        response = http_request(url=get_merge_address(scheduler_ip, port=scheduler_port, path='config'),
+                                method='POST', json={'config': videos})
 
     scheduler_address = get_merge_address(scheduler_ip, port=scheduler_port, path=scheduler_path)
     task_manage_address = get_merge_address(scheduler_ip, port=scheduler_port, path='task')
