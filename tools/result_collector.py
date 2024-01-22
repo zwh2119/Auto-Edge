@@ -53,9 +53,9 @@ def print_result(result):
                 execute_device += device[ip]
                 break
 
-    print(PrintColors.RED + f'[source:{result["source"]} task:{result["task"]}] ' + PrintColors.END, end='')
-    print(f'car_num:{result["obj_num"]} ', end='')
-    print(f'execute:{execute_device} ', end='')
+    print(PrintColors.RED + '[source:{:>1d} task:{:>3d}]   '.format(result["source"], result["task"]) + PrintColors.END, end='')
+    print('result(car number):{:>4.1f}   '.format(result["obj_num"]), end='')
+    print(f'execute:{execute_device}   ', end='')
     print(PrintColors.RED_3 + 'delay:{:.2f}s'.format(delay) + PrintColors.END, end='')
     print()
 
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     request_size = 10
     url = 'http://114.212.81.11:39500/result'
     while True:
-        time.sleep(1)
+        time.sleep(0.5)
         res = http_request(url, json={'time_ticket': time_slot, "size": request_size})
         if res is not None:
             time_slot = int(res['time_ticket'])

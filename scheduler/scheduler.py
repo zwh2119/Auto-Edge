@@ -184,11 +184,13 @@ class Scheduler:
                 latency += task['execute_data']['service_time']
         return latency
 
+    # TODO: rethink the role of fps
     def finetune_real_frame_latency(self, latency, meta_data):
         fps = meta_data['fps']
         fps_raw = meta_data['fps_raw']
         buffer_size = meta_data['frame_number']
-        return latency / int(buffer_size * fps_raw / fps)
+        # return latency / int(buffer_size * fps_raw / fps)
+        return latency
 
     def map_pipeline_2_position(self, pipeline):
         position = []
