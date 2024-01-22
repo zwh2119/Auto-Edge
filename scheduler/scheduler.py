@@ -80,7 +80,7 @@ class Scheduler:
     def get_cold_start_plan(self, info):
         cold_plan = {
             'resolution': '720p',
-            'fps': 20,
+            'fps': 15,
             'encoding': 'mp4v',
             'priority': 0,
             'pipeline': info['pipeline']
