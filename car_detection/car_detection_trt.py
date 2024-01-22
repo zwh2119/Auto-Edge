@@ -24,7 +24,7 @@ def parse_opt(args=None):
     parser.add_argument('--iou_thres', type=float, default=0.45, help='NMS IoU threshold')
     parser.add_argument('--len_one_result', type=int, default=38)
     parser.add_argument('--len_all_result', type=int, default=38001)
-    parser.add_argument('--warm_up_turns', type=int, default=5)
+    parser.add_argument('--warm_up_turns', type=int, default=20)
 
     opt = parser.parse_args(args)
     # print_args(vars(opt))

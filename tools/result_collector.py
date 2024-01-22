@@ -56,7 +56,7 @@ def print_result(result):
     print(PrintColors.RED + f'[source:{result["source"]} task:{result["task"]}] ' + PrintColors.END, end='')
     print(f'car_num:{result["obj_num"]} ', end='')
     print(f'execute:{execute_device} ', end='')
-    print(PrintColors.RED_3 + f'delay:{delay}s' + PrintColors.END, end='')
+    print(PrintColors.RED_3 + 'delay:{:.2f}s'.format(delay) + PrintColors.END, end='')
     print()
 
 
