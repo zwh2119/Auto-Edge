@@ -70,15 +70,20 @@ class VideoGenerator:
         fps_mode, skip_frame_interval, remain_frame_interval = self.get_fps_adjust_mode(fps_raw, fps)
 
         temp_frame_buffer = []
+        update_flag = True
         while True:
             ret, frame = self.data_source_capture.read()
 
             # retry when no video signal
             while not ret:
-                LOGGER.warning(f'no video signal of source {self.generator_id}')
-                time.sleep(1)
+                if update_flag:
+                    LOGGER.warning(f'no video signal of source {self.generator_id}')
+                    update_flag = False
+                cnt = 0
                 self.data_source_capture = cv2.VideoCapture(self.data_source)
                 ret, frame = self.data_source_capture.read()
+
+            update_flag = True
 
             LOGGER.debug(f'get a frame from source {self.generator_id}')
             resolution_raw = resolution2text((self.data_source_capture.get(cv2.CAP_PROP_FRAME_WIDTH),
