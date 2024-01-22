@@ -42,7 +42,7 @@ def print_result(result):
         if 'service_time' in execute:
             delay += execute['service_time']
 
-    device = {'192.168.1.2': 'edge1', '192.168.1.4': 'edge2', '114.212.81.11': 'cloud'}
+    device = {'192.168.1.2': 'edge1', '192.168.1.4': 'edge2','192.168.1.5': 'edge2', '114.212.81.11': 'cloud'}
     execute_device = ''
     for i, stage in enumerate(result["pipeline"][:-1]):
         addr = stage["execute_address"]
