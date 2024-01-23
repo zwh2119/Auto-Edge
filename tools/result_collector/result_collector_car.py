@@ -65,11 +65,13 @@ def print_result(result):
     print(PrintColors.RED_3 + f'delay:{delay}s' + PrintColors.END, end='')
     print()
 
+    priority = result['priority']
+
     if result['task_type'] == 'car':
-        print('              car detection:  importance:{}, urgency:{} -> priority:{}')
-        print('    license plate detection:  importance:{}, urgency:{} -> priority:{}')
+        print(f'              car detection:  importance:{priority[0]["importance"]}, urgency:{priority[0]["urgency"]} -> priority:{priority[0]["priority"]}')
+        print(f'    license plate detection:  importance:{priority[1]["importance"]}, urgency:{priority[1]["urgency"]} -> priority:{priority[1]["priority"]}')
     elif result['task_type'] == 'human':
-        print('            human detection:  importance:{}, urgency:{} -> priority:{}')
+        print(f'            human detection:  importance:{priority[0]["importance"]}, urgency:{priority[0]["urgency"]} -> priority:{priority[0]["priority"]}')
     else:
         assert None, 'invalid task type'
 
