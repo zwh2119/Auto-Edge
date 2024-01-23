@@ -76,6 +76,7 @@ class DistributorServer:
         task_type = data['task_type']
         meta_data = data['meta_data']
         priority = data['priority']
+        LOGGER.debug(f'priority info: {priority}')
 
         if content == 'discard':
             LOGGER.info(f'discard package: source {source_id} /task {task_id}')

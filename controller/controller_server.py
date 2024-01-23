@@ -115,6 +115,8 @@ class ControllerServer:
                 data['scenario_data'] = scenario
                 data['priority'] = priority
 
+                LOGGER.debug(f'after priority request: {data["priority"]}')
+
                 # post to service
                 service_name = pipeline[index]['service_name']
                 assert service_name in self.service_ports_dict
@@ -138,6 +140,7 @@ class ControllerServer:
             data['cur_flow_index'] = index
             data['content_data'] = content
             data['scenario_data'] = scenario
+            data['priority'] = priority
 
             # post to distributor
             http_request(url=self.distribute_address, method='POST', json=data)
