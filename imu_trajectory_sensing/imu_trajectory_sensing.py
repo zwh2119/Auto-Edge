@@ -1,24 +1,14 @@
 # add base path to sys.path
 import os, sys
 
-print(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from framework.service.processor import Processor
-from framework.message_queue.mqtt import MqttSubscriber, MqttPublisher
 import json
 import base64
 import numpy as np
 import threading
 from scipy.integrate import cumtrapz
 
-if __name__ == '__main__':
-    from imu_task import ImuTask
-else:
-    from .imu_task import ImuTask
 
-
-class ImuProcessor1(Processor):
+class ImuProcessor1:
     def __init__(self, id: str, incoming_mq_topic: str, outgoing_mq_topic: str,
                  priority: int, tuned_parameters: dict,
                  mqtt_host: str = 'localhost', mqtt_port: int = 1883, mqtt_username: str = 'admin',
