@@ -160,12 +160,12 @@ class Scheduler:
         if direction < 0:
             for i in range(len(position) - 1, -1, -1):
                 if position[i] == source_position:
-                    position[i] = 'cloud'
+                    position[i] = 'cloud.kubeedge'
                     done = True
                     break
         else:
             for i in range(len(position)):
-                if position[i] == 'cloud':
+                if position[i] == 'cloud.kubeedge':
                     position[i] = source_position
                     done = True
                     break
