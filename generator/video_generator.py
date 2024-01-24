@@ -25,7 +25,7 @@ class VideoGenerator:
         self.generator_id = generator_id
         self.priority = priority
 
-        self.buffer_size = 8
+        self.buffer_size = 4
         self.encoding = 'mp4v'
 
         self.local_ip = get_nodes_info()[Context.get_parameters('NODE_NAME')]

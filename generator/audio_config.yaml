@@ -1,0 +1,11 @@
+audio:
+  - id: 0
+    description: "audio"
+    url: "rtsp://192.168.1.6/video1"
+    priority: 7
+    task_type:
+      - type_name: "audio"
+        default: true
+        pipeline:
+          - service_name: "audio-sampling"
+          - service_name: "audio-classification"

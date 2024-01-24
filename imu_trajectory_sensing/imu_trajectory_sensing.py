@@ -1,39 +1,15 @@
-# add base path to sys.path
-import os, sys
-
 import json
-import base64
 import numpy as np
-import threading
 from scipy.integrate import cumtrapz
 
 
-class ImuProcessor1:
+class ImuProcessor:
     def __init__(self):
         pass
 
-    def run(self):
-        while True:
-            if len(self.local_task_queue) > 0:
-                # task = self.get_task_from_incoming_mq()
-                # print(task.get_seq_id())
-                # print(task.get_source_id())
-                # print(task.get_data())
-                # continue
-
-                R = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-                task = self.get_task_from_incoming_mq()
-                # print(task.get_seq_id())
-                # print(task.get_source_id())
-                # print(len(task.get_data()))
-                # print(task.get_priority())
-                print(
-                    f"Processing task {task.get_seq_id()} from source {task.get_source_id()}, task size: {len(task.get_data())}")
-                # data = base64.b64decode(task.get_data().encode('utf-8'))
-                data = np.frombuffer(base64.b64decode(task.get_data().encode('utf-8'))).reshape((-1, 7))
-                process_result = self.getPCA4(data, R)
-
-
+    def __call__(self, data):
+        R = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        process_result = self.getPCA4(data, R)
 
     def getPCA4(self, data, R):
         lpms_time = data[:, 0]
@@ -125,7 +101,6 @@ class ImuProcessor1:
         # Raw velocity
         velocity = np.copy(linearacc_proj)
         for i in range(3):
-
             velocity[:, i] = cumtrapz(linearacc_proj[:, i], watch_time[:], initial=0)
 
         # Calibrated velocity
@@ -140,20 +115,3 @@ class ImuProcessor1:
             displacement[:, i] = cumtrapz(v_calibrate[:, i], watch_time[:], initial=0)
 
         return displacement
-
-
-if __name__ == '__main__':
-    # parse args from cmd
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Imu processor')
-    parser.add_argument('--id', type=str, help='processor id')
-    # parser.add_argument('--incoming_mq_topic', type=str, help='incoming message queue topic')
-    # parser.add_argument('--outgoing_mq_topic', type=str, help='outgoing message queue topic')
-    # parser.add_argument('--priority', type=int, help='processor priority')
-    # parser.add_argument('--tuned_parameters', type=str, help='processor tuned parameters')
-    args = parser.parse_args()
-    id = args.id
-    processor = ImuProcessor1(f'processor_stage_1_instance_{id}', '$share/python/testapp/generator',
-                              'testapp/processor_stage_1', 0, {})
-    processor.run()

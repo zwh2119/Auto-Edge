@@ -12,7 +12,7 @@ from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from imu_trajectory_sensing import
+from car_detection_trt import CarDetection
 
 from log import LOGGER
 from config import Context
