@@ -46,7 +46,8 @@ class ServiceServer:
             allow_methods=["*"], allow_headers=["*"],
         )
 
-        self.task_queue = LocalPriorityQueue()
+        self.max_queue_size = eval(Context.get_parameters('max_queue_size'))
+        self.task_queue = LocalPriorityQueue(max_size=self.max_queue_size)
 
     def cal(self, file_path, content):
         result = {}
