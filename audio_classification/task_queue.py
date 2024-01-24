@@ -3,7 +3,7 @@ from queue import PriorityQueue as PQ
 from task import Task
 
 
-class LocalPrioårityQueue:
+class LocalPriorityQueue:
     def __init__(self, max_size=10) -> None:
         self._queue = PQ()
         self.lock = threading.Lock()
