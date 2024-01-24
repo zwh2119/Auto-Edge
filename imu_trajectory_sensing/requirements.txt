@@ -1,0 +1,11 @@
+
+colorlog
+numpy
+pandas
+scipy
+uvicorn
+fastapi
+starlette
+python-multipart
+kubernetes==20.11.0a1
+

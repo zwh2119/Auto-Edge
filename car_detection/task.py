@@ -4,4 +4,5 @@ class Task:
         self.file_path = file
 
     def __lt__(self, other):
-        return self.metadata['priority']['priority'] > other.metadata['priority']['priority']
+        index = self.metadata['cur_flow_index']
+        return self.metadata['priority'][index]['priority'] > other.metadata['priority'][index]['priority']

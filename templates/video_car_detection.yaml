@@ -26,6 +26,8 @@ spec:
                 value: "39200"
               - name: scheduler_name
                 value: cloud.kubeedge
+              - name: modal
+                value: 'video'
     - file:
         path: "/home/nvidia/zwh/Auto-Edge/files-mid"
       logLevel:
@@ -47,6 +49,9 @@ spec:
                   value: "39200"
                 - name: scheduler_name
                   value: cloud.kubeedge
+                - name: modal
+                  value: 'video'
+
 ---
 
 apiVersion: sedna.io/v1alpha1

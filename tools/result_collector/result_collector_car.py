@@ -74,7 +74,8 @@ def print_result(result):
         print(f'            human detection:  importance:{priority[0]["importance"]}, urgency:{priority[0]["urgency"]} -> priority:{priority[0]["priority"]}')
     else:
         assert None, 'invalid task type'
-
+    # print(result['pipeline'])
+    # print(result)
     print('-----------------------------------------------------------------')
 
 
