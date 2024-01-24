@@ -121,10 +121,15 @@ class Scheduler:
 
     def adjust_plan_configuration(self, pid_out, meta_data, pipeline):
         position = self.map_pipeline_2_position(pipeline)
-        resolution = meta_data['resolution']
-        fps = round(meta_data['fps'])
-        resolution_raw = meta_data['resolution_raw']
-        fps_raw = round(meta_data['fps_raw'])
+        try:
+            resolution = meta_data['resolution']
+            fps = round(meta_data['fps'])
+            resolution_raw = meta_data['resolution_raw']
+            fps_raw = round(meta_data['fps_raw'])
+            is_video = True
+        except Exception as e:
+            is_video = False
+
 
         source_device = self.address_diverse_dict[get_merge_address(meta_data['source_ip'], port=self.controller_port,
                                                                     path='submit_task')]
@@ -190,10 +195,11 @@ class Scheduler:
         return latency
 
     def finetune_real_frame_latency(self, latency, meta_data):
-        fps = meta_data['fps']
-        fps_raw = meta_data['fps_raw']
-        buffer_size = meta_data['frame_number']
-        return latency / int(buffer_size * fps_raw / fps)
+        # fps = meta_data['fps']
+        # fps_raw = meta_data['fps_raw']
+        # buffer_size = meta_data['frame_number']
+        # return latency / int(buffer_size * fps_raw / fps)
+        return latency
 
     def map_pipeline_2_position(self, pipeline):
         position = []

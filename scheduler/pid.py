@@ -35,20 +35,27 @@ class PIDController:
     def set_setpoint(self, setpoint):
         self.setpoint = setpoint
 
+    # def update(self, current_value):
+    #
+    #     error = self.setpoint - current_value
+    #     self.cur_time = time.time()
+    #     dt = self.cur_time - self.last_time
+    #     self.integral += error
+    #     derivative = (error - self.previous_error) / dt if dt > 0 else 0
+    #     output = self.Kp * error + self.Ki * self.integral + self.Kd * derivative
+    #     self.previous_error = error
+    #
+    #     # ## 控制边际，防止过度调控（自动化领域需要，这里是否需要保留？）
+    #     # if output < self.min_value:
+    #     #     output = self.min_value
+    #     # elif output > self.max_value:
+    #     #     output = self.max_value
+    #
+    #     return output
+
     def update(self, current_value):
 
         error = self.setpoint - current_value
-        self.cur_time = time.time()
-        dt = self.cur_time - self.last_time
-        self.integral += error
-        derivative = (error - self.previous_error) / dt if dt > 0 else 0
-        output = self.Kp * error + self.Ki * self.integral + self.Kd * derivative
-        self.previous_error = error
-
-        # ## 控制边际，防止过度调控（自动化领域需要，这里是否需要保留？）
-        # if output < self.min_value:
-        #     output = self.min_value
-        # elif output > self.max_value:
-        #     output = self.max_value
+        output = self.Kp * error
 
         return output

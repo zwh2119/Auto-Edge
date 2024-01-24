@@ -188,7 +188,7 @@ spec:
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
               - name: user_constraint
-                value: "0.1"
+                value: "0.8"
               - name: controller_port
                 value: "39200"
               - name: importance_weight
