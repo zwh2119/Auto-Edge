@@ -12,7 +12,7 @@ from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from imu_trajectory_sensing import
+from imu_trajectory_sensing import ImuProcessor
 
 from log import LOGGER
 from config import Context
@@ -40,19 +40,7 @@ class ServiceServer:
 
         self.controller_address = get_merge_address(self.local_ip, port=self.controller_port, path='submit_task')
 
-        self.batch_size = 8
-        self.device = 0
-        self.plugin_Library = Context.get_file_path('libmyplugins.so')
-        self.engine_file_path = Context.get_file_path('yolov5s.engine')
-
-        service_args = {
-            'weights': self.engine_file_path,
-            'plugin_library': self.plugin_Library,
-            'batch_size': self.batch_size,
-            'device': self.device
-        }
-
-        self.estimator = CarDetection(service_args)
+        self.estimator = ImuProcessor()
 
         self.app.add_middleware(
             CORSMiddleware, allow_origins=["*"], allow_credentials=True,
@@ -62,16 +50,8 @@ class ServiceServer:
         self.task_queue = LocalPriorityQueue()
 
     def cal(self, file_path, task_type):
-        content = []
-        video_cap = cv2.VideoCapture(file_path)
 
-        while True:
-            ret, frame = video_cap.read()
-            if not ret:
-                break
-            content.append(frame)
-
-        result = self.estimator(content, task_type)
+        result = self.estimator(file_path)
 
         assert type(result) is dict
 
@@ -80,10 +60,8 @@ class ServiceServer:
     def deal_service(self, data, file_data):
         LOGGER.debug('receive task from controller')
         data = json.loads(data)
-        source_id = data['source_id']
-        task_id = data['task_id']
+        tmp_path = data['file_name']
 
-        tmp_path = f'tmp_receive_source_{source_id}_task_{task_id}_{time.time()}.mp4'
         with open(tmp_path, 'wb') as buffer:
             buffer.write(file_data)
 
@@ -145,9 +123,9 @@ class ServiceServer:
 
                     http_request(url=self.controller_address, method='POST',
                                  data={'data': json.dumps(data)},
-                                 files={'file': (f'tmp_{source_id}.mp4',
+                                 files={'file': (data['file_name'],
                                                  open(task.file_path, 'rb'),
-                                                 'video/mp4')}
+                                                 'multipart/form-data')}
                                  )
                     os.remove(task.file_path)
 

@@ -124,7 +124,7 @@ class ControllerServer:
                 LOGGER.debug(f'tmp_path file exist: {os.path.exists(tmp_path)}')
                 http_request(url=service_address, method='POST',
                              data={'data': json.dumps(data)},
-                             files={'file': (f'tmp_{source_id}.mp4', open(tmp_path, 'rb'), 'video/mp4')}
+                             files={'file': (data['file_name'], open(tmp_path, 'rb'), 'multipart/form-data')}
                              )
 
         else:

@@ -28,15 +28,16 @@ def main():
     scheduler_address = get_merge_address(scheduler_ip, port=scheduler_port, path=scheduler_path)
     task_manage_address = get_merge_address(scheduler_ip, port=scheduler_port, path='task')
     for source in data:
+        generator = None
         if data_modal == 'video':
             generator = VideoGenerator(source['url'], source['id'], source['priority'],
                                              scheduler_address, task_manage_address,
                                              controller_port, source['resolution'],
                                              source['fps'])
         elif data_modal == 'audio':
-            pass
+            generator = AudioGenerator()
         elif data_modal == 'imu':
-            pass
+            generator = IMUGenerator()
         else:
             assert None, 'Invalid data modal!'
 
