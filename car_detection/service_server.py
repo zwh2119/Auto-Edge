@@ -59,7 +59,7 @@ class ServiceServer:
             allow_methods=["*"], allow_headers=["*"],
         )
 
-        self.task_queue = LocalPriorityQueue()
+        self.task_queue = LocalPriorityQueue(max_size=10)
 
     def cal(self, file_path, task_type):
         content = []

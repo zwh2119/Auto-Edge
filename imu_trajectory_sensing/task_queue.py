@@ -4,12 +4,16 @@ from task import Task
 
 
 class LocalPriorityQueue:
-    def __init__(self) -> None:
+    def __init__(self, max_size=10) -> None:
         self._queue = PQ()
         self.lock = threading.Lock()
 
+        self._MAX_SIZE = 10
+
     def put(self, task: Task) -> None:
         with self.lock:
+            if self._queue.qsize() > self._MAX_SIZE:
+                self._queue.get()
             self._queue.put(task)
 
     def get(self):
@@ -24,4 +28,3 @@ class LocalPriorityQueue:
 
     def empty(self) -> bool:
         return self._queue.empty()
-
