@@ -121,7 +121,11 @@ class ServiceServer:
                     content = task.metadata['content_data']
                     task_type = task.metadata['task_type']
 
+                    start_time = time.time()
                     result = self.cal(task.file_path, task_type)
+                    end_time = time.time()
+                    LOGGER.debug(f'real inference time:{end_time-start_time}')
+
                     if 'parameters' in result:
                         scenario.update(result['parameters'])
                     content = copy.deepcopy(result['result'])
