@@ -56,21 +56,11 @@ class IMUGenerator:
 
             update_flag = True
 
-            LOGGER.debug(f'get a frame from source {self.generator_id}')
-            resolution_raw = resolution2text((self.data_source_capture.get(cv2.CAP_PROP_FRAME_WIDTH),
-                                              self.data_source_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-            fps_raw = self.data_source_capture.get(cv2.CAP_PROP_FPS)
 
-            # adjust resolution
-            frame = cv2.resize(frame, text2resolution(frame_resolution))
 
             # adjust fps
             cnt += 1
-            if fps_mode == 'skip' and cnt % skip_frame_interval == 0:
-                continue
 
-            if fps_mode == 'remain' and cnt % remain_frame_interval != 0:
-                continue
 
             # put frame in buffer
             temp_frame_buffer.append(frame)
@@ -78,7 +68,6 @@ class IMUGenerator:
                 continue
             else:
                 # compress frames in the buffer into a short video
-                compressed_video_pth = self.compress_frames(temp_frame_buffer, frame_fourcc)
 
                 """
                 data structure
