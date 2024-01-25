@@ -75,7 +75,7 @@ def print_result(result):
     else:
         assert None, 'invalid task type'
     # print(result['pipeline'])
-    print(result)
+    # print(result)
     print('-----------------------------------------------------------------')
 
 

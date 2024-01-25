@@ -320,7 +320,7 @@ spec:
               - name: controller_port
                 value: "39200"
               - name: max_queue_size
-                value: 5
+                value: "5"
             ports:
               - containerPort: 9001
                 hostPort: 39001
@@ -342,7 +342,7 @@ spec:
               - name: controller_port
                 value: "39200"
               - name: max_queue_size
-                value: 5
+                value: "5"
             ports:
               - containerPort: 9001
                 hostPort: 39001
@@ -363,7 +363,7 @@ spec:
               - name: controller_port
                 value: "39200"
               - name: max_queue_size
-                value: 5
+                value: "5"
             ports:
               - containerPort: 9001
                 hostPort: 39001
@@ -393,7 +393,7 @@ spec:
               - name: controller_port
                 value: "39200"
               - name: max_queue_size
-                value: 5
+                value: "5"
             ports:
               - containerPort: 9002
                 hostPort: 39002
@@ -413,7 +413,7 @@ spec:
               - name: controller_port
                 value: "39200"
               - name: max_queue_size
-                value: 5
+                value: "5"
             ports:
               - containerPort: 9002
                 hostPort: 39002
@@ -432,7 +432,7 @@ spec:
               - name: controller_port
                 value: "39200"
               - name: max_queue_size
-                value: 5
+                value: "5"
             ports:
               - containerPort: 9002
                 hostPort: 39002

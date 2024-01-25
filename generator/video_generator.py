@@ -133,6 +133,7 @@ class VideoGenerator:
                     priority.append(temp_priority_single)
 
                 data = {'source_id': self.generator_id, 'task_id': cur_id, 'task_type': task_type, 'priority': priority,
+                        'file_name':f'temp_{self.generator_id}_{cur_id}.mp4',
                         'meta_data': meta_data, 'pipeline_flow': pipeline, 'tmp_data': {}, 'cur_flow_index': 0,
                         'content_data': None, 'scenario_data': {}}
 
