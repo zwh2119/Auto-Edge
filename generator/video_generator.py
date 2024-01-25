@@ -126,14 +126,16 @@ class VideoGenerator:
                              'fps': fps, 'frame_number': frames_per_task, 'encoding': frame_fourcc,
                              'source_ip': self.local_ip}
 
+                file_name = f'temp_{self.generator_id}_{cur_id}.mp4'
+
                 priority = []
-                for _ in range(len(pipeline)-1):
+                for _ in range(len(pipeline) - 1):
                     temp_priority_single = copy.deepcopy(priority_single)
                     temp_priority_single['start_time'] = time.time()
                     priority.append(temp_priority_single)
 
                 data = {'source_id': self.generator_id, 'task_id': cur_id, 'task_type': task_type, 'priority': priority,
-                        'file_name':f'temp_{self.generator_id}_{cur_id}.mp4',
+                        'file_name': file_name,
                         'meta_data': meta_data, 'pipeline_flow': pipeline, 'tmp_data': {}, 'cur_flow_index': 0,
                         'content_data': None, 'scenario_data': {}}
 
@@ -144,7 +146,7 @@ class VideoGenerator:
                 http_request(url=data['pipeline_flow'][data['cur_flow_index']]['execute_address'],
                              method='POST',
                              data={'data': json.dumps(data)},
-                             files={'file': (f'tmp_{self.generator_id}.mp4',
+                             files={'file': (file_name,
                                              open(compressed_video_pth, 'rb'),
                                              'video/mp4')}
                              )

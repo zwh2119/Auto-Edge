@@ -88,7 +88,7 @@ class ControllerServer:
                 # post to other controllers
                 http_request(url=cur_service['execute_address'], method='POST',
                              data={'data': json.dumps(data)},
-                             files={'file': (f'tmp_{source_id}.mp4',
+                             files={'file': (data['file_name'],
                                              open(tmp_path, 'rb'),
                                              'video/mp4')}
                              )

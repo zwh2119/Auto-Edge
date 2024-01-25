@@ -1,8 +1,11 @@
 import copy
 import json
+import shutil
 
 import cv2
 import os
+
+import requests
 
 from utils import *
 from log import LOGGER
@@ -27,112 +30,64 @@ class IMUGenerator:
 
     def run(self):
         cur_id = 0
-        cnt = 0
 
         task_type, pipeline = self.get_pipeline()
         priority_single = {'importance': self.priority, 'urgency': 0, 'priority': 0}
 
-        response = http_request(url=self.schedule_address, method='GET', json={'source_id': self.generator_id,
-                                                                               'pipeline': pipeline})
+        response = http_request(url=self.schedule_address, method='GET',
+                                json={'source_id': self.generator_id,
+                                      'pipeline': pipeline})
 
         if response is not None:
             tuned_parameters = response['plan']
-
-            # priority = tuned_parameters['priority']
             pipeline = tuned_parameters['pipeline']
 
-        update_flag = True
         while True:
-            ret, frame = self.data_source_capture.read()
+            file_path = None
 
-            # retry when no video signal
-            while not ret:
-                if update_flag:
-                    LOGGER.warning(f'no video signal of source {self.generator_id}')
-                    update_flag = False
-                cnt = 0
-                self.data_source_capture = cv2.VideoCapture(self.data_source)
-                ret, frame = self.data_source_capture.read()
+            while not file_path:
+                file_path = self.get_stream_data()
 
-            update_flag = True
+            LOGGER.debug(f'get an imu file from source {self.generator_id}')
 
+            meta_data = {'source_ip': self.local_ip}
 
+            file_name = f'temp_{self.generator_id}_{cur_id}'
 
-            # adjust fps
-            cnt += 1
+            priority = []
+            for _ in range(len(pipeline) - 1):
+                temp_priority_single = copy.deepcopy(priority_single)
+                temp_priority_single['start_time'] = time.time()
+                priority.append(temp_priority_single)
 
+            data = {'source_id': self.generator_id, 'task_id': cur_id, 'task_type': task_type, 'priority': priority,
+                    'meta_data': meta_data, 'pipeline_flow': pipeline, 'tmp_data': {}, 'cur_flow_index': 0,
+                    'content_data': None, 'scenario_data': {}}
 
-            # put frame in buffer
-            temp_frame_buffer.append(frame)
-            if len(temp_frame_buffer) < frames_per_task:
-                continue
-            else:
-                # compress frames in the buffer into a short video
+            # start record transmit time
+            data['tmp_data'], _ = record_time(data['tmp_data'], f'transmit_time_{data["cur_flow_index"]}')
 
-                """
-                data structure
+            # post task to local controller
+            http_request(url=data['pipeline_flow'][data['cur_flow_index']]['execute_address'],
+                         method='POST',
+                         data={'data': json.dumps(data)},
+                         files={'file': (file_name,
+                                         open(file_path, 'rb'),
+                                         'multipart/form-data')}
+                         )
 
-                1.source_id
-                2.task_id
-                3.priority 
-                4.meta_data:{resolution_raw, fps_raw, resolution, frame_number,
-                            skip_interval, encoding， generate_ip}
+            cur_id += 1
 
-                5.pipeline_flow:[service1, service2,..., end]
-                    service:{service_name, execute_address, execute_data}
-                    execute_data:{service_time, transmit_time, acc}
-                6.cur_flow_index
-                7.scenario_data:{obj_num, obj_size, stable}
-                8.content_data (middle_result/result)
-                9.tmp_data:{} (middle_record)
+            os.remove(file_path)
 
-                """
-                meta_data = {'source_ip': self.local_ip}
+            task_type, pipeline = self.get_pipeline()
 
-                priority = []
-                for _ in range(len(pipeline) - 1):
-                    temp_priority_single = copy.deepcopy(priority_single)
-                    temp_priority_single['start_time'] = time.time()
-                    priority.append(temp_priority_single)
-
-                data = {'source_id': self.generator_id, 'task_id': cur_id, 'task_type': task_type, 'priority': priority,
-                        'meta_data': meta_data, 'pipeline_flow': pipeline, 'tmp_data': {}, 'cur_flow_index': 0,
-                        'content_data': None, 'scenario_data': {}}
-
-                # start record transmit time
-                data['tmp_data'], _ = record_time(data['tmp_data'], f'transmit_time_{data["cur_flow_index"]}')
-
-                # post task to local controller
-                http_request(url=data['pipeline_flow'][data['cur_flow_index']]['execute_address'],
-                             method='POST',
-                             data={'data': json.dumps(data)},
-                             files={'file': (f'tmp_{self.generator_id}.mp4',
-                                             open(compressed_video_pth, 'rb'),
-                                             'video/mp4')}
-                             )
-
-                cur_id += 1
-                temp_frame_buffer = []
-                os.remove(compressed_video_pth)
-
-                task_type, pipeline = self.get_pipeline()
-
-                response = http_request(url=self.schedule_address, method='GET', json={'source_id': self.generator_id,
-                                                                                       'resolution_raw': resolution_raw,
-                                                                                       'fps_raw': fps_raw,
-                                                                                       'pipeline': pipeline})
-
-                if response is not None:
-                    tuned_parameters = response['plan']
-
-                    frame_resolution = tuned_parameters['resolution']
-                    frame_fourcc = tuned_parameters['encoding']
-                    fps = tuned_parameters['fps']
-                    # priority = tuned_parameters['priority']
-                    pipeline = tuned_parameters['pipeline']
-
-                fps = min(fps, fps_raw)
-                fps_mode, skip_frame_interval, remain_frame_interval = self.get_fps_adjust_mode(fps_raw, fps)
+            response = http_request(url=self.schedule_address, method='GET',
+                                    json={'source_id': self.generator_id,
+                                          'pipeline': pipeline})
+            if response is not None:
+                tuned_parameters = response['plan']
+                pipeline = tuned_parameters['pipeline']
 
     def get_pipeline(self):
         response = http_request(url=self.task_manage_address, method='GET', json={'id': self.generator_id})
@@ -147,3 +102,18 @@ class IMUGenerator:
             task['execute_data'] = {}
 
         return task_type, pipeline
+
+    def get_stream_data(self):
+        response = http_request(url=self.data_source, no_decode=True, stream=True)
+        if response.status_code == 200:
+
+            content_disposition = response.headers.get('content-disposition')
+            file_name = content_disposition.split('filename=')[1]
+
+            with open(file_name, 'wb') as f:
+                response.raw.decode_content = True
+                shutil.copyfileobj(response.raw, f)
+            return file_name
+
+        else:
+            return None
