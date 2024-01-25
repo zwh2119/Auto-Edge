@@ -6,31 +6,26 @@ import logmmse
 import librosa
 
 
-class AudioProcessor1:
+class AudioSampling:
     def __init__(self):
-        self.lock = threading.Lock()
-        self.local_task_queue = []
+        pass
 
-    def run(self):
+    def __cal__(self, data):
 
-        while True:
-            if len(self.local_task_queue) > 0:
-                task = self.get_task_from_incoming_mq()
+        data = base64.b64decode(task.get_data().encode('utf-8'))
 
-                data = base64.b64decode(task.get_data().encode('utf-8'))
+        if task.get_metadata()['resample_rate'] != 0:
+            data = self.resample(data, task.get_metadata()['framerate'], task.get_metadata()['resample_rate'])
 
-                if task.get_metadata()['resample_rate'] != 0:
-                    data = self.resample(data, task.get_metadata()['framerate'], task.get_metadata()['resample_rate'])
+        process_result = self.remove_noise(data, task.get_metadata()["framerate"] if task.get_metadata()[
+                                                                                         "resample_rate"] == 0 else
+        task.get_metadata()["resample_rate"], task.get_metadata()['sampwidth'], task.get_metadata()['nchannels'])
+        # print(f"Processed result: {process_result}")
 
-                process_result = self.remove_noise(data, task.get_metadata()["framerate"] if task.get_metadata()[
-                                                                                                 "resample_rate"] == 0 else
-                task.get_metadata()["resample_rate"], task.get_metadata()['sampwidth'], task.get_metadata()['nchannels'])
-                # print(f"Processed result: {process_result}")
-
-                base64_process_result = base64.b64encode(process_result).decode('utf-8')
-                processed_task = AudioTask(base64_process_result, task.get_seq_id(), task.get_source_id(),
-                                           self.get_priority(), task.get_metadata())
-                self.send_task_to_outgoing_mq(processed_task)
+        base64_process_result = base64.b64encode(process_result).decode('utf-8')
+        processed_task = AudioTask(base64_process_result, task.get_seq_id(), task.get_source_id(),
+                                   self.get_priority(), task.get_metadata())
+        self.send_task_to_outgoing_mq(processed_task)
 
     def resample(self, data, framerate, resample_rate):
         if framerate <= resample_rate:

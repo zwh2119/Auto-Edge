@@ -7,19 +7,11 @@ import librosa
 print(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from framework.service.processor import Processor
-from framework.message_queue.mqtt import MqttSubscriber, MqttPublisher
 import json
 import time
-import threading
-import base64
+
 import numpy as np
 import torch
-
-if __name__ == '__main__':
-    from audio_task import AudioTask
-else:
-    from .audio_task import AudioTask
 
 model_path = 'model.pth'
 device = torch.device("cuda:0" if (torch.cuda.is_available()) else "cpu")
@@ -41,91 +33,33 @@ sound_categories = [
 ]
 
 
-class AudioProcessor2(Processor):
-    def __init__(self, id: str, incoming_mq_topic: str, outgoing_mq_topic: str,
-                 priority: int, tuned_parameters: dict,
-                 mqtt_host: str = '138.3.208.203', mqtt_port: int = 1883, mqtt_username: str = 'admin',
-                 mqtt_password: str = 'admin'):
-        super().__init__(id, incoming_mq_topic, outgoing_mq_topic, priority, tuned_parameters)
-        mqtt_client_id = str(id)
-        self.subscriber = MqttSubscriber(mqtt_host, mqtt_port, mqtt_username, mqtt_password,
-                                         mqtt_client_id + "_subscriber")
-        self.publisher = MqttPublisher(mqtt_host, mqtt_port, mqtt_username, mqtt_password,
-                                       mqtt_client_id + "_publisher")
-        # This will be accessed by different threads, so we need to use a lock
-        self.lock = threading.Lock()
-        self.local_task_queue = []
+class AudioClassification:
+    def __init__(self):
+        pass
 
-    @classmethod
-    def processor_type(cls) -> str:
-        return 'audio'
+    def run(self, data):
 
-    @classmethod
-    def processor_description(cls) -> str:
-        return 'Audio processor2'
+        task = self.get_task_from_incoming_mq()
+        print(
+            f"Processing task {task.get_seq_id()} from source {task.get_source_id()}, task size: {len(task.get_data())}")
+        task_data = base64.b64decode(task.get_data().encode('utf-8'))
+        mode = task.get_metadata()["mode"]
+        if mode == 1:
+            pass
+        elif mode == 2:
+            index, time = self.infer(task_data, task.get_metadata()["framerate"] if task.get_metadata()[
+                                                                                        "resample_rate"] == 0 else
+            task.get_metadata()["resample_rate"])
+            print("time: ", time)
+            # index = 4
+            task.get_metadata().update({"category": str(index) + '-' + sound_categories[index]})
 
-    def get_id(self) -> str:
-        return self._id
-
-    def get_incoming_mq_topic(self) -> str:
-        return self._incoming_mq_topic
-
-    def get_outgoing_mq_topic(self) -> str:
-        return self._outgoing_mq_topic
-
-    def get_priority(self) -> int:
-        return self._priority
-
-    def set_priority(self, priority: int):
-        self._priority = priority
-
-    def get_tuned_parameters(self) -> dict:
-        return self._tuned_parameters
-
-    def set_tuned_parameters(self, tuned_parameters: dict):
-        self._tuned_parameters = tuned_parameters
-
-    def get_task_from_incoming_mq(self) -> AudioTask:
-        with self.lock:
-            return self.local_task_queue.pop(0)
-
-    def send_task_to_outgoing_mq(self, task: AudioTask):
-        self.publisher.publish(self._outgoing_mq_topic, json.dumps(task.serialize()), qos=2)
-
-    def run(self):
-        self.subscriber.subscribe(self._incoming_mq_topic,
-                                  callback=(lambda client, userdata, message: (
-                                      self.lock.acquire(),
-                                      self.local_task_queue.append(
-                                          AudioTask.deserialize(json.loads(message.payload.decode()))),
-                                      self.lock.release())),
-                                  qos=2
-                                  )
-        self.subscriber.client.loop_start()
-        self.publisher.client.loop_start()
-        while True:
-            if len(self.local_task_queue) > 0:
-                task = self.get_task_from_incoming_mq()
-                print(
-                    f"Processing task {task.get_seq_id()} from source {task.get_source_id()}, task size: {len(task.get_data())}")
-                task_data = base64.b64decode(task.get_data().encode('utf-8'))
-                mode = task.get_metadata()["mode"]
-                if mode == 1:
-                    pass
-                elif mode == 2:
-                    index, time = self.infer(task_data, task.get_metadata()["framerate"] if task.get_metadata()[
-                                                                                                "resample_rate"] == 0 else
-                    task.get_metadata()["resample_rate"])
-                    print("time: ", time)
-                    # index = 4
-                    task.get_metadata().update({"category": str(index) + '-' + sound_categories[index]})
-
-                processed_task = AudioTask(task.get_data(), task.get_seq_id(), task.get_source_id(),
-                                           self.get_priority(),
-                                           json.dumps(task.get_metadata()))
-                print(task.get_metadata())
-                # print(json.dumps(task.get_metadata()))
-                self.send_task_to_outgoing_mq(processed_task)
+        processed_task = AudioTask(task.get_data(), task.get_seq_id(), task.get_source_id(),
+                                   self.get_priority(),
+                                   json.dumps(task.get_metadata()))
+        print(task.get_metadata())
+        # print(json.dumps(task.get_metadata()))
+        self.send_task_to_outgoing_mq(processed_task)
 
     def infer(self, data, framerate):
         data = self.load_data(data, framerate)
@@ -157,19 +91,3 @@ class AudioProcessor2(Processor):
 
         return spec_mag
 
-
-if __name__ == '__main__':
-    # parse args from cmd
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Audio processor')
-    parser.add_argument('--id', type=str, help='processor id')
-    # parser.add_argument('--incoming_mq_topic', type=str, help='incoming message queue topic')
-    # parser.add_argument('--outgoing_mq_topic', type=str, help='outgoing message queue topic')
-    # parser.add_argument('--priority', type=int, help='processor priority')
-    # parser.add_argument('--tuned_parameters', type=str, help='processor tuned parameters')
-    args = parser.parse_args()
-    id = args.id
-    processor = AudioProcessor2(f'processor_stage_2_instance_{id}', '$share/python/testapp/processor_stage_1',
-                                'testapp/processor_stage_2', 0, {})
-    processor.run()
