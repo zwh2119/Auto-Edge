@@ -88,6 +88,7 @@ if __name__ == '__main__':
         time.sleep(1)
         res = http_request(url, json={'time_ticket': time_slot, "size": request_size})
         if res is not None:
+            print(res)
             time_slot = int(res['time_ticket'])
             for result in res['result']:
                 print_result(result)

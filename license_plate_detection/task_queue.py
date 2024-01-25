@@ -12,9 +12,7 @@ class LocalPriorityQueue:
 
     def put(self, task: Task) -> None:
         with self.lock:
-            if self._queue.qsize() > self._MAX_SIZE:
-                for _ in range(self._MAX_SIZE//2):
-                    self._queue.get()
+
             self._queue.put(task)
 
     def get(self):
