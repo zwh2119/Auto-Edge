@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     gnupg
 
 # Download and run the LLVM installation script
-RUN wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && ./llvm.sh 10
+RUN  chmod +x llvm.sh && ./llvm.sh 10
 
 # Set the LLVM_CONFIG environment variable to point to the correct version
 ENV LLVM_CONFIG=/usr/bin/llvm-config-10
