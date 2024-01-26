@@ -14,7 +14,7 @@ RUN add-apt-repository "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 
 RUN add-apt-repository "deb-src http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main"
 
 RUN apt-get update && apt-get install -y --no-install-recommends libedit-dev build-essential \
-    && apt-get install -y --no-install-recommends  llvm-8 llvm-8-dev
+    && apt-get install -y --no-install-recommends libffi6 llvm-8 llvm-8-dev
 
 RUN LLVM_CONFIG=/usr/bin/llvm-config-8 pip3 install enum34 llvmlite numba
 
