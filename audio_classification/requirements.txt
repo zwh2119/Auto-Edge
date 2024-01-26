@@ -1,6 +1,7 @@
 
 colorlog
 numpy
+numba
 uvicorn
 fastapi
 starlette
