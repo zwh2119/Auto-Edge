@@ -2,8 +2,8 @@ ARG dir=audio_classification
 FROM python:3.6-slim
 MAINTAINER Wenhui Zhou
 
-RUN apt-get update && apt-get install -y llvm-11 llvm-11-dev
-ENV LLVM_CONFIG=/usr/bin/llvm-config-11
+RUN apt-get update && apt-get install -y llvm-10 llvm-10-dev
+ENV LLVM_CONFIG=/usr/bin/llvm-config-10
 
 COPY ./requirements.txt ./
 
