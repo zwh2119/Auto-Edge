@@ -1,8 +1,14 @@
 ARG dir=audio_classification
-python:3.8-slim
+FROM python:3.8-slim
 MAINTAINER Wenhui Zhou
 
+RUN echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main" >> /etc/apt/sources.list
+RUN echo "deb-src http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main" >> /etc/apt/sources.list
 
+RUN apt-get update && apt-get install -y --no-install-recommends libedit-dev build-essential \
+    && apt-get install -y --no-install-recommends  llvm-8 llvm-8-dev
+
+RUN LLVM_CONFIG=/usr/bin/llvm-config-8 pip3 install enum34 llvmlite numba
 
 
 COPY ./requirements.txt ./
