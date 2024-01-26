@@ -6,7 +6,7 @@ fastapi
 starlette
 python-multipart
 kubernetes==20.11.0a1
-llvmlite==0.31.0
+
 numba
 logmmse
 librosa
