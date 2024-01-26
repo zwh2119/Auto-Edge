@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
     software-properties-common \
     gnupg
 
+COPY ./llvm.sh ./
+
 # Download and run the LLVM installation script
 RUN  chmod +x llvm.sh && ./llvm.sh 10
 
