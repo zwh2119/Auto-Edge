@@ -2,6 +2,14 @@ ARG dir=audio_classification
 FROM python:3.6-slim
 MAINTAINER Wenhui Zhou
 
+RUN apt-get update && apt-get install -y \
+    wget \
+    lsb-release \
+    software-properties-common \
+    gnupg \
+    build-essential  # This will install 'make' and other essential build tools
+
+
 RUN apt-get update && apt-get install -y llvm-9 llvm-9-dev
 ENV LLVM_CONFIG=/usr/bin/llvm-config-9
 
