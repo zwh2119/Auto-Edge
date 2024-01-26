@@ -1,11 +1,4 @@
-# add base path to sys.path
-import os
-import sys
-
 import librosa
-
-print(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import json
 import time
@@ -13,58 +6,41 @@ import time
 import numpy as np
 import torch
 
-model_path = 'model.pth'
-device = torch.device("cuda:0" if (torch.cuda.is_available()) else "cpu")
-model = torch.jit.load(model_path, map_location=device)
-model.to(device)
-model.eval()
-
-sound_categories = [
-    "Air Conditioner (空调)",
-    "Car Horn (汽车喇叭)",
-    "Children Playing (儿童游玩)",
-    "Dog Bark (狗叫)",
-    "Drilling (钻孔)",
-    "Engine Idling (引擎怠速)",
-    "Gun Shot (枪声)",
-    "Jackhammer (挖掘机)",
-    "Siren (警报声)",
-    "Street Music (街头音乐)"
-]
-
 
 class AudioClassification:
-    def __init__(self):
-        pass
+    def __init__(self, cfg):
+        self.sound_categories = [
+            "Air Conditioner (空调)",
+            "Car Horn (汽车喇叭)",
+            "Children Playing (儿童游玩)",
+            "Dog Bark (狗叫)",
+            "Drilling (钻孔)",
+            "Engine Idling (引擎怠速)",
+            "Gun Shot (枪声)",
+            "Jackhammer (挖掘机)",
+            "Siren (警报声)",
+            "Street Music (街头音乐)"
+        ]
 
-    def __call__(self, data):
+        self.model_path = cfg['model_path']
+        self.device = cfg['device']
 
-        task = self.get_task_from_incoming_mq()
-        print(
-            f"Processing task {task.get_seq_id()} from source {task.get_source_id()}, task size: {len(task.get_data())}")
-        task_data = base64.b64decode(task.get_data().encode('utf-8'))
+        self.model = self.load_model()
 
-        index, consuming_time = self.infer(task_data, task.get_metadata()["framerate"] if task.get_metadata()[
-                                                                                    "resample_rate"] == 0 else
-        task.get_metadata()["resample_rate"])
-        print("time: ", consuming_time)
-        # index = 4
-        task.get_metadata().update({"category": str(index) + '-' + sound_categories[index]})
+    def __call__(self, data, metadata):
+        index, consuming_time = self.infer(data, metadata["framerate"] if metadata["resample_rate"] == 0
+        else metadata["resample_rate"])
 
-        processed_task = AudioTask(task.get_data(), task.get_seq_id(), task.get_source_id(),
-                                   self.get_priority(),
-                                   json.dumps(task.get_metadata()))
-        print(task.get_metadata())
-        # print(json.dumps(task.get_metadata()))
-        self.send_task_to_outgoing_mq(processed_task)
+        output_ctx = {'obj_num': []}
+        output_ctx['obj_num'].append(self.sound_categories[index])
 
     def infer(self, data, framerate):
         data = self.load_data(data, framerate)
-        data = torch.tensor(data, dtype=torch.float32, device=device)
+        data = torch.tensor(data, dtype=torch.float32, device=self.device)
         # 执行预测
         # 开始计时
         time1 = time.time() * 1000
-        output = model(data)
+        output = self.model(data)
         # 结束计时
         time2 = time.time() * 1000
         result = torch.nn.functional.softmax(output)
@@ -88,3 +64,8 @@ class AudioClassification:
 
         return spec_mag
 
+    def load_model(self):
+        model = torch.jit.load(self.model_path, map_location=self.device)
+        model.to(self.device)
+        model.eval()
+        return model

@@ -1,4 +1,4 @@
-import base64
+
 import numpy as np
 
 import logmmse
@@ -9,14 +9,14 @@ class AudioSampling:
     def __init__(self):
         pass
 
-    def __cal__(self, data, metadata):
+    def __call__(self, data, metadata):
 
         if metadata['resample_rate'] != 0:
             data = self.resample(data, metadata['framerate'], metadata['resample_rate'])
 
         process_result = self.remove_noise(data, metadata["framerate"] if metadata['resample_rate'] == 0 else
         metadata["resample_rate"], metadata['sampwidth'], metadata['nchannels'])
-
+        return process_result
 
     def resample(self, data, framerate, resample_rate):
         if framerate <= resample_rate:

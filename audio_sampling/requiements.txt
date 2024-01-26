@@ -1,0 +1,9 @@
+logmmse
+librosa
+colorlog
+numpy
+uvicorn
+fastapi
+starlette
+python-multipart
+kubernetes==20.11.0a1

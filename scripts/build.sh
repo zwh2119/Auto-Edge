@@ -32,6 +32,8 @@ declare -A DOCKERFILES=(
     [car-detection]="car_detection/Dockerfile"
     [license-plate-detection]="license_plate_detection/Dockerfile"
     [imu-trajectory-sensing]="imu_trajectory_sensing/Dockerfile"
+    [audio-sampling]="audio_sampling/Dockerfile"
+    [audio-classification]="audio_classification"
 )
 
 # Corresponding platforms
@@ -44,6 +46,8 @@ declare -A PLATFORMS=(
     [car-detection]="linux/amd64,linux/arm64"
     [license-plate-detection]="linux/amd64,linux/arm64"
     [imu-trajectory-sensing]="linux/amd64,linux/arm64"
+    [audio-sampling]="linux/amd64,linux/arm64"
+    [audio-classification]="linux/amd64,linux/arm64"
 )
 
 # Images requiring special treatment, their platforms, and Dockerfiles

@@ -12,7 +12,7 @@ from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from car_detection_trt import CarDetection
+from audio_sampling import AudioSampling
 
 from log import LOGGER
 from config import Context
@@ -20,6 +20,7 @@ from client import http_request
 from utils import *
 from task_queue import LocalPriorityQueue
 from task import Task
+import wave
 
 
 class ServiceServer:
@@ -34,46 +35,25 @@ class ServiceServer:
                      ),
         ], log_level='trace', timeout=6000)
 
+        self.app.add_middleware(
+            CORSMiddleware, allow_origins=["*"], allow_credentials=True,
+            allow_methods=["*"], allow_headers=["*"],
+        )
+
         node_info = get_nodes_info()
         self.local_ip = node_info[Context.get_parameters('NODE_NAME')]
         self.controller_port = Context.get_parameters('controller_port')
 
         self.controller_address = get_merge_address(self.local_ip, port=self.controller_port, path='submit_task')
 
-        self.batch_size = 8
-        self.device = 0
-        self.plugin_Library = Context.get_file_path('libmyplugins.so')
-        self.engine_file_path = Context.get_file_path('yolov5s.engine')
-
-        service_args = {
-            'weights': self.engine_file_path,
-            'plugin_library': self.plugin_Library,
-            'batch_size': self.batch_size,
-            'device': self.device
-        }
-
-        self.estimator = CarDetection(service_args)
-
-        self.app.add_middleware(
-            CORSMiddleware, allow_origins=["*"], allow_credentials=True,
-            allow_methods=["*"], allow_headers=["*"],
-        )
+        self.estimator = AudioSampling()
 
         self.task_queue = LocalPriorityQueue()
 
-    def cal(self, file_path, task_type):
-        content = []
-        video_cap = cv2.VideoCapture(file_path)
-
-        while True:
-            ret, frame = video_cap.read()
-            if not ret:
-                break
-            content.append(frame)
-
-        result = self.estimator(content, task_type)
-
-        assert type(result) is dict
+    def cal(self, file_path, task_type, metadata):
+        with wave.open(file_path, 'r') as f:
+            data = f.readframes(f.getnframes())
+        result = self.estimator(data, metadata)
 
         return result
 
@@ -121,10 +101,10 @@ class ServiceServer:
                     content = task.metadata['content_data']
                     task_type = task.metadata['task_type']
 
-                    result = self.cal(task.file_path, task_type)
-                    if 'parameters' in result:
-                        scenario.update(result['parameters'])
-                    content = copy.deepcopy(result['result'])
+                    result = self.cal(task.file_path, task_type, task.metadata['meta_data'])
+
+                    with wave.open(task.file_path, 'w') as f:
+                        f.writeframes(result)
 
                     # end record service time
                     tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
@@ -145,9 +125,9 @@ class ServiceServer:
 
                     http_request(url=self.controller_address, method='POST',
                                  data={'data': json.dumps(data)},
-                                 files={'file': (f'tmp_{source_id}.mp4',
+                                 files={'file': (data['file_name'],
                                                  open(task.file_path, 'rb'),
-                                                 'video/mp4')}
+                                                 'multipart/form-data')}
                                  )
                     os.remove(task.file_path)
 
