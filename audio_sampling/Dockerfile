@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo \
     build-essential
 
-RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+#RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
 
 RUN add-apt-repository "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main"
 RUN add-apt-repository "deb-src http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main"
