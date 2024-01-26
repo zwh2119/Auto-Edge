@@ -1,6 +1,8 @@
 ARG dir=audio_classification
-FROM python:3.9-slim
+FROM python:3.6-slim
 MAINTAINER Wenhui Zhou
+
+RUN apt-get update && apt-get install -y llvm
 
 COPY ./requirements.txt ./
 
