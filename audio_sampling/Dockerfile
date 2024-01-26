@@ -2,21 +2,8 @@ ARG dir=audio_sampling
 FROM python:3.6-slim
 MAINTAINER Wenhui Zhou
 
-# Update the package list and install necessary packages
-RUN apt-get update && apt-get install -y \
-    wget \
-    lsb-release \
-    software-properties-common \
-    gnupg
-
-COPY ./llvm.sh ./
-
-
-# Download and run the LLVM installation script
-RUN  chmod +x llvm.sh && ./llvm.sh 9
-
-# Set the LLVM_CONFIG environment variable to point to the correct version
-ENV LLVM_CONFIG=/usr/bin/llvm-config-10
+RUN apt-get update && apt-get install -y llvm-9 llvm-9-dev
+ENV LLVM_CONFIG=/usr/bin/llvm-config-9
 
 COPY ./requirements.txt ./
 RUN pip3 install --upgrade pip && pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
