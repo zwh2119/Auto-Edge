@@ -37,22 +37,19 @@ class AudioClassification:
     def __init__(self):
         pass
 
-    def run(self, data):
+    def __call__(self, data):
 
         task = self.get_task_from_incoming_mq()
         print(
             f"Processing task {task.get_seq_id()} from source {task.get_source_id()}, task size: {len(task.get_data())}")
         task_data = base64.b64decode(task.get_data().encode('utf-8'))
-        mode = task.get_metadata()["mode"]
-        if mode == 1:
-            pass
-        elif mode == 2:
-            index, time = self.infer(task_data, task.get_metadata()["framerate"] if task.get_metadata()[
-                                                                                        "resample_rate"] == 0 else
-            task.get_metadata()["resample_rate"])
-            print("time: ", time)
-            # index = 4
-            task.get_metadata().update({"category": str(index) + '-' + sound_categories[index]})
+
+        index, consuming_time = self.infer(task_data, task.get_metadata()["framerate"] if task.get_metadata()[
+                                                                                    "resample_rate"] == 0 else
+        task.get_metadata()["resample_rate"])
+        print("time: ", consuming_time)
+        # index = 4
+        task.get_metadata().update({"category": str(index) + '-' + sound_categories[index]})
 
         processed_task = AudioTask(task.get_data(), task.get_seq_id(), task.get_source_id(),
                                    self.get_priority(),

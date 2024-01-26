@@ -1,11 +1,10 @@
 import copy
 import json
 import shutil
+import time
 
 import cv2
 import os
-
-import requests
 
 from utils import *
 from log import LOGGER
@@ -43,6 +42,8 @@ class IMUGenerator:
             pipeline = tuned_parameters['pipeline']
 
         while True:
+            time.sleep(2)
+
             file_path = None
 
             while not file_path:

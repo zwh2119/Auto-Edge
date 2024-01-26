@@ -31,13 +31,15 @@ def main():
         generator = None
         if data_modal == 'video':
             generator = VideoGenerator(source['url'], source['id'], source['priority'],
-                                             scheduler_address, task_manage_address,
-                                             controller_port, source['resolution'],
-                                             source['fps'])
+                                       scheduler_address, task_manage_address,
+                                       controller_port, source['resolution'],
+                                       source['fps'])
         elif data_modal == 'audio':
             generator = AudioGenerator()
         elif data_modal == 'imu':
-            generator = IMUGenerator()
+            generator = IMUGenerator(source['url'], source['id'], source['priority'],
+                                     scheduler_address, task_manage_address,
+                                     controller_port)
         else:
             assert None, 'Invalid data modal!'
 
