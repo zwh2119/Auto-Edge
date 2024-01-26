@@ -44,6 +44,8 @@ class ServiceServer:
         self.local_ip = node_info[Context.get_parameters('NODE_NAME')]
         self.controller_port = Context.get_parameters('controller_port')
 
+        self.resample_rate = Context.get_parameters('resample_rate')
+
         self.controller_address = get_merge_address(self.local_ip, port=self.controller_port, path='submit_task')
 
         self.estimator = AudioSampling()
@@ -100,8 +102,11 @@ class ServiceServer:
                     scenario = task.metadata['scenario_data']
                     content = task.metadata['content_data']
                     task_type = task.metadata['task_type']
+                    metadata = task.metadata['meta_data']
 
-                    result = self.cal(task.file_path, task_type, task.metadata['meta_data'])
+                    metadata.update({'resample_rate':self.resample_rate})
+
+                    result = self.cal(task.file_path, task_type, metadata)
 
                     with wave.open(task.file_path, 'w') as f:
                         f.writeframes(result)
@@ -120,6 +125,7 @@ class ServiceServer:
                     data['cur_flow_index'] = index
                     data['content_data'] = content
                     data['scenario_data'] = scenario
+                    data['meta_data'] = metadata
 
                     LOGGER.debug('post task back to controller')
 

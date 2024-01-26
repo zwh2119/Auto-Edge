@@ -33,7 +33,7 @@ declare -A DOCKERFILES=(
     [license-plate-detection]="license_plate_detection/Dockerfile"
     [imu-trajectory-sensing]="imu_trajectory_sensing/Dockerfile"
     [audio-sampling]="audio_sampling/Dockerfile"
-    [audio-classification]="audio_classification"
+    [audio-classification]="audio_classification/Dockerfile"
 )
 
 # Corresponding platforms
