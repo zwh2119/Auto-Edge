@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 COPY ./llvm.sh ./
 
 # Download and run the LLVM installation script
-RUN  chmod +x llvm.sh && ./llvm.sh 10
+RUN  chmod +x llvm.sh && ./llvm.sh 9
 
 # Set the LLVM_CONFIG environment variable to point to the correct version
 ENV LLVM_CONFIG=/usr/bin/llvm-config-10
