@@ -2,6 +2,7 @@ ARG dir=audio_classification
 FROM python:3.8-slim
 MAINTAINER Wenhui Zhou
 
+RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
 RUN apt-add-repository "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main"
 RUN apt-add-repository "deb-src http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main"
 
