@@ -2,8 +2,14 @@ ARG dir=audio_sampling
 FROM python:3.6-slim
 MAINTAINER Wenhui Zhou
 
-# Add LLVM repository for LLVM 10
-RUN apt-get update && apt-get install -y wget lsb-release software-properties-common
+# Update the package list and install necessary packages
+RUN apt-get update && apt-get install -y \
+    wget \
+    lsb-release \
+    software-properties-common \
+    gnupg
+
+# Download and run the LLVM installation script
 RUN wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && ./llvm.sh 10
 
 # Set the LLVM_CONFIG environment variable to point to the correct version
