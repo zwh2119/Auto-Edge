@@ -1,23 +1,6 @@
 ARG dir=audio_classification
-FROM python:3.6-slim
+FROM python:3.9-slim
 MAINTAINER Wenhui Zhou
-
-RUN apt-get update && apt-get install -y software-properties-common
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    wget \
-    sudo \
-    build-essential
-
-#RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - 15CF4D18AF4F7421
-RUN add-apt-repository "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main"
-#RUN add-apt-repository "deb-src http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main"
-
-RUN apt-get update && apt-get install -y --no-install-recommends libedit-dev build-essential \
-    && apt-get install -y --no-install-recommends libffi6  \
-    && apt-get install -y --no-install-recommends llvm-8 llvm-8-dev
-
-RUN LLVM_CONFIG=/usr/bin/llvm-config-8 pip3 install enum34 llvmlite numba
 
 COPY ./requirements.txt ./
 
