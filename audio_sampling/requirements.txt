@@ -1,10 +1,11 @@
-numba
-logmmse
-librosa
-colorlog
 numpy
+
+colorlog
 uvicorn
 fastapi
 starlette
 python-multipart
 kubernetes==20.11.0a1
+numba
+logmmse
+librosa

@@ -1,12 +1,10 @@
-
-colorlog
 numpy
-numba
+colorlog
 uvicorn
 fastapi
 starlette
-librosa
 torch
 python-multipart
 kubernetes==20.11.0a1
-
+numba
+librosa
