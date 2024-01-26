@@ -2,9 +2,17 @@ ARG dir=audio_classification
 FROM python:3.8-slim
 MAINTAINER Wenhui Zhou
 
+RUN apt-get update && apt-get install -y software-properties-common
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget \
+    sudo \
+    build-essential
+
 RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-RUN apt-add-repository "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main"
-RUN apt-add-repository "deb-src http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main"
+
+RUN add-apt-repository "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main"
+RUN add-apt-repository "deb-src http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main"
 
 RUN apt-get update && apt-get install -y --no-install-recommends libedit-dev build-essential \
     && apt-get install -y --no-install-recommends  llvm-8 llvm-8-dev
