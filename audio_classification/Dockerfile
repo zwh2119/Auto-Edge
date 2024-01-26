@@ -2,6 +2,8 @@ ARG dir=audio_classification
 FROM python:3.6
 MAINTAINER Wenhui Zhou
 
+RUN apt-get update && apt-get install python-pyaudio python3-pyaudio sox pulseaudio libsox-fmt-all ffmpeg
+
 
 COPY ./requirements.txt ./
 
