@@ -2,7 +2,7 @@ ARG dir=audio_classification
 FROM python:3.6
 MAINTAINER Wenhui Zhou
 
-RUN apt-get update && apt-get install llvm-8
+
 
 
 COPY ./requirements.txt ./
