@@ -2,7 +2,7 @@ ARG dir=audio_sampling
 FROM python:3.6
 MAINTAINER Wenhui Zhou
 
-RUN apt-get update && apt-get install python-pyaudio python3-pyaudio sox pulseaudio libsox-fmt-all ffmpeg
+#RUN apt-get update && apt-get install python-pyaudio python3-pyaudio sox pulseaudio libsox-fmt-all ffmpeg
 
 COPY ./requirements.txt ./
 RUN pip3 install --upgrade pip && pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple

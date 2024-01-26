@@ -6,5 +6,6 @@ starlette
 torch
 python-multipart
 kubernetes==20.11.0a1
+llvmlite
 numba
 librosa
