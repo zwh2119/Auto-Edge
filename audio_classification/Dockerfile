@@ -1,5 +1,5 @@
 ARG dir=audio_classification
-FROM python:3.6
+python:3.8-slim
 MAINTAINER Wenhui Zhou
 
 
