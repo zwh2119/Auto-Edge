@@ -106,7 +106,7 @@ class IMUGenerator:
 
     def get_stream_data(self):
         response = http_request(url=self.data_source, no_decode=True, stream=True)
-        if response.status_code == 200:
+        if response:
 
             content_disposition = response.headers.get('content-disposition')
             file_name = content_disposition.split('filename=')[1]
