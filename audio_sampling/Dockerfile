@@ -21,4 +21,6 @@ RUN pip3 install --upgrade pip  \
 WORKDIR /app
 COPY ${dir}/task.py ${dir}/task_queue.py ${dir}/client.py ${dir}/log.py  ${dir}/utils.py ${dir}/config.py ${dir}/audio_sampling.py ${dir}/service_server.py /app/
 
+ENV OPENBLAS_CORETYPE=ARMV8
+
 CMD ["python3", "service_server.py"]
