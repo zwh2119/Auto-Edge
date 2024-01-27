@@ -12,7 +12,8 @@ class ImuProcessor:
         R = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         output_ctx = {}
         output_ctx['result'] = []
-        output_ctx['obj_num'] = []
+        output_ctx['parameters'] = {}
+        output_ctx['parameters']['obj_num'] = []
 
         csv_data = pd.read_csv(file_path)
         start_id, end_id = self.end_point_detection(csv_data)
@@ -24,7 +25,7 @@ class ImuProcessor:
             data = np.ascontiguousarray(data)
             process_result = self.getPCA4(data, R)
             output_ctx['result'].append(process_result)
-            output_ctx['obj_num'].append(len(process_result))
+            output_ctx['parameters']['obj_num'].append(len(process_result))
 
         return output_ctx
 
