@@ -54,12 +54,9 @@ def print_result(result):
                 break
 
     print(PrintColors.RED + '[source:{:>1d} task:{:>3d}]   '.format(result["source"], result["task"]) + PrintColors.END, end='')
-    if result['task_type'] == 'car':
-        print('result(car    number):{:>4.1f}   '.format(result["obj_num"]), end='')
-    elif result['task_type'] == 'human':
-        print('result(human number):{:>4.1f}    '.format(result["obj_num"]), end='')
-    else:
-        assert None, 'invalid task type'
+
+    print('result(IMU trajectory length):{:>4.1f}   '.format(result["obj_num"]), end='')
+
 
     print(f'execute:{execute_device}    ', end='')
     print(PrintColors.RED_3 + 'delay:{:.2f}s'.format(delay) + PrintColors.END, end='')
@@ -67,13 +64,9 @@ def print_result(result):
 
     priority = result['priority']
 
-    if result['task_type'] == 'car':
-        print(f'              car detection:  importance:{priority[0]["importance"]}, urgency:{priority[0]["urgency"]} -> priority:{priority[0]["priority"]}')
-        print(f'    license plate detection:  importance:{priority[1]["importance"]}, urgency:{priority[1]["urgency"]} -> priority:{priority[1]["priority"]}')
-    elif result['task_type'] == 'human':
-        print(f'            human detection:  importance:{priority[0]["importance"]}, urgency:{priority[0]["urgency"]} -> priority:{priority[0]["priority"]}')
-    else:
-        assert None, 'invalid task type'
+
+    print(f'           IMU Trajectory Sensing:  importance:{priority[0]["importance"]}, urgency:{priority[0]["urgency"]} -> priority:{priority[0]["priority"]}')
+
     # print(result['pipeline'])
     # print(result)
     print('-----------------------------------------------------------------')
@@ -88,6 +81,7 @@ if __name__ == '__main__':
         time.sleep(1)
         res = http_request(url, json={'time_ticket': time_slot, "size": request_size})
         if res is not None:
+
             time_slot = int(res['time_ticket'])
             for result in res['result']:
                 print_result(result)
