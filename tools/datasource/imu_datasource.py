@@ -1,10 +1,11 @@
 from flask import Flask, send_file
 import os
+import argparse
 
 app = Flask(__name__)
 
-file_directory = "imu/6-axis"
-file_list = os.listdir(file_directory)
+file_directory = None
+file_list = None
 file_index = 0
 
 
@@ -18,4 +19,13 @@ def get_file():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dataset', default='imu/1',help='dataset dir')
+    parser.add_argument('--port', default=5000, type=int, help='imu data port')
+
+    args = parser.parse_args()
+
+    file_directory = args.dataset
+    file_list = os.listdir(file_directory)
+
+    app.run(host='0.0.0.0', port=args.port)
