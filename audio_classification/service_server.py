@@ -41,8 +41,10 @@ class ServiceServer:
 
         self.controller_address = get_merge_address(self.local_ip, port=self.controller_port, path='submit_task')
 
+        self.model_path = Context.get_file_path('model.pth')
+
         service_args = {
-            'model_path': 'model.pth',
+            'model_path': self.model_path,
             'device': 'cpu'
         }
 
