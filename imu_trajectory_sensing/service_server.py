@@ -2,10 +2,8 @@ import asyncio
 import copy
 import json
 import os
-import shutil
 import threading
 
-import cv2
 import uvicorn
 from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form
 from fastapi.routing import APIRoute

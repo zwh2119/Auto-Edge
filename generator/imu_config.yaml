@@ -1,7 +1,7 @@
 imu:
   - id: 0
     description: "imu"
-    url: "rtsp://192.168.1.6/video1"
+    url: "http://192.168.1.6:5000/imu"
     priority: 7
     task_type:
       - type_name: "imu"

@@ -3,12 +3,12 @@ import os
 
 app = Flask(__name__)
 
-file_directory = "/Users/wenyidai/GitHub/multi-task-ce-framework/imu/6-axis"
+file_directory = "imu/6-axis"
 file_list = os.listdir(file_directory)
 file_index = 0
 
 
-@app.route("/", methods=["GET"])
+@app.route("/imu", methods=["GET"])
 def get_file():
     global file_index
     file_name = file_list[file_index]
@@ -18,4 +18,4 @@ def get_file():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0', port=5000)
