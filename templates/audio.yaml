@@ -367,7 +367,7 @@ metadata:
 spec:
   edgeWorker:
     - file:
-        path: "/home/nvidia/zwh/Auto-Edge/model_lib"
+        path: "/home/nvidia/zwh/Auto-Edge/model_lib_mid"
       kubeConfig:
         path: "/home/nvidia/.kube"
       logLevel:
@@ -387,7 +387,7 @@ spec:
               - containerPort: 9005
                 hostPort: 39005
     - file:
-        path: "/home/nvidia/zwh/Auto-Edge/model_lib"
+        path: "/home/nvidia/zwh/Auto-Edge/model_lib_mid"
       kubeConfig:
         path: "/home/nvidia/.kube"
       logLevel:
@@ -408,7 +408,7 @@ spec:
                 hostPort: 39005
   cloudWorker:
     file:
-      path: "/home/hx/zwh/Auto-Edge/model_lib"
+      path: "/home/hx/zwh/Auto-Edge/model_lib_mid"
     kubeConfig:
       path: "/home/hx/.kube"
     template:

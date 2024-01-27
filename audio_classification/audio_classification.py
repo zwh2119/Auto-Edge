@@ -5,6 +5,7 @@ import time
 
 import numpy as np
 import torch
+from log import LOGGER
 
 
 class AudioClassification:
@@ -39,6 +40,7 @@ class AudioClassification:
     def infer(self, data, framerate):
         data = self.load_data(data, framerate)
         data = torch.tensor(data, dtype=torch.float32, device=self.device)
+        LOGGER.debug(f'data: {data}')
         # 执行预测
         # 开始计时
         time1 = time.time() * 1000
