@@ -3,6 +3,8 @@ based on [v1.0.0](https://github.com/zwh2119/Auto-Edge/tree/v1.0.0), add followi
 - support multi data stream of different modal
 - support task queue of multi priority
 - support task type of periodic tasks and abrupt tasks
+- support task of edge-eye
+- support simplified ui
 
 # Auto-Edge
 

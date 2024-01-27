@@ -52,9 +52,7 @@ class ServiceServer:
 
         self.task_queue = LocalPriorityQueue()
 
-    def cal(self, file_path, task_type, metadata):
-        with wave.open(file_path, 'r') as f:
-            data = f.readframes(f.getnframes())
+    def cal(self, data, task_type, metadata):
         result = self.estimator(data, metadata)
 
         return result
@@ -106,9 +104,14 @@ class ServiceServer:
 
                     metadata.update({'resample_rate':self.resample_rate})
 
-                    result = self.cal(task.file_path, task_type, metadata)
+                    with wave.open(task.file_path, 'r') as f:
+                        audio_params = f.getparams()
+                        audio_data = f.readframes(f.getnframes())
+
+                    result = self.cal(audio_data, task_type, metadata)
 
                     with wave.open(task.file_path, 'w') as f:
+                        f.setparams(audio_params)
                         f.writeframes(result)
 
                     # end record service time

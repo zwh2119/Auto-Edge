@@ -69,9 +69,10 @@ class AudioGenerator:
 
                 data_source.setpos(cur_id * cnt)
                 audio_data = data_source.readframes(min(cnt, nframes - cur_id * cnt))
-                LOGGER.debug(f'get an imu file from source {self.generator_id}')
+                LOGGER.debug(f'get an audio file from source {self.generator_id}')
 
                 with wave.open(file_name, 'w') as f:
+                    f.setparams(data_source.getparams())
                     f.writeframes(audio_data)
 
                 data = {'source_id': self.generator_id, 'task_id': cur_id, 'task_type': task_type, 'priority': priority,
