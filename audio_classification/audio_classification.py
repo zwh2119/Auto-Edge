@@ -31,8 +31,10 @@ class AudioClassification:
         index, consuming_time = self.infer(data, metadata["framerate"] if metadata["resample_rate"] == 0
         else metadata["resample_rate"])
 
-        output_ctx = {'obj_num': []}
-        output_ctx['obj_num'].append(self.sound_categories[index])
+        output_ctx = {}
+        output_ctx['parameters'] = {}
+        output_ctx['parameters']['obj_num'] = []
+        output_ctx['parameters']['obj_num'].append(self.sound_categories[index])
 
     def infer(self, data, framerate):
         data = self.load_data(data, framerate)
