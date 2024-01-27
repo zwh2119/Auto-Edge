@@ -1,4 +1,3 @@
-# import json
 import numpy as np
 # from scipy.integrate import cumtrapz
 # from scipy.signal import find_peaks
@@ -115,9 +114,7 @@ class ImuProcessor:
         displacement = self.getDis(lpms_time, linearacc_proj)
         # 将NumPy数组转换为Python列表
         displace = displacement.tolist()
-        json_data = json.dumps({"displacement": displace})
-        # print(json_data)
-        return json_data
+        return displace
 
     def getRelativeRotation(self, lpms_gyro, lpms_time, R):
         """
