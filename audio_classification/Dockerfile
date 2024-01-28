@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y \
 #RUN apt-get update && apt-get install -y llvm-11 llvm-11-dev  libsndfile1
 #ENV LLVM_CONFIG=/usr/bin/llvm-config-11
 
+RUN apt-get update && apt-get install -y llvm  libsndfile1
+
 COPY ./requirements.txt ./
 
 RUN pip3 install --upgrade pip  \
