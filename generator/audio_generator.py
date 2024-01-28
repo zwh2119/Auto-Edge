@@ -59,8 +59,9 @@ class AudioGenerator:
             meta_data = {'source_ip': self.local_ip, 'nchannels': nchannels, 'sampwidth': sampwidth,
                          'framerate': framerate, "frames_per_task": self.frames_per_task}
 
-            cnt = self.frames_per_task * framerate  # 4 * 8000
-            while cur_id * cnt < nframes:
+            cnt = 0
+            single_length = self.frames_per_task * framerate  # 4 * 8000
+            while single_length * cnt < nframes:
                 file_name = f'temp_{self.generator_id}_{cur_id}'
 
                 priority = []
@@ -69,9 +70,8 @@ class AudioGenerator:
                     temp_priority_single['start_time'] = time.time()
                     priority.append(temp_priority_single)
 
-                data_source.setpos(cur_id * cnt)
-                audio_data = data_source.readframes(min(cnt, nframes - cur_id * cnt))
-
+                data_source.setpos(single_length * cnt)
+                audio_data = data_source.readframes(min(cnt, nframes - single_length * cnt))
 
                 with wave.open(file_name, 'w') as f:
                     f.setparams(data_source.getparams())
@@ -94,6 +94,7 @@ class AudioGenerator:
                              )
 
                 cur_id += 1
+                cnt += 1
 
                 os.remove(file_path)
 
