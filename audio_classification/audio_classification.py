@@ -62,7 +62,7 @@ class AudioClassification:
         LOGGER.debug('1')
         data = np.frombuffer(data, dtype=np.short) / np.iinfo(np.short).max
         LOGGER.debug('2')
-        data = librosa.resample(data, orig_sr=framerate, target_sr=16000)
+        # data = librosa.resample(data, orig_sr=framerate, target_sr=16000)
         LOGGER.debug('3')
         spec_mag = librosa.feature.melspectrogram(y=data * 1.0, sr=16000, hop_length=256).astype(np.float32)
         LOGGER.debug('4')
