@@ -6,14 +6,13 @@ import os
 import threading
 import wave
 
-
 import uvicorn
 from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form
 from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from audio_classification import AudioClassification
+from service_processor_1 import ServiceProcessor1
 
 from log import LOGGER
 from config import Context
@@ -41,10 +40,7 @@ class ServiceServer:
 
         self.controller_address = get_merge_address(self.local_ip, port=self.controller_port, path='submit_task')
 
-        self.model_path = Context.get_file_path('model.pth')
-
-
-        self.estimator = AudioClassification(service_args)
+        self.estimator = ServiceProcessor1()
 
         self.app.add_middleware(
             CORSMiddleware, allow_origins=["*"], allow_credentials=True,
@@ -57,7 +53,7 @@ class ServiceServer:
         with wave.open(file_path, 'r') as f:
             content = f.readframes(f.getnframes())
 
-        result = self.estimator(content, metadata)
+        result = self.estimator(content)
 
         assert type(result) is dict
 
@@ -81,13 +77,13 @@ class ServiceServer:
         return {'msg': 'data send success!'}
 
     def start_uvicorn_server(self):
-        LOGGER.info(f'start uvicorn server on {9005} port')
+        LOGGER.info(f'start uvicorn server on {9006} port')
 
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
         # Configure and run the server
-        uvicorn_config = uvicorn.Config(app=self.app, host="0.0.0.0", port=9005, log_level="debug")
+        uvicorn_config = uvicorn.Config(app=self.app, host="0.0.0.0", port=9006, log_level="debug")
         server = uvicorn.Server(uvicorn_config)
         loop.run_until_complete(server.serve())
 

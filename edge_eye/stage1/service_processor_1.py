@@ -10,7 +10,11 @@ class ServiceProcessor1:
         self.first_done_flag = False
 
     def __call__(self, data):
-        pass
+        output = []
+        for frame in data:
+            result = self.process_frame(frame)
+            output.append(result)
+        return output
 
     def process_frame(self, frame):
         output_ctx = {}

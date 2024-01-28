@@ -34,6 +34,9 @@ declare -A DOCKERFILES=(
     [imu-trajectory-sensing]="imu_trajectory_sensing/Dockerfile"
     [audio-sampling]="audio_sampling/Dockerfile"
     [audio-classification]="audio_classification/Dockerfile"
+    [edge-eye-stage1]="edge_eye/stage1/Dockerfile"
+    [edge-eye-stage2]="edge_eye/stage2/Dockerfile"
+    [edge-eye-stage3]="edge_eye/stage3/Dockerfile"
 )
 
 # Corresponding platforms
@@ -48,6 +51,9 @@ declare -A PLATFORMS=(
     [imu-trajectory-sensing]="linux/amd64,linux/arm64"
     [audio-sampling]="linux/amd64,linux/arm64"
     [audio-classification]="linux/amd64,linux/arm64"
+    [edge-eye-stage1]="linux/amd64,linux/arm64"
+    [edge-eye-stage2]="linux/amd64,linux/arm64"
+    [edge-eye-stage3]="linux/amd64,linux/arm64"
 )
 
 # Images requiring special treatment, their platforms, and Dockerfiles

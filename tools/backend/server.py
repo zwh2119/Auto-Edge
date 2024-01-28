@@ -1,3 +1,7 @@
+import os
+import time
+
+import uvicorn
 from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form
 
 from fastapi.routing import APIRoute
@@ -5,6 +9,7 @@ from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from kubernetes import client, config
 import requests
+
 
 def http_request(url,
                  method=None,
@@ -33,6 +38,7 @@ def http_request(url,
         print(f'Timeout error in request {url}: {err}')
     except requests.exceptions.RequestException as err:
         print(f'Error occurred in request {url}: {err}')
+
 
 class BackendServer:
     def __init__(self):
@@ -69,12 +75,16 @@ class BackendServer:
             allow_methods=["*"], allow_headers=["*"],
         )
 
-        self.tasks = [{'road-detection': '交通路面监控'},
-                      {'audio': '音频识别'},
-                      {'imu': '惯性轨迹感知'},
-                      {'edge-eye': '工业视觉纠偏'}]
+        self.tasks = [
+            {'name': 'road-detection', 'display': '交通路面监控', 'yaml': 'video_car_detection.yaml'},
+            {'name': 'audio', 'display': '音频识别', 'yaml': 'audio.yaml'},
+            {'name': 'imu', 'display': '惯性轨迹感知', 'yaml': 'imu.yaml'},
+            {'name': 'edge-eye', 'display': '工业视觉纠偏', 'yaml': 'edge-eye.yaml'},
+        ]
 
-
+        self.templates_path = '/home/hx/zwh/Auto-Edge/templates'
+        self.free_task_url =  'http://114.212.81.11:39400/task'
+        self.result_url = 'http://114.212.81.11:39500/result'
 
     def get_system_info(self):
         config.load_kube_config()
@@ -93,18 +103,35 @@ class BackendServer:
         return node_dict
 
     def get_all_task(self):
-        return self.tasks
+        tasks = []
+        for task in self.tasks:
+            tasks.append({task['name']: task['display']})
+        return tasks
 
     def start_task(self, service_name):
-        pass
+        yaml_name = None
+        for task in self.tasks:
+            if task['name'] == service_name:
+                yaml_name = task['yaml']
+        if yaml_name is None:
+            return {'msg': 'Invalid service name!'}
+        yaml_path = os.path.join(self.templates_path, yaml_name)
+        os.system(f'kubectl apply -f {yaml_path}')
+        time.sleep(15)
+        return {'msg': 'service start successfully'}
 
+    def get_execute_result(self, time_ticket, size):
+        return requests.request(url=self.result_url, method='GET', json={'time_ticket': time_ticket, "size": size})
 
-    def get_execute_result(self):
-        pass
+    def start_free_task(self, service_name, duration):
+        response = http_request(self.free_task_url, method='POST', json={'task_type': service_name, 'cycle_num': duration})
+        return {'msg': 'free service start successfully'}
 
-    def start_free_task(self, service_name, time):
-        pass
+    def start_uvicorn_server(self):
+        uvicorn.run(self.app, host='0.0.0.0', port=8910)
 
 
 if __name__ == '__main__':
-    pass
+    server = BackendServer()
+    server.start_uvicorn_server()
+
