@@ -62,6 +62,7 @@ class AudioGenerator:
             cnt = 0
             single_length = self.frames_per_task * framerate  # 4 * 8000
             while single_length * cnt < nframes:
+                cur_nframes = min(single_length, nframes - single_length * cnt)
                 file_name = f'temp_{self.generator_id}_{cur_id}'
 
                 priority = []
@@ -71,10 +72,11 @@ class AudioGenerator:
                     priority.append(temp_priority_single)
 
                 data_source.setpos(single_length * cnt)
-                audio_data = data_source.readframes(min(cnt, nframes - single_length * cnt))
+                audio_data = data_source.readframes(cur_nframes)
 
                 with wave.open(file_name, 'w') as f:
                     f.setparams(data_source.getparams())
+                    f.setnframes(cur_nframes)
                     f.writeframes(audio_data)
 
                 data = {'source_id': self.generator_id, 'task_id': cur_id, 'task_type': task_type, 'priority': priority,
