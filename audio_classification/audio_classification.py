@@ -28,7 +28,12 @@ class AudioClassification:
 
         LOGGER.debug(f'loading model')
 
-        self.model = self.load_model()
+        device = torch.device('cpu')
+        model = torch.jit.load(self.model_path, map_location=device)
+        model.to(device)
+        model.eval()
+
+        # self.model = self.load_model()
 
     def __call__(self, data, metadata):
         LOGGER.debug('start infer ..')
