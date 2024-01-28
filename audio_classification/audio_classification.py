@@ -32,8 +32,7 @@ class AudioClassification:
 
     def __call__(self, data, metadata):
         LOGGER.debug('start infer ..')
-        index, consuming_time = self.infer(data, metadata["framerate"] if metadata["resample_rate"] == 0
-        else metadata["resample_rate"])
+        index, consuming_time = self.infer(data, metadata["framerate"] if metadata["resample_rate"] == 0 else metadata["resample_rate"])
 
         output_ctx = {}
         output_ctx['parameters'] = {}
@@ -47,7 +46,9 @@ class AudioClassification:
         # 执行预测
         # 开始计时
         time1 = time.time() * 1000
+        LOGGER.debug('put in model')
         output = self.model(data)
+        LOGGER.debug('get output from model')
         # 结束计时
         time2 = time.time() * 1000
         result = torch.nn.functional.softmax(output)
