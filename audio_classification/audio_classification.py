@@ -29,7 +29,7 @@ class AudioClassification:
         LOGGER.debug(f'loading model')
 
         device = torch.device('cpu')
-        model = torch.jit.load(self.model_path, map_location=device)
+        model = torch.load(self.model_path, map_location=device)
         model.to(device)
         model.eval()
 
