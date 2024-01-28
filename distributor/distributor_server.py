@@ -82,7 +82,7 @@ class DistributorServer:
             LOGGER.info(f'discard package: source {source_id} /task {task_id}')
             return
 
-        num = np.mean(scenario['obj_num']) if len(scenario['obj_num']) > 1 else scenario['onj_num'][0]
+        num = np.mean(scenario['obj_num']) if len(scenario['obj_num']) > 1 else scenario['obj_num'][0]
         size = np.mean(scenario['obj_size']) if 'obj_size' in scenario else None
 
         LOGGER.info(f'source:{source_id}, task:{task_id}')
