@@ -318,7 +318,7 @@ spec:
               - name: controller_port
                 value: "39200"
               - name: resample_rate
-                value: "4000"
+                value: "24000"
             ports:
               - containerPort: 9004
                 hostPort: 39004
@@ -338,7 +338,7 @@ spec:
               - name: controller_port
                 value: "39200"
               - name: resample_rate
-                value: "4000"
+                value: "24000"
             ports:
               - containerPort: 9004
                 hostPort: 39004
@@ -357,7 +357,7 @@ spec:
               - name: controller_port
                 value: "39200"
               - name: resample_rate
-                value: "4000"
+                value: "24000"
             ports:
               - containerPort: 9004
                 hostPort: 39004
