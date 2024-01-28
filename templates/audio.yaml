@@ -317,6 +317,8 @@ spec:
             env:
               - name: controller_port
                 value: "39200"
+              - name: resample_rate
+                value: "4000"
             ports:
               - containerPort: 9004
                 hostPort: 39004
@@ -335,6 +337,8 @@ spec:
             env:
               - name: controller_port
                 value: "39200"
+              - name: resample_rate
+                value: "4000"
             ports:
               - containerPort: 9004
                 hostPort: 39004
@@ -352,6 +356,8 @@ spec:
             env:
               - name: controller_port
                 value: "39200"
+              - name: resample_rate
+                value: "4000"
             ports:
               - containerPort: 9004
                 hostPort: 39004

@@ -44,7 +44,7 @@ class ServiceServer:
         self.local_ip = node_info[Context.get_parameters('NODE_NAME')]
         self.controller_port = Context.get_parameters('controller_port')
 
-        self.resample_rate = Context.get_parameters('resample_rate')
+        self.resample_rate = eval(Context.get_parameters('resample_rate'))
 
         self.controller_address = get_merge_address(self.local_ip, port=self.controller_port, path='submit_task')
 
