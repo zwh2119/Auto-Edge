@@ -83,7 +83,7 @@ class BackendServer:
         ]
 
         self.templates_path = '/home/hx/zwh/Auto-Edge/templates'
-        self.free_task_url =  'http://114.212.81.11:39400/task'
+        self.free_task_url = 'http://114.212.81.11:39400/task'
         self.result_url = 'http://114.212.81.11:39500/result'
 
     def get_system_info(self):
@@ -124,7 +124,8 @@ class BackendServer:
         return requests.request(url=self.result_url, method='GET', json={'time_ticket': time_ticket, "size": size})
 
     def start_free_task(self, service_name, duration):
-        response = http_request(self.free_task_url, method='POST', json={'task_type': service_name, 'cycle_num': duration})
+        response = http_request(self.free_task_url, method='POST',
+                                json={'task_type': service_name, 'cycle_num': duration})
         return {'msg': 'free service start successfully'}
 
     def start_uvicorn_server(self):
@@ -134,4 +135,3 @@ class BackendServer:
 if __name__ == '__main__':
     server = BackendServer()
     server.start_uvicorn_server()
-

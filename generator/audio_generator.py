@@ -111,7 +111,7 @@ class AudioGenerator:
                     tuned_parameters = response['plan']
                     pipeline = tuned_parameters['pipeline']
 
-                time.sleep(0.5)
+                time.sleep(1)
             os.remove(file_path)
 
     def get_pipeline(self):
