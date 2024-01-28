@@ -31,6 +31,7 @@ class AudioClassification:
         self.model = self.load_model()
 
     def __call__(self, data, metadata):
+        LOGGER.debug('start infer ..')
         index, consuming_time = self.infer(data, metadata["framerate"] if metadata["resample_rate"] == 0
         else metadata["resample_rate"])
 
@@ -75,4 +76,5 @@ class AudioClassification:
         model = torch.jit.load(self.model_path, map_location=self.device)
         model.to(self.device)
         model.eval()
+        LOGGER.debug('load model completed ..')
         return model
