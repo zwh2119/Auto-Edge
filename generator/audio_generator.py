@@ -89,9 +89,11 @@ class AudioGenerator:
                              method='POST',
                              data={'data': json.dumps(data)},
                              files={'file': (file_name,
-                                             open(file_path, 'rb'),
+                                             open(file_name, 'rb'),
                                              'multipart/form-data')}
                              )
+
+                os.remove(file_name)
 
                 cur_id += 1
                 cnt += 1
