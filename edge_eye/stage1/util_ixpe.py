@@ -136,7 +136,7 @@ class MaterialDetection:
         self.p1, self.p2 = detection_area
         self.buffer_size = buffer_size
         shape = (720, 1280, 3)
-        raw_background = cv.imread('images/Empty_background.png')
+        raw_background = cv.imread('Empty_background.png')
         self.background = raw_background[self.p1[1]:self.p2[1], self.p1[0]:self.p2[0]]
         # 记得初始化这个玩意
         self.counter = 0

@@ -299,11 +299,10 @@ class CachePool:
 
 
 class ESCPN:
-    def __init__(self) -> None:
-        path = 'test/'
+    def __init__(self, model_path) -> None:
         model = Net(upscale_factor=2)
         model.load_state_dict(torch.load(
-            path + 'epoch_2_100.pt', map_location=torch.device('cpu')))
+            model_path, map_location=torch.device('cpu')))
         self.model = model
 
     def genSR(self, frame):

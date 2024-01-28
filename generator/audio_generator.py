@@ -124,6 +124,9 @@ class AudioGenerator:
             if task['service_name'] == 'end':
                 break
             task['execute_address'] = get_merge_address(self.local_ip, port=self.controller_port, path='submit_task')
+            if task['service_name'] == 'audio-classification':
+                task['execute_address'] = get_merge_address('114.212.81.11', port=self.controller_port,
+                                                            path='submit_task')
             task['execute_data'] = {}
 
         return task_type, pipeline
