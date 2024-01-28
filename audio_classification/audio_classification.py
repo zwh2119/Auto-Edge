@@ -61,26 +61,18 @@ class AudioClassification:
         return lab, time2 - time1
 
     def load_data(self, data, framerate):
-        LOGGER.debug('1')
         data = np.frombuffer(data, dtype=np.short) / np.iinfo(np.short).max
-        LOGGER.debug('2')
-        data = librosa.resample(data, orig_sr=framerate, target_sr=16000)
-        LOGGER.debug('3')
+        # TODO: to speed up, resample the data to 1600fps
+        # data = librosa.resample(data, orig_sr=framerate, target_sr=16000)
         spec_mag = librosa.feature.melspectrogram(y=data * 1.0, sr=16000, hop_length=256).astype(np.float32)
-        LOGGER.debug('4')
         mean = np.mean(spec_mag, 0, keepdims=True)
-        LOGGER.debug('5')
         std = np.std(spec_mag, 0, keepdims=True)
-        LOGGER.debug('6')
         spec_mag = (spec_mag - mean) / (std + 1e-5)
-        LOGGER.debug('7')
         spec_mag = spec_mag[np.newaxis, np.newaxis, :]
-        LOGGER.debug('8')
 
         # print(spec_mag.shape)
         # [1, 1, 128, 251] -> [1, 3, 128, 251]
         spec_mag = np.repeat(spec_mag, 3, axis=1)
-        LOGGER.debug('9')
 
         return spec_mag
 

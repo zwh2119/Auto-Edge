@@ -144,6 +144,6 @@ or you can mount the data record folder in distributor to volume on physical dev
 - 2024.01.17 `AutoEdge` - `mid-v0.1.0`: complete supporting multi-priority task queue.
 - 2024.01.23 `AutoEdge` - `mid-v0.2.0`: complete supporting task types of periodic tasks and abrupt tasks.
 - 2024.01.29 `AutoEdge` - `mid-v0.3.0`: complete data modal of audio and imu.
-
+- 2024.01.29 `AutoEdge` - `mid-v0.4.0`: complete task type of edge-eye
 
 ## Citation
