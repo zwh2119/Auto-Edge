@@ -75,13 +75,13 @@ class ServiceServer:
         return {'msg': 'data send success!'}
 
     def start_uvicorn_server(self):
-        LOGGER.info(f'start uvicorn server on {9001} port')
+        LOGGER.info(f'start uvicorn server on {9004} port')
 
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
         # Configure and run the server
-        uvicorn_config = uvicorn.Config(app=self.app, host="0.0.0.0", port=9001, log_level="debug")
+        uvicorn_config = uvicorn.Config(app=self.app, host="0.0.0.0", port=9004, log_level="debug")
         server = uvicorn.Server(uvicorn_config)
         loop.run_until_complete(server.serve())
 
