@@ -71,6 +71,7 @@ class AudioClassification:
         return spec_mag
 
     def load_model(self):
+        LOGGER.debug(f'device: {type(self.device)}   {self.device}')
         model = torch.jit.load(self.model_path, map_location=self.device)
         model.to(self.device)
         model.eval()
