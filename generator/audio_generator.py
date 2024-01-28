@@ -98,7 +98,7 @@ class AudioGenerator:
                 cur_id += 1
                 cnt += 1
 
-                os.remove(file_path)
+
 
                 task_type, pipeline = self.get_pipeline()
 
@@ -110,6 +110,7 @@ class AudioGenerator:
                     pipeline = tuned_parameters['pipeline']
 
                 time.sleep(0.5)
+            os.remove(file_path)
 
     def get_pipeline(self):
         response = http_request(url=self.task_manage_address, method='GET', json={'id': self.generator_id})
