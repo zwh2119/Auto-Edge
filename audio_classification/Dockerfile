@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y \
     build-essential  # This will install 'make' and other essential build tools
 
 
-RUN apt-get update && apt-get install -y llvm-10 llvm-10-dev  libsndfile1
-ENV LLVM_CONFIG=/usr/bin/llvm-config-10
+RUN apt-get update && apt-get install -y llvm-11 llvm-11-dev  libsndfile1
+ENV LLVM_CONFIG=/usr/bin/llvm-config-11
 
 COPY ./requirements.txt ./
 
