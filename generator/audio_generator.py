@@ -51,6 +51,8 @@ class AudioGenerator:
             while not file_path:
                 file_path = self.get_stream_data()
 
+            LOGGER.debug(f'get an audio file from source {self.generator_id}')
+
             data_source = wave.open(file_path, 'r')
             nchannels, sampwidth, framerate, nframes = data_source.getparams()[:4]
 
@@ -69,7 +71,7 @@ class AudioGenerator:
 
                 data_source.setpos(cur_id * cnt)
                 audio_data = data_source.readframes(min(cnt, nframes - cur_id * cnt))
-                LOGGER.debug(f'get an audio file from source {self.generator_id}')
+
 
                 with wave.open(file_name, 'w') as f:
                     f.setparams(data_source.getparams())
