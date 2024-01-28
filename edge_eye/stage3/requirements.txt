@@ -4,8 +4,9 @@ uvicorn
 fastapi
 starlette
 torch
+torchvision
 python-multipart
 kubernetes==20.11.0a1
-numba
-librosa==0.10.1
-
+pillow
+scipy
+opencv-python-headless

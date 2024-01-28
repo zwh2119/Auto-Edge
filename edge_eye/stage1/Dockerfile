@@ -1,29 +1,27 @@
-ARG dir=audio_classification
-FROM python:3.10-slim
+ARG dir=edge_edye/stage1
+
+FROM gocv/opencv:latest
+
 MAINTAINER Wenhui Zhou
 
-RUN apt-get update && apt-get install -y \
-    wget \
-    lsb-release \
-    software-properties-common \
-    gnupg \
-    build-essential  # This will install 'make' and other essential build tools
+ENV DEBIAN_FRONTEND=noninteractive
 
+# Install python3
+RUN apt-get -y update && apt-get install -y --no-install-recommends \
+      python3 \
+      python3-pip \
+      python3-dev \
+      python3-wheel &&\
+    cd /usr/local/bin &&\
+    ln -s /usr/bin/python3 python &&\
+    ln -s /usr/bin/pip3 pip;
 
-#RUN apt-get update && apt-get install -y llvm-11 llvm-11-dev  libsndfile1
-#ENV LLVM_CONFIG=/usr/bin/llvm-config-11
-
-RUN apt-get update && apt-get install -y llvm  libsndfile1
+RUN pip install --upgrade pip setuptools wheel
 
 COPY ./requirements.txt ./
-
-RUN pip3 install --upgrade pip  \
-    && pip3 install numpy -i https://pypi.tuna.tsinghua.edu.cn/simple \
-    && pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 WORKDIR /app
-COPY ${dir}/task.py ${dir}/task_queue.py ${dir}/client.py ${dir}/log.py  ${dir}/utils.py ${dir}/config.py ${dir}/audio_classification.py ${dir}/service_server.py /app/
-
-ENV OPENBLAS_CORETYPE=ARMV8
+COPY   ${dir}/*  /app/
 
 CMD ["python3", "service_server.py"]

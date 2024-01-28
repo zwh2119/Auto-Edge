@@ -1,27 +1,18 @@
-from numpy.core.fromnumeric import shape
 from scipy.optimize import leastsq
 import threading
-import copy
-import multiprocessing as mp
-from posixpath import abspath
-from numpy.lib.function_base import diff
-from scipy import stats
-import argparse
-import os
-from os import listdir
 
+from scipy import stats
 import numpy as np
 import torch
 from PIL import Image
 from torch.autograd import Variable
 from torchvision.transforms import ToTensor
-from tqdm import tqdm
+
 
 
 from model import Net
 
 import time
-import math
 import cv2 as cv
 
 

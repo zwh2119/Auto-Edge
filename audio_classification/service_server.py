@@ -114,7 +114,7 @@ class ServiceServer:
                     result = self.cal(task.file_path, task_type, task.metadata['meta_data'])
                     if 'parameters' in result:
                         scenario.update(result['parameters'])
-                    content = copy.deepcopy(result['result'])
+                    # content = copy.deepcopy(result['result'])
 
                     # end record service time
                     tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
