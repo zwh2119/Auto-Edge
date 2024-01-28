@@ -74,6 +74,8 @@ class BackendServer:
                       {'imu': '惯性轨迹感知'},
                       {'edge-eye': '工业视觉纠偏'}]
 
+
+
     def get_system_info(self):
         config.load_kube_config()
         v1 = client.CoreV1Api()
