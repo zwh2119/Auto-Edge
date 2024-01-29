@@ -321,8 +321,8 @@ spec:
               - name: max_queue_size
                 value: "5"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
+              - containerPort: 9006
+                hostPort: 39006
     - kubeConfig:
         path: "/home/nvidia/.kube"
       logLevel:
@@ -341,8 +341,8 @@ spec:
               - name: max_queue_size
                 value: "5"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
+              - containerPort: 9006
+                hostPort: 39006
   cloudWorker:
     kubeConfig:
       path: "/home/hx/.kube"
@@ -360,8 +360,8 @@ spec:
               - name: max_queue_size
                 value: "5"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
+              - containerPort: 9006
+                hostPort: 39006
 ---
 
 apiVersion: sedna.io/v1alpha1
@@ -395,8 +395,8 @@ spec:
               - name: distributor_port
                 value: "39500"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
+              - containerPort: 9007
+                hostPort: 39007
     - file:
         path: "/home/nvidia/zwh/Auto-Edge/model_lib_mid"
       kubeConfig:
@@ -421,8 +421,8 @@ spec:
               - name: distributor_port
                 value: "39500"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
+              - containerPort: 9007
+                hostPort: 39007
   cloudWorker:
     file:
       path: "/home/hx/zwh/Auto-Edge/model_lib_mid"
@@ -446,8 +446,8 @@ spec:
               - name: distributor_port
                 value: "39500"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
+              - containerPort: 9007
+                hostPort: 39007
 ---
 
 apiVersion: sedna.io/v1alpha1
@@ -479,8 +479,8 @@ spec:
               - name: distributor_port
                 value: "39500"
             ports:
-              - containerPort: 9006
-                hostPort: 39006
+              - containerPort: 9008
+                hostPort: 39008
     - kubeConfig:
         path: "/home/nvidia/.kube"
       logLevel:
@@ -503,8 +503,8 @@ spec:
               - name: distributor_port
                 value: "39500"
             ports:
-              - containerPort: 9007
-                hostPort: 39007
+              - containerPort: 9008
+                hostPort: 39008
   cloudWorker:
     kubeConfig:
       path: "/home/hx/.kube"

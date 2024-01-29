@@ -26,6 +26,6 @@ class ServiceProcessor1:
             if not self.first_done_flag:
                 self.first_done_flag = True
                 print('select bar roi success')
-            output_ctx["bar_roi"] = bar_roi
+            output_ctx["bar_roi"] = bar_roi.tolist()
             output_ctx["abs_point"] = abs_point
         return output_ctx
