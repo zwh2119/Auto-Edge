@@ -140,6 +140,11 @@ class VideoGenerator:
                     pipeline = tuned_parameters['pipeline']
                     LOGGER.debug(f'pipeline: {pipeline}')
 
+                    # special process
+                    if task_type == 'human' and len(pipeline)==3:
+                        del pipeline[1]
+
+
                 fps = min(fps, fps_raw)
                 fps_mode, skip_frame_interval, remain_frame_interval = self.get_fps_adjust_mode(fps_raw, fps)
 
