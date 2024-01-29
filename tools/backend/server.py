@@ -163,7 +163,9 @@ class BackendServer:
         print(f'time_ticket: {self.time_ticket}')
         return {'time_ticket': self.time_ticket}
 
-    def start_free_task(self, service_name, duration):
+    def start_free_task(self, data=Body(...)):
+        service_name = data['service_name']
+        duration = data['time']
         response = http_request(self.free_task_url, method='POST',
                                 json={'task_type': service_name, 'cycle_num': duration})
         return {'msg': 'free service start successfully'}
