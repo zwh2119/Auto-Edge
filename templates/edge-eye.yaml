@@ -479,8 +479,8 @@ spec:
               - name: distributor_port
                 value: "39500"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
+              - containerPort: 9006
+                hostPort: 39006
     - kubeConfig:
         path: "/home/nvidia/.kube"
       logLevel:
@@ -503,8 +503,8 @@ spec:
               - name: distributor_port
                 value: "39500"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
+              - containerPort: 9007
+                hostPort: 39007
   cloudWorker:
     kubeConfig:
       path: "/home/hx/.kube"
@@ -526,8 +526,8 @@ spec:
               - name: distributor_port
                 value: "39500"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
+              - containerPort: 9008
+                hostPort: 39008
 ---
 
 

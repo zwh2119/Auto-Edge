@@ -151,7 +151,10 @@ class BackendServer:
 
         response = http_request(url=self.result_url, method='GET', json={'time_ticket': time_ticket, "size": size})
         if response:
+
             for task in response['result']:
+                if task['task_type'] == 'human':
+                    task['pipeline'][0]['service_name'] = 'human-detection'
                 task['task_type'] = self.tasks_dict[task['task_type']]
             self.time_ticket = response['time_ticket']
             print(response)
