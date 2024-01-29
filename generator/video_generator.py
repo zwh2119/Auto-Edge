@@ -140,10 +140,14 @@ class VideoGenerator:
                     pipeline = tuned_parameters['pipeline']
                     LOGGER.debug(f'pipeline: {pipeline}')
 
+                    # TODO: deal with the question
                     # special process
-                    if task_type == 'human' and len(pipeline)==3:
+                    # scheduler will give the past pipeline plan and not suit to abrupt request
+                    if task_type == 'human' and len(pipeline) == 3:
                         del pipeline[1]
-
+                    elif task_type == 'car' and len(pipeline)==2:
+                        pipeline.insert(1, {'service_name': "license-plate-detection",
+                                            'execute_address': pipeline[0]['execute_address'], 'execute_data': {}})
 
                 fps = min(fps, fps_raw)
                 fps_mode, skip_frame_interval, remain_frame_interval = self.get_fps_adjust_mode(fps_raw, fps)

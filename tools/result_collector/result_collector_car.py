@@ -53,6 +53,8 @@ def print_result(result):
                 execute_device += device[ip]
                 break
 
+    print(result)
+
     print(PrintColors.RED + '[source:{:>1d} task:{:>3d}]   '.format(result["source"], result["task"]) + PrintColors.END, end='')
     if result['task_type'] == 'car':
         print('result(car    number):{:>4.1f}   '.format(result["obj_num"]), end='')
@@ -75,7 +77,7 @@ def print_result(result):
     else:
         assert None, 'invalid task type'
     # print(result['pipeline'])
-    print(result)
+
     print('-----------------------------------------------------------------')
 
 
