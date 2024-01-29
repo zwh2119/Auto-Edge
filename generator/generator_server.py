@@ -3,6 +3,7 @@ import threading
 from video_generator import VideoGenerator
 from imu_generator import IMUGenerator
 from audio_generator import AudioGenerator
+from edge_eye_generator import EdgeEyeGenerator
 
 from utils import *
 from client import http_request
@@ -36,12 +37,16 @@ def main():
                                        source['fps'])
         elif data_modal == 'audio':
             generator = AudioGenerator(source['url'], source['id'], source['priority'],
-                                     scheduler_address, task_manage_address,
-                                     controller_port)
+                                       scheduler_address, task_manage_address,
+                                       controller_port)
         elif data_modal == 'imu':
             generator = IMUGenerator(source['url'], source['id'], source['priority'],
                                      scheduler_address, task_manage_address,
                                      controller_port)
+        elif data_modal == 'edge-eye':
+            generator = EdgeEyeGenerator(source['url'], source['id'], source['priority'],
+                                         scheduler_address, task_manage_address,
+                                         controller_port)
         else:
             assert None, 'Invalid data modal!'
 

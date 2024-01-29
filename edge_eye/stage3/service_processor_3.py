@@ -1,4 +1,6 @@
 import util_ixpe
+from client import http_request
+
 
 class ServiceProcessor3:
     def __init__(self):
@@ -10,19 +12,20 @@ class ServiceProcessor3:
         self.lastls = self.lps
         self.lastrs = self.rps
         self.first_done_flag = False
-        self.frame = None
 
-    def __call__(self, data, metadata):
-        pass
+    def __call__(self, data, redis_address):
+        output = []
+        for frame, input_ctx in data:
+            result = self.process_task(input_ctx, redis_address)
+            output.append(result)
+        return output
 
-    def process_task(self, input_ctx):
+    def process_task(self, input_ctx, redis_address):
         output_ctx = {}
-        if 'frame' not in input_ctx:
-            # return empty due to no input_ctx
-            return output_ctx
+
         if len(input_ctx) == 3:
             print("get three parameters from input_ctx")
-            bar_roi, abs_point, self.frame = input_ctx["bar_roi"], input_ctx["abs_point"], input_ctx["frame"]
+            bar_roi, abs_point = input_ctx["bar_roi"], input_ctx["abs_point"]
             self.lps, self.rps = self.pos_calculator.calculatePosInBarROI(
                 bar_roi=bar_roi, abs_point=abs_point)
 
@@ -46,8 +49,8 @@ class ServiceProcessor3:
                 self.first_done_flag = True
                 print('start get SR frame from queue')
             # 因为roi size变大 2*h and 2*w 导致不能直接使用计算出来的单位xxx
-            lroi, rroi, labs_point, rabs_point, self.frame = input_ctx["srl"], input_ctx["srr"], input_ctx[
-                "labs_point"], input_ctx["rabs_point"], input_ctx["frame"]
+            lroi, rroi, labs_point, rabs_point = input_ctx["srl"], input_ctx["srr"], input_ctx[
+                "labs_point"], input_ctx["rabs_point"]
             # print(type(lroi))
             # print(type(rroi))
             print(labs_point)
@@ -68,11 +71,10 @@ class ServiceProcessor3:
         # calculate edge positions
         # lps, rps = abnormal_detector.repair(lpx=lps, rpx=rps)  # func3
         # update lps, rps
-        self.set_edge_position(int(self.lps), int(self.rps))
-        output_ctx["frame"] = self.frame
+        self.set_edge_position(int(self.lps), int(self.rps), redis_address)
         output_ctx["lps"] = self.lps
         output_ctx["rps"] = self.rps
         return output_ctx
 
-    def set_edge_position(self, lps, rps):
-        pass
+    def set_edge_position(self, lps, rps, redis_address):
+        http_request(url=redis_address, method='POST', json={'lps': lps, 'rps': rps})

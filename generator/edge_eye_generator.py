@@ -12,20 +12,19 @@ from config import Context
 
 class EdgeEyeGenerator:
     def __init__(self, data_source: str, generator_id: int, priority: int,
-                 schedule_address: str, task_manage_address: str, controller_port: str,
-                 resolution: str, fps: int):
+                 schedule_address: str, task_manage_address: str, controller_port: str):
 
         self.data_source = data_source
         self.data_source_capture = cv2.VideoCapture(data_source)
         self.schedule_address = schedule_address
         self.task_manage_address = task_manage_address
         self.controller_port = controller_port
-        self.raw_meta_data = {'resolution_raw': resolution, 'fps_raw': fps}
+        self.raw_meta_data = {}
         self.data_source = data_source
         self.generator_id = generator_id
         self.priority = priority
 
-        self.buffer_size = 8
+        self.buffer_size = 4
         self.encoding = 'mp4v'
 
         self.local_ip = get_nodes_info()[Context.get_parameters('NODE_NAME')]
@@ -37,32 +36,16 @@ class EdgeEyeGenerator:
         cur_id = 0
         cnt = 0
 
-        fps_raw = self.raw_meta_data['fps_raw']
-        resolution_raw = self.raw_meta_data['resolution_raw']
-
-        # default parameters
-        frame_resolution = self.raw_meta_data['resolution_raw']
-        frame_fourcc = self.encoding
-        frames_per_task = self.buffer_size
-        fps = self.raw_meta_data['fps_raw']
         task_type, pipeline = self.get_pipeline()
         priority_single = {'importance': self.priority, 'urgency': 0, 'priority': 0}
 
         response = http_request(url=self.schedule_address, method='GET', json={'source_id': self.generator_id,
-                                                                               'resolution_raw': resolution_raw,
-                                                                               'fps_raw': fps_raw,
                                                                                'pipeline': pipeline})
 
         if response is not None:
             tuned_parameters = response['plan']
 
-            frame_resolution = tuned_parameters['resolution']
-            fps = tuned_parameters['fps']
-            # priority = tuned_parameters['priority']
             pipeline = tuned_parameters['pipeline']
-
-        fps = min(fps, fps_raw)
-        fps_mode, skip_frame_interval, remain_frame_interval = self.get_fps_adjust_mode(fps_raw, fps)
 
         temp_frame_buffer = []
         update_flag = True
@@ -81,49 +64,17 @@ class EdgeEyeGenerator:
             update_flag = True
 
             LOGGER.debug(f'get a frame from source {self.generator_id}')
-            resolution_raw = resolution2text((self.data_source_capture.get(cv2.CAP_PROP_FRAME_WIDTH),
-                                              self.data_source_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-            fps_raw = self.data_source_capture.get(cv2.CAP_PROP_FPS)
-
-            # adjust resolution
-            frame = cv2.resize(frame, text2resolution(frame_resolution))
-
-            # adjust fps
             cnt += 1
-            if fps_mode == 'skip' and cnt % skip_frame_interval == 0:
-                continue
-
-            if fps_mode == 'remain' and cnt % remain_frame_interval != 0:
-                continue
 
             # put frame in buffer
             temp_frame_buffer.append(frame)
-            if len(temp_frame_buffer) < frames_per_task:
+            if len(temp_frame_buffer) < self.buffer_size:
                 continue
             else:
                 # compress frames in the buffer into a short video
-                compressed_video_pth = self.compress_frames(temp_frame_buffer, frame_fourcc)
+                compressed_video_pth = self.compress_frames(temp_frame_buffer, self.encoding)
 
-                """
-                data structure
-                
-                1.source_id
-                2.task_id
-                3.priority 
-                4.meta_data:{resolution_raw, fps_raw, resolution, frame_number,
-                            skip_interval, encoding， generate_ip}
-                
-                5.pipeline_flow:[service1, service2,..., end]
-                    service:{service_name, execute_address, execute_data}
-                    execute_data:{service_time, transmit_time, acc}
-                6.cur_flow_index
-                7.scenario_data:{obj_num, obj_size, stable}
-                8.content_data (middle_result/result)
-                9.tmp_data:{} (middle_record)
-                
-                """
-                meta_data = {'resolution_raw': resolution_raw, 'fps_raw': fps_raw, 'resolution': frame_resolution,
-                             'fps': fps, 'frame_number': frames_per_task, 'encoding': frame_fourcc,
+                meta_data = {'frame_number': self.buffer_size, 'encoding': self.encoding,
                              'source_ip': self.local_ip}
 
                 file_name = f'temp_{self.generator_id}_{cur_id}.mp4'
@@ -158,35 +109,14 @@ class EdgeEyeGenerator:
                 task_type, pipeline = self.get_pipeline()
 
                 response = http_request(url=self.schedule_address, method='GET', json={'source_id': self.generator_id,
-                                                                                       'resolution_raw': resolution_raw,
-                                                                                       'fps_raw': fps_raw,
                                                                                        'pipeline': pipeline})
 
                 if response is not None:
                     tuned_parameters = response['plan']
 
-                    frame_resolution = tuned_parameters['resolution']
-                    frame_fourcc = tuned_parameters['encoding']
-                    fps = tuned_parameters['fps']
-                    # priority = tuned_parameters['priority']
                     pipeline = tuned_parameters['pipeline']
 
-                fps = min(fps, fps_raw)
-                fps_mode, skip_frame_interval, remain_frame_interval = self.get_fps_adjust_mode(fps_raw, fps)
 
-    def get_fps_adjust_mode(self, fps_raw, fps):
-        skip_frame_interval = 0
-        remain_frame_interval = 0
-        if fps == fps_raw:
-            fps_mode = 'same'
-        elif fps < fps_raw // 2:
-            fps_mode = 'remain'
-            remain_frame_interval = fps_raw // fps
-        else:
-            fps_mode = 'skip'
-            skip_frame_interval = fps_raw // (fps_raw - fps)
-
-        return fps_mode, skip_frame_interval, remain_frame_interval
 
     def compress_frames(self, frames, fourcc):
         fourcc = cv2.VideoWriter_fourcc(*fourcc)

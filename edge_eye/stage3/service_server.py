@@ -4,8 +4,7 @@ import json
 import os
 
 import threading
-import wave
-
+import numpy as np
 
 import uvicorn
 from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form
@@ -13,7 +12,7 @@ from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from audio_classification import AudioClassification
+from service_processor_3 import ServiceProcessor3
 
 from log import LOGGER
 from config import Context
@@ -38,17 +37,13 @@ class ServiceServer:
         node_info = get_nodes_info()
         self.local_ip = node_info[Context.get_parameters('NODE_NAME')]
         self.controller_port = Context.get_parameters('controller_port')
-
         self.controller_address = get_merge_address(self.local_ip, port=self.controller_port, path='submit_task')
 
-        self.model_path = Context.get_file_path('model.pth')
+        self.distributor_ip = node_info[Context.get_parameters('distributor_name')]
+        self.distributor_port = Context.get_parameters('distributor_port')
+        self.distributor_address = get_merge_address(self.distributor_ip, port=self.distributor_port, path='redis')
 
-        service_args = {
-            'model_path': self.model_path,
-            'device': 'cpu'
-        }
-
-        self.estimator = AudioClassification(service_args)
+        self.estimator = ServiceProcessor3()
 
         self.app.add_middleware(
             CORSMiddleware, allow_origins=["*"], allow_credentials=True,
@@ -57,13 +52,9 @@ class ServiceServer:
 
         self.task_queue = LocalPriorityQueue()
 
-    def cal(self, file_path, task_type, metadata):
-        with wave.open(file_path, 'r') as f:
-            content = f.readframes(f.getnframes())
+    def cal(self, content, redis_address):
 
-        result = self.estimator(content, metadata)
-
-        assert type(result) is dict
+        result = self.estimator(content, redis_address)
 
         return result
 
@@ -111,10 +102,15 @@ class ServiceServer:
                     content = task.metadata['content_data']
                     task_type = task.metadata['task_type']
 
-                    result = self.cal(task.file_path, task_type, task.metadata['meta_data'])
-                    if 'parameters' in result:
-                        scenario.update(result['parameters'])
-                    content = copy.deepcopy(result['result'])
+                    result = self.cal(content, self.distributor_address)
+                    content = copy.deepcopy(result)
+
+                    lps_list = []
+                    rps_list = []
+                    for output_ctx in result:
+                        lps_list.append(output_ctx['lps'])
+                        rps_list.append(output_ctx['rps'])
+                    scenario.update({'obj_num': f'左：{np.mean(lps_list)}   右：{np.mean(rps_list)}'})
 
                     # end record service time
                     tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')

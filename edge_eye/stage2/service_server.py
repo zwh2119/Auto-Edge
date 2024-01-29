@@ -4,7 +4,6 @@ import json
 import os
 
 import threading
-import wave
 
 
 import uvicorn
@@ -13,7 +12,7 @@ from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from audio_classification import AudioClassification
+from service_processor_2 import ServiceProcessor2
 
 from log import LOGGER
 from config import Context
@@ -37,18 +36,22 @@ class ServiceServer:
 
         node_info = get_nodes_info()
         self.local_ip = node_info[Context.get_parameters('NODE_NAME')]
-        self.controller_port = Context.get_parameters('controller_port')
 
+        self.controller_port = Context.get_parameters('controller_port')
         self.controller_address = get_merge_address(self.local_ip, port=self.controller_port, path='submit_task')
 
-        self.model_path = Context.get_file_path('model.pth')
+        self.distributor_ip = node_info[Context.get_parameters('distributor_name')]
+        self.distributor_port = Context.get_parameters('distributor_port')
+        self.distributor_address = get_merge_address(self.distributor_ip, port=self.distributor_port, path='redis')
+
+        self.model_path = Context.get_file_path('epoch_2_100.pt')
 
         service_args = {
             'model_path': self.model_path,
             'device': 'cpu'
         }
 
-        self.estimator = AudioClassification(service_args)
+        self.estimator = ServiceProcessor2(service_args)
 
         self.app.add_middleware(
             CORSMiddleware, allow_origins=["*"], allow_credentials=True,
@@ -57,13 +60,9 @@ class ServiceServer:
 
         self.task_queue = LocalPriorityQueue()
 
-    def cal(self, file_path, task_type, metadata):
-        with wave.open(file_path, 'r') as f:
-            content = f.readframes(f.getnframes())
+    def cal(self, content):
 
-        result = self.estimator(content, metadata)
-
-        assert type(result) is dict
+        result = self.estimator(content, self.distributor_address)
 
         return result
 
@@ -85,13 +84,13 @@ class ServiceServer:
         return {'msg': 'data send success!'}
 
     def start_uvicorn_server(self):
-        LOGGER.info(f'start uvicorn server on {9005} port')
+        LOGGER.info(f'start uvicorn server on {9007} port')
 
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
         # Configure and run the server
-        uvicorn_config = uvicorn.Config(app=self.app, host="0.0.0.0", port=9005, log_level="debug")
+        uvicorn_config = uvicorn.Config(app=self.app, host="0.0.0.0", port=9007, log_level="debug")
         server = uvicorn.Server(uvicorn_config)
         loop.run_until_complete(server.serve())
 
@@ -111,10 +110,9 @@ class ServiceServer:
                     content = task.metadata['content_data']
                     task_type = task.metadata['task_type']
 
-                    result = self.cal(task.file_path, task_type, task.metadata['meta_data'])
-                    if 'parameters' in result:
-                        scenario.update(result['parameters'])
-                    content = copy.deepcopy(result['result'])
+                    result = self.cal(content)
+
+                    content = copy.deepcopy(result)
 
                     # end record service time
                     tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')

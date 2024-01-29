@@ -1,40 +1,40 @@
 import util_ixpe
+from client import http_request
 
 
 class ServiceProcessor2:
-    def __init__(self,cfg):
+    def __init__(self, cfg):
         model_path = cfg['model_path']
         self.sr_generator = util_ixpe.ESCPN(model_path)
 
+    def __call__(self, input_task, redis_address):
+        output = []
+        for frame, input_ctx in input_task:
+            result = self.process_task(input_ctx, redis_address)
+            output.append(result)
+        return output
 
-    def __call__(self):
-        pass
-
-    def process_task(self, input_ctx):
+    def process_task(self, input_ctx, redis_address):
         output_ctx = {}
-        # if input_ctx does not contain 'frame'
-        if 'frame' not in input_ctx:
-            # case 1: return empty due to no input_ctx
-            print("case 1: return empty due to no input_ctx")
-            return output_ctx
-        bar_roi, abs_point, frame = input_ctx["bar_roi"], input_ctx["abs_point"], input_ctx["frame"]
+
+        bar_roi, abs_point = input_ctx["bar_roi"], input_ctx["abs_point"]
         abs_point = tuple(abs_point)
-        lps, rps = self.get_edge_position()
+        lps, rps = self.get_edge_position(redis_address)
         print(f"lps: {lps}, rps: {rps}")
 
         if lps == 0 and rps == 0:
             output_ctx["bar_roi"] = bar_roi
             output_ctx["abs_point"] = abs_point
-            output_ctx["frame"] = frame
+
             # case 2: return 3 parameters
-            print("case 2: return 3 parameters")
+            # print("case 2: return 3 parameters")
             return output_ctx
         else:
             lroi, rroi, p1, p3 = self.extractMinimizedROI(
                 bar_roi, lps, rps, abs_point)
             if lroi.size == 0 or rroi.size == 0:
                 # case 3: return empty
-                print("case 3: return empty")
+                # print("case 3: return empty")
                 return output_ctx
             else:
                 srl = self.sr_generator.genSR(lroi)
@@ -46,9 +46,9 @@ class ServiceProcessor2:
                 output_ctx["srr"] = srr
                 output_ctx["labs_point"] = labs_point
                 output_ctx["rabs_point"] = rabs_point
-                output_ctx["frame"] = frame
+
                 # case 4: return 5 parameters
-                print("case 4: return 5 parameters")
+                # print("case 4: return 5 parameters")
                 return output_ctx
 
     def extractMinimizedROI(self, bar_roi, lps, rps, abs_point):
@@ -65,6 +65,9 @@ class ServiceProcessor2:
         rroi = bar_roi[p3[1]:p4[1], p3[0]:p4[0]]
         return lroi, rroi, p1, p3
 
-    def get_edge_position(self):
-        return 0,0
-
+    def get_edge_position(self, redis_address):
+        response = http_request(url=redis_address, method='GET')
+        if response:
+            return response['lps'], response['rps']
+        else:
+            return 0, 0

@@ -31,6 +31,16 @@ class DistributorServer:
                      response_class=JSONResponse,
                      methods=['GET']
                      ),
+            APIRoute('/redis',
+                     self.get_edge_eye_value,
+                     response_class=JSONResponse,
+                     methods=['GET']
+                     ),
+            APIRoute('/redis',
+                     self.save_edge_eye_value,
+                     response_class=JSONResponse,
+                     methods=['POST']
+                     ),
         ], log_level='trace', timeout=6000)
 
         self.app.add_middleware(
@@ -49,6 +59,17 @@ class DistributorServer:
             os.makedirs(self.record_dir)
 
         self.scheduler_address = get_merge_address(self.scheduler_ip, port=self.scheduler_port, path='scenario')
+
+        self.lps = 0
+        self.rps = 0
+
+    def get_edge_eye_value(self):
+        return {'lps': self.lps, 'rps': self.rps}
+
+    async def save_edge_eye_value(self, data: Request):
+        data_json = await data.json()
+        self.lps = data_json['lps']
+        self.rps = data_json['rps']
 
     def record_process_data(self, source_id, task_id, content_data):
         file_name = f'data_record_source_{source_id}_task_{task_id}_{int(time.time())}.json'

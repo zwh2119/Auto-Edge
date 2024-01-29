@@ -28,5 +28,4 @@ class ServiceProcessor1:
                 print('select bar roi success')
             output_ctx["bar_roi"] = bar_roi
             output_ctx["abs_point"] = abs_point
-            output_ctx["frame"] = frame
         return output_ctx

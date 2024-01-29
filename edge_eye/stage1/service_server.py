@@ -4,6 +4,7 @@ import json
 import os
 
 import threading
+import cv2
 
 import uvicorn
 from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form
@@ -50,9 +51,15 @@ class ServiceServer:
 
     def cal(self, file_path):
 
-        result = self.estimator(content)
+        content = []
+        video_cap = cv2.VideoCapture(file_path)
 
-        assert type(result) is dict
+        while True:
+            ret, frame = video_cap.read()
+            if not ret:
+                break
+            content.append(frame)
+        result = self.estimator(content)
 
         return result
 
@@ -101,9 +108,8 @@ class ServiceServer:
                     task_type = task.metadata['task_type']
 
                     result = self.cal(task.file_path)
-                    if 'parameters' in result:
-                        scenario.update(result['parameters'])
-                    content = copy.deepcopy(result['result'])
+
+                    content = copy.deepcopy(result)
 
                     # end record service time
                     tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
