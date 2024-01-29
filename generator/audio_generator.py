@@ -60,7 +60,7 @@ class AudioGenerator:
                          'framerate': framerate, "frames_per_task": self.frames_per_task}
 
             cnt = 0
-            single_length = self.frames_per_task * framerate  # 4 * 8000
+            single_length = int(self.frames_per_task * framerate)  # 4 * 8000
             while single_length * cnt < nframes:
                 cur_nframes = min(single_length, nframes - single_length * cnt)
                 file_name = f'temp_{self.generator_id}_{cur_id}'
