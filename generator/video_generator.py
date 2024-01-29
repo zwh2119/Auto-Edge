@@ -203,7 +203,7 @@ class VideoGenerator:
         response = http_request(url=self.task_manage_address, method='GET', json={'id': self.generator_id})
         task_type = response['task_type']
         pipeline = response['pipeline']
-
+        LOGGER.debug(f'task_type: {task_type},  pipeline: {pipeline}')
         pipeline.append({'service_name': 'end', 'execute_address': '', 'execute_data': {}})
         for task in pipeline:
             if task['service_name'] == 'end':
