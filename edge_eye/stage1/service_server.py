@@ -4,7 +4,6 @@ import json
 import os
 
 import threading
-import wave
 
 import uvicorn
 from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form
@@ -49,9 +48,7 @@ class ServiceServer:
 
         self.task_queue = LocalPriorityQueue()
 
-    def cal(self, file_path, task_type, metadata):
-        with wave.open(file_path, 'r') as f:
-            content = f.readframes(f.getnframes())
+    def cal(self, file_path):
 
         result = self.estimator(content)
 
@@ -103,7 +100,7 @@ class ServiceServer:
                     content = task.metadata['content_data']
                     task_type = task.metadata['task_type']
 
-                    result = self.cal(task.file_path, task_type, task.metadata['meta_data'])
+                    result = self.cal(task.file_path)
                     if 'parameters' in result:
                         scenario.update(result['parameters'])
                     content = copy.deepcopy(result['result'])

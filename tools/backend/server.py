@@ -2,7 +2,7 @@ import os
 import time
 
 import uvicorn
-from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form
+from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form, Body, Request
 
 from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
@@ -61,7 +61,7 @@ class BackendServer:
             APIRoute('/result',
                      self.get_execute_result,
                      response_class=JSONResponse,
-                     methods=['GET']
+                     methods=['POST']
                      ),
             APIRoute('/free',
                      self.start_free_task,
@@ -108,20 +108,32 @@ class BackendServer:
             tasks.append({task['name']: task['display']})
         return tasks
 
-    def start_task(self, service_name):
+    def start_task(self, data=Body(...)):
+        service_name = data['service_name']
         yaml_name = None
+        print(service_name)
         for task in self.tasks:
             if task['name'] == service_name:
                 yaml_name = task['yaml']
         if yaml_name is None:
             return {'msg': 'Invalid service name!'}
         yaml_path = os.path.join(self.templates_path, yaml_name)
+        print(f'apply yaml: {yaml_path}')
         os.system(f'kubectl apply -f {yaml_path}')
         time.sleep(15)
         return {'msg': 'service start successfully'}
 
-    def get_execute_result(self, time_ticket, size):
-        return requests.request(url=self.result_url, method='GET', json={'time_ticket': time_ticket, "size": size})
+    async def get_execute_result(self, data:Request):
+        input_json = await data.json()
+        print(input_json)
+        print(type(input_json))
+        time_ticket = input_json['time_ticket']
+        size = input_json['size']
+        print('here')
+
+        response = http_request(url=self.result_url, method='GET', json={'time_ticket': time_ticket, "size": size})
+        print(response)
+        return response
 
     def start_free_task(self, service_name, duration):
         response = http_request(self.free_task_url, method='POST',

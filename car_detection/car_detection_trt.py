@@ -396,8 +396,8 @@ class CarDetection:
                     size += ((box[2] - box[0]) * (box[3] - box[1])) / (self.input_h * self.input_w)
             output_ctx['result'].append(frame_boxes)
             output_ctx['probs'].append(probs)
-            output_ctx['parameters']['obj_num'] = cnt
-            output_ctx['parameters']['obj_size'] = size / cnt if cnt != 0 else 0
+            output_ctx['parameters']['obj_num'].append(cnt)
+            output_ctx['parameters']['obj_size'].append(size / cnt if cnt != 0 else 0)
         return output_ctx
 
     def __call__(self, images, task_type):
