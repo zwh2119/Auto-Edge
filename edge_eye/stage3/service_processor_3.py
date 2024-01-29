@@ -1,5 +1,6 @@
 import util_ixpe
 from client import http_request
+from utils import encode_image, decode_image
 
 
 class ServiceProcessor3:
@@ -15,8 +16,23 @@ class ServiceProcessor3:
 
     def __call__(self, data, redis_address):
         output = []
-        for frame, input_ctx in data:
+        for input_ctx in data:
+
+            if "bar_roi" in input_ctx:
+                input_ctx["bar_roi"] = decode_image(input_ctx["bar_roi"])
+            if "abs_point" in input_ctx:
+                input_ctx["abs_point"] = tuple(input_ctx["abs_point"])
+            if "srl" in input_ctx:
+                input_ctx["srl"] = decode_image(input_ctx["srl"])
+            if "srr" in input_ctx:
+                input_ctx["srr"] = decode_image(input_ctx["srr"])
+            if "labs_point" in input_ctx:
+                input_ctx["labs_point"] = tuple(input_ctx["labs_point"])
+            if "rabs_point" in input_ctx:
+                input_ctx["rabs_point"] = tuple(input_ctx["rabs_point"])
+
             result = self.process_task(input_ctx, redis_address)
+
             output.append(result)
         return output
 

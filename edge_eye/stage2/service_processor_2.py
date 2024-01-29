@@ -1,5 +1,6 @@
 import util_ixpe
 from client import http_request
+from utils import encode_image, decode_image
 
 
 class ServiceProcessor2:
@@ -9,9 +10,29 @@ class ServiceProcessor2:
 
     def __call__(self, input_task, redis_address):
         output = []
-        for frame, input_ctx in input_task:
-            result = self.process_task(input_ctx, redis_address)
-            output.append(result)
+        for input_ctx in input_task:
+
+            if 'bar_roi' in input_ctx:
+                input_ctx['bar_roi'] = decode_image(input_ctx['bar_roi'])
+            if 'abs_point' in input_ctx:
+                input_ctx['abs_point'] = tuple(input_ctx['abs_point'])
+
+            output_ctx = self.process_task(input_ctx, redis_address)
+
+            if 'bar_roi' in output_ctx:
+                output_ctx['bar_roi'] = encode_image(output_ctx['bar_roi'])
+            if "abs_point" in output_ctx:
+                output_ctx["abs_point"] = list(output_ctx["abs_point"])
+            if "srl" in output_ctx:
+                output_ctx["srl"] = encode_image(output_ctx["srl"])
+            if "srr" in output_ctx:
+                output_ctx["srr"] = encode_image(output_ctx["srr"])
+            if "labs_point" in output_ctx:
+                output_ctx["labs_point"] = list(output_ctx["labs_point"])
+            if "rabs_point" in output_ctx:
+                output_ctx["rabs_point"] = list(output_ctx["rabs_point"])
+
+            output.append(output_ctx)
         return output
 
     def process_task(self, input_ctx, redis_address):

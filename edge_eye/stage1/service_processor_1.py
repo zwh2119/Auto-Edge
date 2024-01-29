@@ -1,4 +1,5 @@
 import util_ixpe
+from utils import encode_image, decode_image
 
 class ServiceProcessor1:
     def __init__(self):
@@ -13,6 +14,10 @@ class ServiceProcessor1:
         output = []
         for frame in data:
             result = self.process_frame(frame)
+            if 'bar_roi' in result:
+                result['bar_roi'] = encode_image(result['bar_roi'])
+            if 'abs_point' in result:
+                result['abs_point'] = list(result['abs_point'])
             output.append(result)
         return output
 
@@ -26,6 +31,6 @@ class ServiceProcessor1:
             if not self.first_done_flag:
                 self.first_done_flag = True
                 print('select bar roi success')
-            output_ctx["bar_roi"] = bar_roi.tolist()
+            output_ctx["bar_roi"] = bar_roi
             output_ctx["abs_point"] = abs_point
         return output_ctx
