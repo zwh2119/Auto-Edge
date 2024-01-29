@@ -90,17 +90,17 @@ class BackendServer:
             {'name': 'imu', 'display': '惯性轨迹感知', 'yaml': 'imu.yaml'},
             {'name': 'edge-eye', 'display': '工业视觉纠偏', 'yaml': 'edge-eye.yaml'},
         ]
-        self.tasks_dict = {}
-        for task in self.tasks:
-            self.tasks_dict[task['name']] = task['display']
+        self.tasks_dict = {'car': '路面交通监控', 'human': '路面行人监控',
+                           'audio': '音频识别', 'imu': '惯性轨迹感知',
+                           'edge-eye': '工业视觉纠偏'}
 
-        self.devices = {'http://114.212.81.11:39200/submit_task':'cloud',
-                        'http://192.168.1.2:39200/submit_task': 'edge1',
-                        'http://192.168.1.4:39200/submit_task': 'edge2',
-                        }
+        self.devices = {
+            'http://114.212.81.11:39200/submit_task': 'cloud',
+            'http://192.168.1.2:39200/submit_task': 'edge1',
+            'http://192.168.1.4:39200/submit_task': 'edge2',
+        }
 
         self.time_ticket = 0
-
 
         self.templates_path = '/home/hx/zwh/Auto-Edge/templates'
         self.free_task_url = 'http://114.212.81.11:39400/task'
@@ -143,7 +143,7 @@ class BackendServer:
         time.sleep(15)
         return {'msg': 'service start successfully'}
 
-    async def get_execute_result(self, data:Request):
+    async def get_execute_result(self, data: Request):
         input_json = await data.json()
         print(input_json)
         time_ticket = input_json['time_ticket']
