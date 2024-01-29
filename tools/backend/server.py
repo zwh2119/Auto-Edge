@@ -68,6 +68,15 @@ class BackendServer:
                      response_class=JSONResponse,
                      methods=['POST']
                      ),
+            APIRoute('/time_ticket',
+                     self.get_time_ticket,
+                     response_class=JSONResponse,
+                     methods=['GET']
+                     ),
+            APIRoute('/device',
+                     self.get_devices,
+                     response_class=JSONResponse,
+                     methods=['GET'])
         ], log_level='trace', timeout=6000)
 
         self.app.add_middleware(
@@ -81,6 +90,17 @@ class BackendServer:
             {'name': 'imu', 'display': '惯性轨迹感知', 'yaml': 'imu.yaml'},
             {'name': 'edge-eye', 'display': '工业视觉纠偏', 'yaml': 'edge-eye.yaml'},
         ]
+        self.tasks_dict = {}
+        for task in self.tasks:
+            self.tasks_dict[task['name']] = task['display']
+
+        self.devices = {'http://114.212.81.11:39200/submit_task':'cloud',
+                        'http://192.168.1.2:39200/submit_task': 'edge1',
+                        'http://192.168.1.4:39200/submit_task': 'edge2',
+                        }
+
+        self.time_ticket = 0
+
 
         self.templates_path = '/home/hx/zwh/Auto-Edge/templates'
         self.free_task_url = 'http://114.212.81.11:39400/task'
@@ -126,19 +146,30 @@ class BackendServer:
     async def get_execute_result(self, data:Request):
         input_json = await data.json()
         print(input_json)
-        print(type(input_json))
         time_ticket = input_json['time_ticket']
         size = input_json['size']
-        print('here')
 
         response = http_request(url=self.result_url, method='GET', json={'time_ticket': time_ticket, "size": size})
-        print(response)
-        return response
+        if response:
+            for task in response['result']:
+                task['task_type'] = self.tasks_dict[task['task_type']]
+            self.time_ticket = response['time_ticket']
+            print(response)
+            return response
+        else:
+            return {}
+
+    def get_time_ticket(self):
+        print(f'time_ticket: {self.time_ticket}')
+        return {'time_ticket': self.time_ticket}
 
     def start_free_task(self, service_name, duration):
         response = http_request(self.free_task_url, method='POST',
                                 json={'task_type': service_name, 'cycle_num': duration})
         return {'msg': 'free service start successfully'}
+
+    def get_devices(self):
+        return self.devices
 
     def start_uvicorn_server(self):
         uvicorn.run(self.app, host='0.0.0.0', port=8910)

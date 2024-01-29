@@ -142,10 +142,10 @@ class Scheduler:
             if is_video and (pid_out > 0.2 or not done):
                 resolution, done = self.change_single_configuration(self.resolution_list, 1, resolution, resolution_raw)
             if not is_video or (pid_out > 0.3 or not done):
-                position, done = self.change_position(position, source_device, 1)
+                position, done = self.change_position(position, source_device, -1)
         if pid_out < 0:
             if not is_video or (pid_out < -0.3 or not done):
-                position, done = self.change_position(position, source_device, -1)
+                position, done = self.change_position(position, source_device, 1)
             if is_video and (pid_out < -0.2 or not done):
                 resolution, done = self.change_single_configuration(self.resolution_list, -1, resolution,
                                                                     resolution_raw)
