@@ -122,6 +122,27 @@ class VideoGenerator:
                 9.tmp_data:{} (middle_record)
                 
                 """
+
+                task_type, pipeline = self.get_pipeline()
+
+                response = http_request(url=self.schedule_address, method='GET', json={'source_id': self.generator_id,
+                                                                                       'resolution_raw': resolution_raw,
+                                                                                       'fps_raw': fps_raw,
+                                                                                       'pipeline': pipeline})
+
+                if response is not None:
+                    tuned_parameters = response['plan']
+
+                    frame_resolution = tuned_parameters['resolution']
+                    frame_fourcc = tuned_parameters['encoding']
+                    fps = tuned_parameters['fps']
+                    # priority = tuned_parameters['priority']
+                    pipeline = tuned_parameters['pipeline']
+                    LOGGER.debug(f'pipeline: {pipeline}')
+
+                fps = min(fps, fps_raw)
+                fps_mode, skip_frame_interval, remain_frame_interval = self.get_fps_adjust_mode(fps_raw, fps)
+
                 meta_data = {'resolution_raw': resolution_raw, 'fps_raw': fps_raw, 'resolution': frame_resolution,
                              'fps': fps, 'frame_number': frames_per_task, 'encoding': frame_fourcc,
                              'source_ip': self.local_ip}
@@ -154,25 +175,6 @@ class VideoGenerator:
                 cur_id += 1
                 temp_frame_buffer = []
                 os.remove(compressed_video_pth)
-
-                task_type, pipeline = self.get_pipeline()
-
-                response = http_request(url=self.schedule_address, method='GET', json={'source_id': self.generator_id,
-                                                                                       'resolution_raw': resolution_raw,
-                                                                                       'fps_raw': fps_raw,
-                                                                                       'pipeline': pipeline})
-
-                if response is not None:
-                    tuned_parameters = response['plan']
-
-                    frame_resolution = tuned_parameters['resolution']
-                    frame_fourcc = tuned_parameters['encoding']
-                    fps = tuned_parameters['fps']
-                    # priority = tuned_parameters['priority']
-                    pipeline = tuned_parameters['pipeline']
-
-                fps = min(fps, fps_raw)
-                fps_mode, skip_frame_interval, remain_frame_interval = self.get_fps_adjust_mode(fps_raw, fps)
 
     def get_fps_adjust_mode(self, fps_raw, fps):
         skip_frame_interval = 0
