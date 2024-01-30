@@ -116,7 +116,7 @@ class ServiceServer:
                             rps_list.append(output_ctx['rps'])
                         else:
                             rps_list.append(0)
-                    scenario.update({'obj_num': f'左：{np.mean(lps_list)}   右：{np.mean(rps_list)}'})
+                    scenario.update({'obj_num': [f'左：{np.mean(lps_list)}   右：{np.mean(rps_list)}']})
 
                     # end record service time
                     tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
