@@ -108,8 +108,14 @@ class ServiceServer:
                     lps_list = []
                     rps_list = []
                     for output_ctx in result:
-                        lps_list.append(output_ctx['lps'])
-                        rps_list.append(output_ctx['rps'])
+                        if 'lps' in lps_list:
+                            lps_list.append(output_ctx['lps'])
+                        else:
+                            lps_list.append(0)
+                        if 'rps' in rps_list:
+                            rps_list.append(output_ctx['rps'])
+                        else:
+                            rps_list.append(0)
                     scenario.update({'obj_num': f'左：{np.mean(lps_list)}   右：{np.mean(rps_list)}'})
 
                     # end record service time
