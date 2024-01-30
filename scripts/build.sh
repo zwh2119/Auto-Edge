@@ -102,6 +102,24 @@ build_image() {
     local image=$1
     local platform=$2
     local dockerfile=$3
+    local tag_suffix=$4  # May be empty
+    local cache_option=$5  # --no-cache or empty
+    local image_tag="${REPO}/${image}:${tag_suffix}${TAG}"
+    local context_dir=$(dirname "$dockerfile")  # Get the directory of the Dockerfile
+
+    echo "Building image: $image_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
+
+    if [ -z "$cache_option" ]; then
+        docker buildx build --platform "$platform" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" --push
+    else
+        docker buildx build  --platform "$platform" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
+    fi
+}
+
+build_image_special() {
+    local image=$1
+    local platform=$2
+    local dockerfile=$3
     local cache_option=$4  # --no-cache or empty
     local temp_tag="${REPO}/${image}:${TAG}-${platform##*/}"  # Temporary tag for the build
     local context_dir=$(dirname "$dockerfile")  # Get the directory of the Dockerfile
@@ -109,9 +127,9 @@ build_image() {
     echo "Building image: $temp_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
 
     if [ -z "$cache_option" ]; then
-        docker buildx build --platform "$platform" --build-arg GO_LDFLAGS="" -t "$temp_tag" -f "$dockerfile" "$context_dir" --push
+        docker buildx build --platform "$platform" --build-arg GO_LDFLAGS="" -t "$temp_tag" -f "$dockerfile" "$context_dir"
     else
-        docker buildx build  --platform "$platform" --build-arg GO_LDFLAGS="" -t "$temp_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
+        docker buildx build  --platform "$platform" --build-arg GO_LDFLAGS="" -t "$temp_tag" -f "$dockerfile" "$context_dir" "$cache_option"
     fi
 }
 
@@ -151,7 +169,7 @@ if [ -n "$SELECTED_FILES" ]; then
                     IFS=':' read -ra DETAILS <<< "$entry"
                     platform="${DETAILS[0]}"
                     dockerfile="${DETAILS[1]}"
-                    build_image "$image" "$platform" "$dockerfile" "$CACHE_OPTION"
+                    build_image_special "$image" "$platform" "$dockerfile" "$CACHE_OPTION"
                 done
                 # After building all architectures, create and push manifest
                 create_and_push_manifest "$image" "$TAG" "$REPO"
@@ -171,7 +189,7 @@ else
                 IFS=':' read -ra DETAILS <<< "$entry"
                 platform="${DETAILS[0]}"
                 dockerfile="${DETAILS[1]}"
-                build_image "$image" "$platform" "$dockerfile" "$CACHE_OPTION"
+                build_image_special "$image" "$platform" "$dockerfile" "$CACHE_OPTION"
             done
             # After building all architectures, create and push manifest
             create_and_push_manifest "$image" "$TAG" "$REPO"
