@@ -1,5 +1,6 @@
 import util_ixpe
 from utils import encode_image, decode_image
+from log import LOGGER
 
 class ServiceProcessor1:
     def __init__(self):
@@ -24,13 +25,13 @@ class ServiceProcessor1:
     def process_frame(self, frame):
         output_ctx = {}
         if not self.mat_detector.detect(frame=frame):
-            print('no material detected, continue')
+            LOGGER.debug('no material detected, continue')
             return output_ctx
         bar_roi, abs_point = self.bar_selector.select(frame=frame)
         if abs_point != (0, 0):
             if not self.first_done_flag:
                 self.first_done_flag = True
-                print('select bar roi success')
+                LOGGER.debug('select bar roi success')
             output_ctx["bar_roi"] = bar_roi
             output_ctx["abs_point"] = abs_point
         return output_ctx

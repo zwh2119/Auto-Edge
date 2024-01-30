@@ -38,6 +38,9 @@ class ServiceProcessor2:
     def process_task(self, input_ctx, redis_address):
         output_ctx = {}
 
+        if 'bar_roi' not in input_ctx:
+            return output_ctx
+
         bar_roi, abs_point = input_ctx["bar_roi"], input_ctx["abs_point"]
         abs_point = tuple(abs_point)
         lps, rps = self.get_edge_position(redis_address)

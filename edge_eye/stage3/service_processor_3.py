@@ -39,6 +39,9 @@ class ServiceProcessor3:
     def process_task(self, input_ctx, redis_address):
         output_ctx = {}
 
+        if 'bar_roi' not in input_ctx:
+            return output_ctx
+
         if len(input_ctx) == 3:
             print("get three parameters from input_ctx")
             bar_roi, abs_point = input_ctx["bar_roi"], input_ctx["abs_point"]
