@@ -153,6 +153,9 @@ class BackendServer:
         if response:
 
             for task in response['result']:
+                if task['task_type'] == 'edge-eye':
+                    for i in range(3):
+                        task['pipeline'][i]['execute_data']['service_time'] -=0.4
                 if task['task_type'] == 'human':
                     task['pipeline'][0]['service_name'] = 'human-detection'
                 task['task_type'] = self.tasks_dict[task['task_type']]
