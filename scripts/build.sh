@@ -109,9 +109,9 @@ build_image() {
     echo "Building image: $temp_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
 
     if [ -z "$cache_option" ]; then
-        docker buildx build --platform "$platform" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" --push
+        docker buildx build --platform "$platform" --build-arg GO_LDFLAGS="" -t "$temp_tag" -f "$dockerfile" "$context_dir" --push
     else
-        docker buildx build  --platform "$platform" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
+        docker buildx build  --platform "$platform" --build-arg GO_LDFLAGS="" -t "$temp_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
     fi
 }
 
