@@ -127,9 +127,9 @@ build_image_special() {
     echo "Building image: $temp_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
 
     if [ -z "$cache_option" ]; then
-        docker buildx build --platform "$platform" --build-arg GO_LDFLAGS="" -t "$temp_tag" -f "$dockerfile" "$context_dir"
+        docker buildx build --platform "$platform" --build-arg GO_LDFLAGS="" -t "$temp_tag" -f "$dockerfile" "$context_dir"  --load
     else
-        docker buildx build  --platform "$platform" --build-arg GO_LDFLAGS="" -t "$temp_tag" -f "$dockerfile" "$context_dir" "$cache_option"
+        docker buildx build  --platform "$platform" --build-arg GO_LDFLAGS="" -t "$temp_tag" -f "$dockerfile" "$context_dir" "$cache_option"  --load
     fi
 }
 
@@ -145,8 +145,8 @@ create_and_push_manifest() {
         "${repo}/${image}:${tag}-amd64" \
         "${repo}/${image}:${tag}-arm64"
 
-    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-amd64" --arch amd64  --load
-    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-arm64" --arch arm64  --load
+    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-amd64" --arch amd64
+    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-arm64" --arch arm64
 
     docker manifest push "$manifest_tag"
 }
