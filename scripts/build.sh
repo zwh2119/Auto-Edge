@@ -145,8 +145,8 @@ create_and_push_manifest() {
         "${repo}/${image}:${tag}-amd64" \
         "${repo}/${image}:${tag}-arm64"
 
-    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-amd64" --arch amd64
-    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-arm64" --arch arm64
+    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-amd64" --arch amd64  --load
+    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-arm64" --arch arm64  --load
 
     docker manifest push "$manifest_tag"
 }

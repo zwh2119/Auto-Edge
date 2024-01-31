@@ -403,7 +403,11 @@ class CarDetection:
 if __name__ == '__main__':
     video_dir = '../video'
     model_dir = '../batch_test'
+    save_file = 'batch.log'
     repeat_count = 100
+
+    if os.path.exists(save_file):
+        os.remove(save_file)
 
     batch_select = [1, 2, 4, 8, 16, 32, 64]
     avg_time = []
@@ -448,7 +452,7 @@ if __name__ == '__main__':
                         frames_buffer = []
 
         all_time_dict[batch] = time_buffer
-        avg_time.append(np.mean(time_buffer)/batch)
+        avg_time.append(np.mean(time_buffer) / batch)
 
     print('******************************************')
     print('*************final result*****************')
