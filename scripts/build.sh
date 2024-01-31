@@ -121,7 +121,7 @@ build_image_special() {
     local platform=$2
     local dockerfile=$3
     local cache_option=$4  # --no-cache or empty
-    local temp_tag="${REPO}/${image}:${TAG}-${platform##*/}"  # Temporary tag for the build
+    local temp_tag="${REPO}/${image}-${platform##*/}:${TAG}"  # Temporary tag for the build
     local context_dir=$(dirname "$dockerfile")  # Get the directory of the Dockerfile
 
     echo "Building image: $temp_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
@@ -142,11 +142,11 @@ create_and_push_manifest() {
     echo "Creating and pushing manifest for: $manifest_tag"
 
     docker manifest create "$manifest_tag" \
-        "${repo}/${image}:${tag}-amd64" \
-        "${repo}/${image}:${tag}-arm64"
+        "${repo}/${image}-amd64:${tag}" \
+        "${repo}/${image}-arm64:${tag}"
 
-    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-amd64" --arch amd64
-    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-arm64" --arch arm64
+    docker manifest annotate "$manifest_tag" "${repo}/${image}-amd64:${tag}" --arch amd64
+    docker manifest annotate "$manifest_tag" "${repo}/${image}-arm64:${tag}" --arch arm64
 
     docker manifest push "$manifest_tag"
 }
