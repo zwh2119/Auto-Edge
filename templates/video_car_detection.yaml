@@ -292,7 +292,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:arm64-v1.0.0
+          - image: onecheck/car-detection:v1.0.0
             imagePullPolicy: IfNotPresent
             name: car-detection
             ports:
@@ -309,7 +309,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:arm64-v1.0.0
+          - image: onecheck/car-detection:v1.0.0
             imagePullPolicy: IfNotPresent
             name: car-detection
             ports:
