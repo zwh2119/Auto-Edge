@@ -12,7 +12,7 @@ Auto-Edge is an automated scheduling platform for edge computing. Auto-Edge supp
 Auto-Edge is developed by Dislab-AIoT group from Nanjin University.
 
 ## Related Framework
-- [docker container](https://github.com/docker/docker-ce)
+- [Docker Container](https://github.com/docker/docker-ce)
 - [Kubernetes](https://github.com/kubernetes/kubernetes)
 - [KubeEdge](https://github.com/kubeedge/kubeedge)
 - [Sedna](https://github.com/kubeedge/sedna)
@@ -21,7 +21,7 @@ Auto-Edge is developed by Dislab-AIoT group from Nanjin University.
 
 ## Architecture
 
-Auto-Edge
+Auto-Edge is composed of four layers.
 
 ![](pics/base_framework.png)
 
@@ -30,6 +30,9 @@ Auto-Edge
 Auto-Edge is built on KubeEdge system and depends on interfaces from sedna. The components Auto-Edge includes generator, controller, service-processor, distributor, scheduler and monitor. 
 
 ## Components
+
+Auto-Edge complete pipeline task execution and scheduling based on functional components displayed 
+
 - `generator`: bind to a data stream and complete the segmentation of data package based on schedule policy from scheduler. 
 - `controller`: control the whole process of data dealing and forwarding among cloud and edge devices.
 - `service processor`: process data with AI algorithms, a service pipeline may include more than one stage processor.
@@ -38,6 +41,10 @@ Auto-Edge is built on KubeEdge system and depends on interfaces from sedna. The 
 - `monitor`: monitor resource usage like CPU usage, memory usage and network bandwidth.
 - [`sedna`](https://github.com/AdaYangOlzz/sedna-modified): include global manager(GM) and local controller(LC), offer underlying platform interface for Auto-Edge based on KubeEdge.
 
+
+## Features
+- 
+- 
 
 ## Guides
 
