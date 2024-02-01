@@ -1,7 +1,7 @@
 # Auto-Edge
 
 
-<img src="pics/logo.png" alt="logo" >
+![](pics/logo.png)
 
 
 ## Brief Introduction
