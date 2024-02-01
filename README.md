@@ -23,10 +23,10 @@ Auto-Edge is developed by Dislab-AIoT group from Nanjin University.
 
 Auto-Edge is composed of four layers:
 
-- Basic System Layer: This layer adopts the `KubeEdge` architecture and is deployed on all distributed nodes across the cloud-edge environment. `KubeEdge` is the `Kubernetes` extension proposed by Huawei for edge scenarios and can be well deployed on devices with limited resources and low performance.
-- Intermediate Interface Layer: This layer is designed to adapt to the deployment interfaces from platform. Through modifying and expanding official interface component `Sedna`, it will submit a complete task to the user to provide the adaptive parameter interface and the corresponding deployment logic.
-- Collaboration Scheduling Layer: This layer is composed of functional components independently developed by us to complete functions such as pipeline task execution and scheduling collaboration.
-- Application Service Layer: This layer accepts user-defined service applications. As long as the user develops service according to the interface requirements defined by the platform, it can be embedded in the platform as a container and complete execution across cloud-edge nodes.
+- **Basic System Layer**: This layer adopts the `KubeEdge` architecture and is deployed on all distributed nodes across the cloud-edge environment. `KubeEdge` is the `Kubernetes` extension proposed by Huawei for edge scenarios and can be well deployed on devices with limited resources and low performance.
+- **Intermediate Interface Layer**: This layer is designed to adapt to the deployment interfaces from platform. Through modifying and expanding official interface component `Sedna`, it will submit a complete task to the user to provide the adaptive parameter interface and the corresponding deployment logic.
+- **Collaboration Scheduling Layer**: This layer is composed of functional components independently developed by us to complete functions such as pipeline task execution and scheduling collaboration.
+- **Application Service Layer**: This layer accepts user-defined service applications. As long as the user develops service according to the interface requirements defined by the platform, it can be embedded in the platform as a container and complete execution across cloud-edge nodes.
 
 ### Basic System Layer & Intermediate Interface Layer
 
