@@ -1,8 +1,8 @@
 # Auto-Edge
 
-<center>
-    <img src="pic/logo.png" alt="logo" width="120">
-</center>
+
+<img src="pics/logo.png" alt="logo" >
+
 
 ## Brief Introduction
 
@@ -20,7 +20,12 @@ Auto-Edge is developed by Dislab-AIoT group from Nanjin University.
 
 
 ## Architecture
-![](pic/structure.png)
+
+Auto-Edge
+
+![](pics/base_framework.png)
+
+![](pics/structure.png)
 
 Auto-Edge is built on KubeEdge system and depends on interfaces from sedna. The components Auto-Edge includes generator, controller, service-processor, distributor, scheduler and monitor. 
 
@@ -121,6 +126,8 @@ ffmpeg -re -i ./traffic0.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video0
 ffmpeg -re -i ./traffic1.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video1
 ffmpeg -re -i ./traffic2.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video2
 ```
+
+You can also use [rtsp script](tools/push.sh) to automatically start video stream.
 
 ### collect result from Auto-Edge
 use the script to check the system output.
