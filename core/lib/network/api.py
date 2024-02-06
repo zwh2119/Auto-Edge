@@ -1,0 +1,3 @@
+
+class NetworkAPI:
+    distributor = 'distribute'
