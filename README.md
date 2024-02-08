@@ -185,5 +185,6 @@ or you can mount the data record folder in distributor to volume on physical dev
 - 2023.12.17 `AutoEdge` - `v0.8.0`: add resource monitor component 
 - 2024.01.06 `AutoEdge` - `v0.9.0`: build docker images of all components 
 - 2024.01.11 `AutoEdge` - `v1.0.0`: complete the first formal version of Auto-Edge
+- 2024.02.12 `AutoEdge` - `v1.1.0': rebuild structure of system code
 
 ## Citation
