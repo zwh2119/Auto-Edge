@@ -9,7 +9,7 @@ class TimeEstimator:
         record time in system
         :param data: time dictionary
         :param flow_index: index in pipeline flow
-        :param transmit: is transmit time record
+        :param transmit: is transmit time record (transmit time or service time)
         :return: is_end: is the end of time estimation
                  data: time dictionary
                  duration: time estimation result
@@ -35,7 +35,6 @@ class TimeEstimator:
             del data[tag]
             is_end = True
             duration = end_time - start_time
-
         else:
             data[tag] = time.time()
             is_end = False
