@@ -26,7 +26,7 @@ class Task:
 
     @staticmethod
     def __extract_pipeline(pipeline):
-        return None
+        return {}
 
     def get_source_id(self):
         return self.__source_id
