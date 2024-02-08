@@ -1,12 +1,16 @@
 import logging
 import colorlog
-
-job_name = 'auto-edge'
-LOG_LEVEL = 'DEBUG'
+from constant import AutoEdgeConstant
+from config import Context
 
 
 class Logger:
-    def __init__(self, name: str = job_name):
+    def __init__(self, name: str = None):
+        if not name:
+            name = AutoEdgeConstant.DEFAULT.value
+
+        level = Context.get_parameter('LOG_LEVEL', 'DEBUG')
+
         self.logger = logging.getLogger(name)
 
         self.format = colorlog.ColoredFormatter(
@@ -18,7 +22,7 @@ class Logger:
 
         self.logger.addHandler(self.handler)
         self.logLevel = 'INFO'
-        self.logger.setLevel(level=LOG_LEVEL)
+        self.logger.setLevel(level=level)
         self.logger.propagate = False
 
 
