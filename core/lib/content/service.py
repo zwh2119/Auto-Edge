@@ -1,11 +1,15 @@
 class Service:
-    def __init__(self, service_name, execute_device=''):
+    def __init__(self, service_name, execute_device='',
+                 transmit_time=0, execute_time=0):
         self.__service_name = service_name
         self.__execute_device = execute_device
-        self.__transmit_time = 0
-        self.__execute_time = 0
+        self.__transmit_time = transmit_time
+        self.__execute_time = execute_time
 
-    def get_service_name(self, service_name):
+    def get_service_name(self):
+        return self.__service_name
+
+    def set_service_name(self, service_name):
         self.__service_name = service_name
 
     def get_execute_device(self):
@@ -40,7 +44,7 @@ class Service:
 
     @staticmethod
     def deserialize(data):
-        service = Service(data['service_name'], data['execute_device'])
-        service.set_execute_time(data['execute_data']['execute_time'])
-        service.set_transmit_time(data['execute_data']['transmit_time'])
-
+        service = Service(data['service_name'], data['execute_device'],
+                          execute_time=data['execute_data']['execute_time'],
+                          transmit_time=data['execute_data']['transmit_time'])
+        return service
