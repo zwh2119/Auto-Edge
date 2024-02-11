@@ -7,9 +7,9 @@
 ## Brief Introduction
 
 
-Auto-Edge is an automated scheduling platform for edge computing. Auto-Edge supports pipeline service processing of multi data stream and focus on the scheduling policy in edge computing. It's developed based on KubeEdge and can be easily migrated.
+Auto-Edge is an automated scheduling platform for edge computing in stream data processing. Auto-Edge supports pipeline service processing of multi data stream and focus on the scheduling policy in edge computing. It's developed based on KubeEdge and can be easily migrated.
 
-Auto-Edge is developed by Dislab-AIoT group from Nanjin University.
+Auto-Edge is developed by **Dislab-AIoT** group from **Nanjin University**.
 
 ## Related Framework
 - [Docker Container](https://github.com/docker/docker-ce)
@@ -70,23 +70,23 @@ Meanwhile, `service processor` can be equipped with user-defined application ser
 ## Guides
 
 
-### build environment on cloud and edge devices
+### Build environment on cloud and edge devices
 1. deploy Kubernetes on cloud device([instruction](https://github.com/AdaYangOlzz/kubeedge-deploy))
 2. deploy KubeEdge on cloud and edge devices([instruction](https://github.com/AdaYangOlzz/kubeedge-deploy))
 3. deploy Sedna (modified version) on cloud and edge devices([instruction](https://github.com/AdaYangOlzz/sedna-modified/blob/master/README.md))
 
-### build docker images of Auto-Edge components
+### Build docker images of Auto-Edge components
 1. install docker cross build (buildx) on x86 platform ([instruction](instructions/buildx.md))
 2. build docker with script
 ```shell
-bash docker/build.sh
+bash tools/build.sh
 ```
 more args of docker building script can be found with `--help`
 
 up-to-date images has been built on [dockerhub](https://hub.docker.com/u/onecheck).
 
 
-### deploy necessary files on cloud and edge
+### Deploy necessary files on cloud and edge
 Some customized files needed to be deployed on devices previously and corresponding paths need to be filled in yaml files.
 
 file structure:
@@ -109,12 +109,14 @@ The 'model_lib' folder contains files for service inference, and it differs amon
 
 The template deploying files can be found in [shared link](https://box.nju.edu.cn/d/1c26b20dc733474c9a6b/)
 
-### delete former pods of Auto-Edge
+### Delete former pods of Auto-Edge
+If Auto-Edge has been started before, the former pods should be deleted through scripts.
+
 ```shell
-bash docker/delete.sh
+bash tools/delete.sh
 ```
 
-### start Auto-Edge system on KubeEdge
+### Start Auto-Edge system on KubeEdge
 start system with yaml files (eg:  [video_car_detection.yaml](templates/video_car_detection.yaml))
 ```shell
 # yaml files can be found in `templates` folder
@@ -137,7 +139,7 @@ kubectl describe pod <pod-name>
 
 ```
 
-### start rtsp video stream
+### Start rtsp video stream
 Install [`easyDarwin`](https://github.com/EasyDarwin/EasyDarwin) for rtsp server. easyDarwin compiled for arm-64 platform can be found in [shared link](https://box.nju.edu.cn/f/c30a8c8cad1d49938b4b/)
 
 Start easyDarwin rtsp server.
@@ -157,7 +159,7 @@ ffmpeg -re -i ./traffic2.mp4 -vcodec libx264 -f rtsp rtsp://127.0.0.1/video2
 
 You can also use [rtsp script](tools/push.sh) to automatically start video stream.
 
-### collect result from Auto-Edge
+### Collect result from Auto-Edge
 use the script to check the system output.
 ```shell
 python tools/result_collector.py
@@ -167,12 +169,14 @@ or you can mount the data record folder in distributor to volume on physical dev
 
 
 ## Deployment Device
+we use the following devices to deploy Auto-Edge system. Other devices can also be supported as long as docker images are applied to hardware architecture.
+
 - Cloud: Server with NVIDIA GeForce RTX 3090 *4
 - Edge: NVIDIA Jetson TX2
 
 ## Supported Service Pipeline
 - Car Detection: [`car detection`]
-- Class Detection: [`face detection`, `pose estimation`] (not completely support now)
+- Class Detection: [`face detection`, `pose estimation`] 
 
 ## Development Version
 - 2023.11.25 `AutoEdge` - `v0.1.0`: demo of car detection (without scheduler) test successfully [single edge, single stage]
@@ -185,6 +189,7 @@ or you can mount the data record folder in distributor to volume on physical dev
 - 2023.12.17 `AutoEdge` - `v0.8.0`: add resource monitor component 
 - 2024.01.06 `AutoEdge` - `v0.9.0`: build docker images of all components 
 - 2024.01.11 `AutoEdge` - `v1.0.0`: complete the first formal version of Auto-Edge
-- 2024.02.12 `AutoEdge` - `v1.1.0`: rebuild structure of system code
+- 2024.02.11 `AutoEdge` - `v1.1.0`: rebuild structure of system code
+- 2024.02.12 `AutoEdge` - `v1.2.0`: add hook functions 
 
 ## Citation
