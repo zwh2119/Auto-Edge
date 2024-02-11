@@ -36,11 +36,13 @@ class Service:
         return self.__execute_time + self.__execute_time
 
     @staticmethod
-    def serialize(service):
-        return {'service_name': service.__service_name,
-                'execute_device': service.__execute_device,
-                'execute_data': {'transmit_time': service.__transmit_time, 'execute_time': service.__execute_time}
-                }
+    def serialize(service: 'Service'):
+        return {
+            'service_name': service.get_service_name(),
+            'execute_device': service.get_execute_device(),
+            'execute_data': {'transmit_time': service.get_transmit_time(),
+                             'execute_time': service.get_execute_time()}
+        }
 
     @staticmethod
     def deserialize(data):

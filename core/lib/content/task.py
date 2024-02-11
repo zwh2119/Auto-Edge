@@ -6,6 +6,7 @@ class Task:
                  source_id: int,
                  task_id: int,
                  pipeline: list = None,
+                 flow_index: int = 0,
                  metadata: dict = None,
                  content: object = None,
                  scenario: dict = None,
@@ -15,9 +16,9 @@ class Task:
 
         self.__metadata = metadata
 
-        self.__pipeline_flow = Task.__extract_pipeline(pipeline) if pipeline else None
+        self.__pipeline_flow = pipeline
 
-        self.__cur_flow_index = 0
+        self.__cur_flow_index = flow_index
 
         self.__content_data = content
 
@@ -48,6 +49,15 @@ class Task:
 
     def set_pipeline(self, pipeline):
         self.__pipeline_flow = pipeline
+
+    def set_initial_pipeline(self, pipeline):
+        self.__pipeline_flow = Task.__extract_pipeline(pipeline)
+
+    def get_metadata(self):
+        return self.__metadata
+
+    def set_metadata(self, data: dict):
+        self.__metadata = data
 
     def get_content(self):
         return self.__content_data
@@ -99,9 +109,26 @@ class Task:
             f'Illegal flow index of "{self.__cur_flow_index}"!'
 
     @staticmethod
-    def serialize(task):
-        return {'source_id': task.__source_id, 'task_id': task.__task_id}
+    def serialize(task: 'Task'):
+        pipeline_serialize = []
+        pipeline = task.get_pipeline()
+        for service in pipeline:
+            pipeline_serialize.append(Service.serialize(service))
+        return {
+            'source_id': task.get_source_id(), 'task_id': task.get_task_id(),
+            'pipeline': pipeline_serialize, 'cur_flow_index': task.get_flow_index(),
+            'meta_data': task.get_metadata(), 'content_data': task.get_content(),
+            'scenario_data': task.get_scenario_data(), 'tmp_data': task.get_tmp_data()
+        }
 
     @staticmethod
     def deserialize(data: dict):
-        return Task(data['source_id'], data['task_id'])
+        pipeline = []
+        for s in data['pipeline']:
+            service = Service.deserialize(s)
+            pipeline.append(service)
+        return Task(data['source_id'], data['task_id'],
+                    pipeline=pipeline, flow_index=data['cur_flow_index'],
+                    metadata=data['meta_data'], content=data['content_data'],
+                    scenario=data['scenario_data'], temp=data['tmp_data']
+                    )
