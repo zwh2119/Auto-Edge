@@ -1,6 +1,7 @@
 from kubernetes import client, config
 from core.lib.common import reverse_key_value_in_dict
 from core.lib.network import find_all_ips
+from core.lib.common import Context
 
 
 class NodeInfo:
@@ -62,3 +63,10 @@ class NodeInfo:
         assert len(ips) == 1, 'url "{url}" contains none or more than one legal ip!'
         return NodeInfo.ip2hostname(ips[0])
 
+    @staticmethod
+    def get_local_device() -> str:
+        device = Context.get_parameter('NODE_NAME')
+
+        assert device, 'Node Config is not found ("NODE_NAME")!'
+
+        return device

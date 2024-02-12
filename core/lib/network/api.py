@@ -1,3 +1,20 @@
+class NetworkAPIPath:
+    CONTROLLER_TASK = 'submit_task'
+    PROCESSOR_PROCESS = 'predict'
+    DISTRIBUTOR_DISTRIBUTE = 'distribute'
+    DISTRIBUTOR_RESULT = 'result'
+    SCHEDULER_SCHEDULE = 'schedule'
+    SCHEDULER_SCENARIO = 'scenario'
+    SCHEDULER_RESOURCE = 'resource'
 
-class NetworkAPI:
-    distributor = 'distribute'
+
+class NetworkAPIMethod:
+    CONTROLLER_TASK = 'POST'
+    PROCESSOR_PROCESS = 'POST'
+    DISTRIBUTOR_DISTRIBUTE = 'POST'
+    DISTRIBUTOR_RESULT = 'GET'
+    SCHEDULER_SCHEDULE = 'GET'
+    SCHEDULER_SCENARIO = 'POST'
+    SCHEDULER_RESOURCE = 'POST'
+
+

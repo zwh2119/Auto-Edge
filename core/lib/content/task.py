@@ -27,7 +27,7 @@ class Task:
         self.__tmp_data = temp if temp else {}
 
     @staticmethod
-    def __extract_pipeline(pipeline: list):
+    def extract_pipeline(pipeline: list):
         pipeline_flow = []
         for in_service in pipeline:
             assert 'service_name' in in_service, 'invalid service without "service_name"!'
@@ -51,7 +51,7 @@ class Task:
         self.__pipeline_flow = pipeline
 
     def set_initial_pipeline(self, pipeline):
-        self.__pipeline_flow = Task.__extract_pipeline(pipeline)
+        self.__pipeline_flow = Task.extract_pipeline(pipeline)
 
     def get_metadata(self):
         return self.__metadata
@@ -107,6 +107,17 @@ class Task:
 
         assert 0 <= self.__cur_flow_index < len(self.__pipeline_flow), \
             f'Illegal flow index of "{self.__cur_flow_index}"!'
+
+    def set_initial_execute_device(self, hostname):
+        assert self.__pipeline_flow, 'pipeline is empty!'
+        for service in self.__pipeline_flow:
+            service.set_execute_device(hostname)
+
+    @staticmethod
+    def set_execute_device(pipeline, hostname):
+        assert pipeline, 'pipeline is empty!'
+        for service in pipeline:
+            service.set_execute_device(hostname)
 
     @staticmethod
     def serialize(task: 'Task'):

@@ -53,9 +53,7 @@ class ClassFactory(object):
                 cls.__registry__[type_name] = {t_cls_name: t_cls}
             else:
                 if t_cls_name in cls.__registry__:
-                    raise ValueError(
-                        "Cannot register duplicate class ({})".format(
-                            t_cls_name))
+                    raise ValueError("Cannot register duplicate class ({})".format(t_cls_name))
                 cls.__registry__[type_name].update({t_cls_name: t_cls})
             return t_cls
 
