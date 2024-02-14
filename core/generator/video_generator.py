@@ -5,8 +5,10 @@ from core.lib.network import get_merge_address
 from core.lib.network import http_request
 from core.lib.network import NetworkAPIPath, NetworkAPIMethod
 from core.lib.common import Context
+from core.lib.common import ClassType, ClassFactory
 
 
+@ClassFactory.register(ClassType.GENERATOR, alias='video')
 class VideoGenerator(Generator):
     def __init__(self, source_id: int, task_pipeline: list,
                  data_source: str, metadata: dict):

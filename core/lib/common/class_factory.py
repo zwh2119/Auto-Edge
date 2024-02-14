@@ -1,4 +1,3 @@
-
 """
 Management class registration and bind configuration properties,
 provides the type of class supported.
@@ -11,19 +10,7 @@ class ClassType:
     """Const class saved defined class type."""
 
     GENERAL = 'general'
-    HEM = 'hard_example_mining'
-    FL_AGG = 'aggregation'
-    MTL = 'multi_task_learening'
-    UTD = 'unseen_task_detect'
-    OF = 'optical_flow'
-
-    ALGORITHM = 'algorithm'
-    DATASET = 'data_process'
-    CALLBACK = 'post_process_callback'
-
-    UTP = 'unseen_task_processing'
-    KM = 'knowledge_management'
-    STP = 'seen_task_processing'
+    GENERATOR = 'generator'
 
 
 class ClassFactory(object):
@@ -105,9 +92,9 @@ class ClassFactory(object):
         if cls_name is None:
             return type_name in cls.__registry__
         return (
-            type_name in cls.__registry__
+                type_name in cls.__registry__
         ) and (
-            cls_name in cls.__registry__.get(type_name)
+                cls_name in cls.__registry__.get(type_name)
         )
 
     @classmethod
