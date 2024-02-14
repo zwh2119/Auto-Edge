@@ -16,6 +16,7 @@ class VideoGenerator(Generator):
 
         self.task_id = 0
         self.video_data_source = data_source
+        self.raw_meta_data = metadata
         self.meta_data = metadata
 
         self.local_device = NodeInfo.get_local_device()
@@ -30,9 +31,14 @@ class VideoGenerator(Generator):
         response = http_request(url=self.schedule_address,
                                 method=NetworkAPIMethod.SCHEDULER_SCHEDULE,
                                 json={'source_id': self.source_id,
-                                      'resolution_raw': resolution_raw,
-                                      'fps_raw': fps_raw,
-                                      'pipeline': pipeline})
+                                      'metadata': self.meta_data,
+                                      'pipeline': Task.serialize(self.task_pipeline)})
+        # TODO: make different schedule interface the same (with different parameters)
+        if response is not None:
+            return
+        else:
+            return None
 
     def run(self):
-        pass
+        while True:
+            pass
