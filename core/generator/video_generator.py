@@ -2,8 +2,8 @@ import cv2
 
 from generator import Generator
 
-from core.lib.common import ClassType, ClassFactory
-from core.lib.common import LOGGER
+from lib.common import ClassType, ClassFactory
+from lib.common import LOGGER
 
 
 @ClassFactory.register(ClassType.GENERATOR, alias='video')

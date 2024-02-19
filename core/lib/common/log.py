@@ -1,7 +1,7 @@
 import logging
 import colorlog
-from constant import AutoEdgeConstant
-from config import Context
+from .constant import AutoEdgeConstant
+from .config import Context
 
 
 class Logger:
