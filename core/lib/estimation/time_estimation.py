@@ -4,43 +4,46 @@ import time
 class TimeEstimator:
 
     @staticmethod
-    def record_pipeline_ts(data: dict, flow_index: int, transmit: bool = True) -> (bool, dict, float):
+    def record_pipeline_ts(data: dict, flow_index: int, is_end: bool, transmit: bool = True) -> (bool, dict, float):
         """
         record pipeline timestamp in system
         :param data: time dictionary
         :param flow_index: index in pipeline flow
+        :param is_end: if recording the end of current timestamp
         :param transmit: is transmit time record (transmit time or service time)
         :return: is_end: is the end of time estimation
                  data: time dictionary
                  duration: time estimation result
 
         """
-        return TimeEstimator.record_ts(data, f'transmit_time_{flow_index}' if transmit else f'service_time_{flow_index}')
+        return TimeEstimator.record_ts(data,
+                                       f'transmit_time_{flow_index}' if transmit else f'service_time_{flow_index}',
+                                       is_end=is_end)
 
     @staticmethod
-    def record_ts(data: dict, tag: str) -> (bool, dict, float):
+    def record_ts(data: dict, tag: str, is_end: bool = False) -> (dict, float):
         """
         record timestamp in system
         :param data: time dictionary
         :param tag: name of time ticket
-        :return: is_end: is the end of time estimation
-                 data: time dictionary
+        :param is_end: if recording the end of current timestamp
+        :return: data: time dictionary
                  duration: time estimation result
 
         """
 
-        if tag in data:
+        if is_end:
+            assert tag in data, f'record end timestamp of {tag}, but start timestamp does not exists!'
             start_time = data[tag]
             end_time = time.time()
             del data[tag]
-            is_end = True
             duration = end_time - start_time
         else:
+            assert tag not in data, f'record start timestamp of {tag}, but start timestamp has existed in system!'
             data[tag] = time.time()
-            is_end = False
             duration = 0
 
-        return is_end, data, duration
+        return data, duration
 
     @staticmethod
     def estimate_duration_time(func):
@@ -49,7 +52,7 @@ class TimeEstimator:
             func(*args, **kw)
             end = time.time()
 
-            return end-start
+            return end - start
 
         return wrapper
 
@@ -60,7 +63,6 @@ class TimeEstimator:
             func(*args, **kw)
             end = time.time()
 
-            print('function {} cost time {:.2f}s'.format(func.__name__, end-start))
+            print('function {} cost time {:.2f}s'.format(func.__name__, end - start))
 
         return wrapper
-
