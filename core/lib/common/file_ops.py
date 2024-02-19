@@ -223,17 +223,6 @@ class FileOps:
         return obj
 
     @classmethod
-    def is_remote(cls, src):
-        if src.startswith((
-                cls._GCS_PREFIX,
-                cls._S3_PREFIX
-        )):
-            return True
-        if re.search(cls._URI_RE, src):
-            return True
-        return False
-
-    @classmethod
     def download(cls, src, dst=None, unzip=False) -> str:
         if dst is None:
             fd, dst = tempfile.mkstemp()
@@ -281,35 +270,6 @@ class FileOps:
     def is_local(cls, src):
         return src.startswith(cls._LOCAL_PREFIX) or cls.exists(src)
 
-
-    @classmethod
-    def _download_s3(cls, client, uri, out_dir):
-        bucket_args = uri.replace(cls._S3_PREFIX, "", 1).split("/", 1)
-        bucket_name = bucket_args[0]
-        bucket_path = len(bucket_args) > 1 and bucket_args[1] or ""
-
-        objects = list(client.list_objects(bucket_name,
-                                           prefix=bucket_path,
-                                           recursive=True,
-                                           use_api_v1=True))
-        count = 0
-        num = len(objects)
-        for obj in objects:
-            # Replace any prefix from the object key with out_dir
-            subdir_object_key = obj.object_name[len(bucket_path):].strip("/")
-            # fget_object handles directory creation if does not exist
-            if not obj.is_dir:
-                if num == 1 and not os.path.isdir(out_dir):
-                    local_file = out_dir
-                else:
-                    local_file = os.path.join(
-                        out_dir,
-                        subdir_object_key or os.path.basename(obj.object_name)
-                    )
-                client.fget_object(bucket_name, obj.object_name, local_file)
-                count += 1
-
-        return count
 
     @classmethod
     def http_download(cls, src, dst):

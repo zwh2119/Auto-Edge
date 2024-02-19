@@ -1,3 +1,5 @@
+import json
+
 from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form
 
 from fastapi.routing import APIRoute
@@ -21,5 +23,10 @@ class ControllerServer:
             allow_methods=["*"], allow_headers=["*"],
         )
 
-    def submit_task(self):
+    async def submit_task(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
+        file_data = await file.read()
+        data = json.loads(data)
+        backtask.add_task(self.submit_task_background, data, file_data)
+
+    def submit_task_background(self, data, file_data):
         pass

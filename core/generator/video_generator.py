@@ -1,44 +1,52 @@
+import cv2
+
 from generator import Generator
-from core.lib.content import Task
-from core.lib.network import NodeInfo
-from core.lib.network import get_merge_address
-from core.lib.network import http_request
-from core.lib.network import NetworkAPIPath, NetworkAPIMethod
-from core.lib.common import Context
+
 from core.lib.common import ClassType, ClassFactory
+from core.lib.common import LOGGER
 
 
 @ClassFactory.register(ClassType.GENERATOR, alias='video')
 class VideoGenerator(Generator):
     def __init__(self, source_id: int, task_pipeline: list,
                  data_source: str, metadata: dict):
-        super().__init__(source_id, task_pipeline)
+        super().__init__(source_id, task_pipeline, metadata)
 
         self.task_id = 0
         self.video_data_source = data_source
-        self.raw_meta_data = metadata
-        self.meta_data = metadata
+        self.data_source_capture = None
+        self.frame_buffer = []
 
-        self.local_device = NodeInfo.get_local_device()
-        self.task_pipeline = Task.set_execute_device(self.task_pipeline, self.local_device)
+        self.frame_filter = None
 
-        self.scheduler_port = Context.get_parameter('scheduler_port')
-        self.controller_port = Context.get_parameter('controller_port')
-        self.schedule_address = get_merge_address(NodeInfo.hostname2ip(Context.get_parameter('scheduler_name')),
-                                                  port=self.scheduler_port, path=NetworkAPIPath.SCHEDULER_SCHEDULE)
+    def get_one_frame(self):
+        if self.data_source_capture:
+            self.data_source_capture = cv2.VideoCapture(self.video_data_source)
 
-    def request_schedule_policy(self):
-        response = http_request(url=self.schedule_address,
-                                method=NetworkAPIMethod.SCHEDULER_SCHEDULE,
-                                json={'source_id': self.source_id,
-                                      'metadata': self.meta_data,
-                                      'pipeline': Task.serialize(self.task_pipeline)})
-        # TODO: make different schedule interface the same (with different parameters)
-        if response is not None:
-            return
-        else:
-            return None
+        ret, frame = self.data_source_capture.read()
+        first_no_signal = True
+
+        # retry when no video signal
+        while not ret:
+            if first_no_signal:
+                LOGGER.warning(f'No video signal from source {self.generator_id}!')
+                first_no_signal = False
+            self.data_source_capture = cv2.VideoCapture(self.video_data_source)
+            ret, frame = self.data_source_capture.read()
+
+        if not first_no_signal:
+            LOGGER.warning(f'Get video stream data from source {self.generator_id}..')
+
+        return frame
+
+    def compress_frames(self):
+        assert type(self.frame_buffer) is list and len(self.frame_buffer) > 0, 'Frame buffer is empty'
 
     def run(self):
+        self.frame_buffer = []
         while True:
-            pass
+            frame = self.get_one_frame()
+            if self.frame_filter(self.frame_buffer, frame):
+                self.frame_buffer.append(frame)
+            if len(self.frame_buffer) >= self.meta_data['buffer_size']:
+                self.compress_frames()
