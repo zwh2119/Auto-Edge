@@ -21,15 +21,16 @@ RUN apt-get install -y --no-install-recommends \
 
 RUN pip install --upgrade pip setuptools wheel
 
+COPY ${lib_dir}/requirements.txt ./lib_requirements.txt
+RUN pip install -r lib_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+COPY ${code_dir}/requirements.txt ./code_requirements.txt
+RUN pip install -r code_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+
 COPY ${lib_dir} /home/core/lib
 ENV PYTHONPATH "/home/core"
-
-COPY ${code_dir}/requirements.txt ./
-RUN pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-
-
 
 WORKDIR /app
 COPY  ${code_dir}/* /app/
 
-CMD ["python3", "generator_server.py"]
+CMD ["python3", "main.py"]

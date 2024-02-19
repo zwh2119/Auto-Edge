@@ -1,6 +1,5 @@
 import json
 
-from core.lib.content import Task
 from core.lib.common import Context
 from core.lib.content import Task
 from core.lib.network import get_merge_address
@@ -37,8 +36,14 @@ class Generator:
         if response is not None:
             self.after_schedule_operation(self, response)
 
-    def submit_task_to_controller(self):
-        pass
+    def submit_task_to_controller(self, controller_host):
+        controller_ip = NodeInfo.hostname2ip(controller_host)
+        controller_address = get_merge_address(controller_ip,
+                                               port=self.controller_port,
+                                               path=NetworkAPIPath.CONTROLLER_TASK)
+        response = http_request(url=controller_address,
+                                method=NetworkAPIMethod.CONTROLLER_TASK,
+                                data={})
 
     def run(self):
         assert None, 'Base Generator should not be invoked directly!'
