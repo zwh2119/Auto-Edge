@@ -1,6 +1,9 @@
 colorlog
-eventlet
-iperf3
 requests
-psutil
+pyyaml
 kubernetes==20.11.0a1
+python-multipart
+fastapi
+starlette
+uvicorn
+gunicorn
