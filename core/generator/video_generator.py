@@ -18,6 +18,8 @@ class VideoGenerator(Generator):
         self.frame_buffer = []
 
         self.frame_filter = None
+        self.frame_process = None
+        self.frame_compress = None
 
     def get_one_frame(self):
         if self.data_source_capture:
@@ -39,14 +41,25 @@ class VideoGenerator(Generator):
 
         return frame
 
+    def filter_frame(self, frame):
+        assert type(self.frame_buffer) is list, 'Frame buffer is not list'
+
+    def process_frame(self, frame):
+        pass
+
     def compress_frames(self):
-        assert type(self.frame_buffer) is list and len(self.frame_buffer) > 0, 'Frame buffer is empty'
+        assert type(self.frame_buffer) is list and len(self.frame_buffer) > 0, 'Frame buffer is not list or is empty'
 
     def run(self):
         self.frame_buffer = []
         while True:
+            self.request_schedule_policy()
+
             frame = self.get_one_frame()
-            if self.frame_filter(self.frame_buffer, frame):
+            if self.filter_frame(frame):
+                self.process_frame(frame)
                 self.frame_buffer.append(frame)
             if len(self.frame_buffer) >= self.meta_data['buffer_size']:
                 self.compress_frames()
+
+                self.submit_task_to_controller()
