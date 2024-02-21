@@ -10,6 +10,7 @@ class ClassType:
     """Const class saved defined class type."""
 
     GENERAL = 'general'
+    GENERATOR = 'generator'
     GEN_BSO = 'generator_before_schedule_operation'
     GEN_ASO = 'generator_after_schedule_operation'
     GEN_COMPRESS = 'generator_frame_compress'
