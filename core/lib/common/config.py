@@ -1,5 +1,7 @@
 import os
 
+from .class_factory import ClassFactory,ClassType
+
 
 class Context:
     """The Context provides the capability of obtaining the context"""
@@ -16,8 +18,6 @@ class Context:
         if not direct:
             value = eval(value)
 
-        assert value, f'parameter "{param}" not exists in environment!'
-
         return value
 
     @classmethod
@@ -25,3 +25,28 @@ class Context:
         prefix = cls.parameters.get('DATA_PATH_PREFIX', '/home/data')
         file_dir = os.path.basename(cls.parameters.get('FILE_URL'))
         return os.path.join(prefix, file_dir, file_name)
+
+    @classmethod
+    def get_algorithm(cls, algorithm, **param):
+        algorithm_dict = Context.get_algorithm_info(algorithm, **param)
+
+        return ClassFactory.get_cls(
+            eval(f'ClassType.{algorithm}'),
+            algorithm_dict['method'])(**algorithm_dict['param'])
+
+    @classmethod
+    def get_algorithm_info(cls, algorithm, **param):
+        al_name = cls.get_parameter(f'{algorithm}_NAME')
+        al_params = cls.get_parameter(f'{algorithm}_PARAMETERS', default='{}', direct=False)
+
+        if not al_name:
+            return {}
+
+        al_params.update(**param)
+
+        algorithm_dict = {
+            'method': al_name,
+            'param': al_params
+        }
+
+        return algorithm_dict

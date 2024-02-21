@@ -1,5 +1,5 @@
 import abc
-from lib.common import ClassFactory,ClassType
+from lib.common import ClassFactory, ClassType
 
 __all__ = ('SimpleProcess',)
 

@@ -25,8 +25,8 @@ class Generator:
 
         self.task_pipeline = Task.set_execute_device(self.task_pipeline, self.local_device)
 
-        self.before_schedule_operation = None
-        self.after_schedule_operation = None
+        self.before_schedule_operation = Context.get_algorithm('GEN_BSO')
+        self.after_schedule_operation = Context.get_algorithm('GEN_ASO')
 
     def request_schedule_policy(self):
         params = self.before_schedule_operation(self)
