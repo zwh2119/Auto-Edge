@@ -13,5 +13,5 @@ class AutoEdgeConstant(Enum):
 
 
 class FileNameConstant(Enum):
-    SCHEDULE_CONFIG = ''
-    GENERATOR_CONFIG = ''
+    SCHEDULE_CONFIG = 'scheduler_config.yaml'
+    GENERATOR_CONFIG = 'generator_config.yaml'

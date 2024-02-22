@@ -32,7 +32,8 @@ class Context:
 
         return ClassFactory.get_cls(
             eval(f'ClassType.{algorithm}'),
-            algorithm_dict['method'])(**algorithm_dict['param'])
+            algorithm_dict['method']
+        )(**algorithm_dict['param'])
 
     @classmethod
     def get_algorithm_info(cls, algorithm, **param):
