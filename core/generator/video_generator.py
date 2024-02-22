@@ -4,6 +4,7 @@ from generator import Generator
 
 from lib.common import ClassType, ClassFactory
 from lib.common import LOGGER
+from lib.common import Context
 
 
 @ClassFactory.register(ClassType.GENERATOR, alias='video')
@@ -17,9 +18,9 @@ class VideoGenerator(Generator):
         self.data_source_capture = None
         self.frame_buffer = []
 
-        self.frame_filter = None
-        self.frame_process = None
-        self.frame_compress = None
+        self.frame_filter = Context.get_algorithm('GEN_FILTER')
+        self.frame_process = Context.get_algorithm('GEN_PROCESS')
+        self.frame_compress = Context.get_algorithm('GEN_COMPRESS')
 
     def get_one_frame(self):
         if self.data_source_capture:

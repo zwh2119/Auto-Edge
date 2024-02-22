@@ -10,7 +10,8 @@ class Task:
                  metadata: dict = None,
                  content: object = None,
                  scenario: dict = None,
-                 temp: dict = None):
+                 temp: dict = None,
+                 file_path: str = None):
         self.__source_id = source_id
         self.__task_id = task_id
 
@@ -25,6 +26,8 @@ class Task:
         self.__scenario_data = scenario if scenario else {}
 
         self.__tmp_data = temp if temp else {}
+
+        self.__file_path = file_path
 
     @staticmethod
     def extract_pipeline(pipeline: list):
@@ -80,6 +83,12 @@ class Task:
     def set_tmp_data(self, data: dict):
         self.__tmp_data = data
 
+    def get_file_path(self):
+        return self.__file_path
+
+    def set_file_path(self, path: str):
+        self.__file_path = path
+
     def get_current_service(self):
         service = self.__pipeline_flow[self.__cur_flow_index]
         return service.get_service_name(), service.get_execute_device()
@@ -129,7 +138,8 @@ class Task:
             'source_id': task.get_source_id(), 'task_id': task.get_task_id(),
             'pipeline': pipeline_serialize, 'cur_flow_index': task.get_flow_index(),
             'meta_data': task.get_metadata(), 'content_data': task.get_content(),
-            'scenario_data': task.get_scenario_data(), 'tmp_data': task.get_tmp_data()
+            'scenario_data': task.get_scenario_data(), 'tmp_data': task.get_tmp_data(),
+            'file_path': task.get_file_path()
         }
 
     @staticmethod
@@ -141,5 +151,6 @@ class Task:
         return Task(data['source_id'], data['task_id'],
                     pipeline=pipeline, flow_index=data['cur_flow_index'],
                     metadata=data['meta_data'], content=data['content_data'],
-                    scenario=data['scenario_data'], temp=data['tmp_data']
+                    scenario=data['scenario_data'], temp=data['tmp_data'],
+                    file_path=data['file_path']
                     )

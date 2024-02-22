@@ -36,7 +36,7 @@ class Generator:
         if response is not None:
             self.after_schedule_operation(self, response)
 
-    def submit_task_to_controller(self, controller_host):
+    def submit_task_to_controller(self):
         controller_ip = NodeInfo.hostname2ip(controller_host)
         controller_address = get_merge_address(controller_ip,
                                                port=self.controller_port,
