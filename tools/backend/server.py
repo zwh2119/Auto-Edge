@@ -22,11 +22,11 @@ async def get_all_task():
     pass
 
 
-@app.get('/get_task_stage')
-async def get_service_stage(task_name):
+@app.get('/get_task_stage/{task}')
+async def get_service_stage(task):
     """
 
-    :param task_name:
+    :param task:
     :return:
     [
         {
@@ -65,7 +65,7 @@ async def get_service_list():
     pass
 
 
-@app.get("/serv/get_execute_url/{service}")
+@app.get("/get_execute_url/{service}")
 async def get_service_info(service):
     """
     返回已安装服务容器的具体情况
@@ -190,6 +190,7 @@ async def stop_service():
     """
     pass
 
+
 @app.post('/stop_query')
 async def stop_query():
     """
@@ -207,6 +208,7 @@ async def get_install_state():
     {'state':'install/uninstall'}
     """
     pass
+
 
 @app.get('/query_state')
 async def get_query_state():
