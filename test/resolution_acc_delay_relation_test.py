@@ -498,10 +498,29 @@ def warm_up(model, base_dir, gt_path, warm_number):
 
 if __name__ == '__main__':
 
-    resolution_dict = {'1080p': (1920, 1080),
-                       '720p': (1280, 720),
-                       '480p': (640, 480),
-                       '360p': (640, 360)}
+    resolution_dict = {
+        "HVGA_360p(4:3)": (480, 360),
+        "nHD_360p(16:9)": (640, 360),
+
+        "VGA_480p(4:3)": (640, 480),
+
+        "SVGA_600p(4:3)": (800, 600),
+
+        "qHD_540p(16:9)": (960, 540),
+
+        "DVCPRO-HD_720p(4:3)": (960, 720),  # 691200
+        "HD_720p(16:9)": (1280, 720),  # 921600
+        "WallpaperHD_720p(18:9)": (1440, 720),  # 1036800
+
+        "WXGA_800p(16:10)": (1280, 800),  # 1024000
+        "QuadVGA_960p(4:3)": (1280, 960),  # 1228800
+        "WXGA+_900p(16:10)": (1440, 900),  # 1296000
+        "FWXGA+_960p(3:2)": (1440, 960),  # 1382400
+        "HD+_900p(16:9)": (1600, 900),  # 1440000
+
+        "DVCPRO-HD_1080p(16:9)": (1440, 1080),  # 1555200
+        "FHD_1080p(16:9)": (1920, 1080)  # 2073600
+    }
 
     video_dir = '/data/edge_computing_dataset/UA-DETRAC/Insight-MVT_Annotation_Train'
     model_dir = '../batch_test'
@@ -510,7 +529,7 @@ if __name__ == '__main__':
 
     gt_file = '/data/edge_computing_dataset/UA-DETRAC/train_gt.txt'
 
-    gap_cnt = 5
+    gap_cnt = 10
 
     if os.path.exists(save_file):
         os.remove(save_file)
@@ -524,7 +543,7 @@ if __name__ == '__main__':
 
     estimator = CarDetection(args)
 
-    warm_up(estimator,video_dir,gt_file, 100)
+    warm_up(estimator, video_dir, gt_file, 100)
 
     with open(gt_file, 'r') as gt_f:
         gt = gt_f.readlines()
@@ -533,6 +552,7 @@ if __name__ == '__main__':
     avg_acc = []
 
     all_time_dict = {}
+    all_acc_dict = {}
 
     for resolution in resolution_dict:
 
@@ -541,6 +561,9 @@ if __name__ == '__main__':
 
         print('############################################')
         print(f'testing for resolution {resolution}..')
+
+        new_length = resolution_dict[resolution][0]
+        new_height = resolution_dict[resolution][1]
 
         cnt = 0
         for i in tqdm(gt):
@@ -551,6 +574,9 @@ if __name__ == '__main__':
             info = i.split(' ')
             pic_path = os.path.join(video_dir, info[0])
             frame = cv2.imread(pic_path)
+            raw_length = frame.shape[1]
+            raw_height = frame.shape[0]
+
             frame = cv2.resize(frame, resolution_dict[resolution])
 
             start_time = time.time()
@@ -564,6 +590,10 @@ if __name__ == '__main__':
             boxes_gt = np.array(bbox_gt, dtype=np.float32).reshape(-1, 4)
             frame_gt = []
             for box in boxes_gt.tolist():
+                box[0] *= new_length / raw_length
+                box[1] *= new_height / raw_height
+                box[2] *= new_length / raw_length
+                box[3] *= new_height / raw_height
                 frame_gt.append({'bbox': box, 'class': 1})
 
             acc = calculate_map(result, frame_gt)
@@ -573,6 +603,7 @@ if __name__ == '__main__':
             cnt += 1
 
         all_time_dict[resolution] = time_buffer
+        all_acc_dict[resolution] = acc_buffer
         avg_time.append(np.mean(time_buffer))
         avg_acc.append(np.mean(acc_buffer))
 
@@ -584,4 +615,4 @@ if __name__ == '__main__':
     print('******************************************')
 
     with open(save_file, 'w') as f:
-        json.dump(all_time_dict, f)
+        json.dump({'time': all_time_dict, 'acc': all_acc_dict}, f)
