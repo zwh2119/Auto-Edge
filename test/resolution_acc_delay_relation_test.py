@@ -529,7 +529,7 @@ if __name__ == '__main__':
 
     gt_file = '/data/edge_computing_dataset/UA-DETRAC/train_gt.txt'
 
-    gap_cnt = 10
+    gap_cnt = 1
 
     if os.path.exists(save_file):
         os.remove(save_file)

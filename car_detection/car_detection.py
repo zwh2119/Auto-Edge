@@ -113,7 +113,7 @@ class CarDetection:
         self.model.warmup(imgsz=(1, 3, *self.imgsz))  # warmup
         # os.chdir(ori_dir)
 
-    async def __call__(self, images):
+    def __call__(self, images):
 
         assert type(images) is list
 
