@@ -10,16 +10,122 @@ from fastapi.middleware.cors import CORSMiddleware
 from kubernetes import client, config
 import requests
 
+
+class BackendServer:
+    def __init__(self):
+        self.tasks = [
+            {
+                'name': 'road-detection',
+                'display': '交通路面监控',
+                'yaml': 'video_car_detection.yaml',
+                'stage': [
+
+                ]
+            },
+            {
+                'name': 'audio',
+                'display': '音频识别',
+                'yaml': 'audio.yaml',
+                'stage': [
+
+                ]
+            },
+            {
+                'name': 'imu',
+                'display': '惯性轨迹感知',
+                'yaml': 'imu.yaml',
+                'stage': [
+
+                ]
+            },
+            {
+                'name': 'edge-eye',
+                'display': '工业视觉纠偏',
+                'yaml': 'edge-eye.yaml',
+                'stage': [
+
+                ]
+            },
+        ]
+
+        self.sources = [
+            {
+                "source_label": "car",
+                "source_name": "交通监控摄像头",
+                "source_type": "视频流",
+                "camera_list": [
+                    {
+                        "name": "摄像头1",
+                        "url": "rtsp/114.212.81.11...",
+                        "describe": "某十字路口",
+                        "resolution": "1080p",
+                        "fps": "25fps"
+
+                    },
+                    {}
+                ]
+
+            }
+        ]
+
+        self.tasks_dict = {'car': '路面交通监控', 'human': '路面行人监控',
+                           'audio': '音频识别', 'imu': '惯性轨迹感知',
+                           'edge-eye': '工业视觉纠偏'}
+
+        self.devices = {
+            'http://114.212.81.11:39200/submit_task': 'cloud',
+            'http://192.168.1.2:39200/submit_task': 'edge1',
+            'http://192.168.1.4:39200/submit_task': 'edge2',
+        }
+
+        self.time_ticket = 0
+
+        self.templates_path = '/home/hx/zwh/Auto-Edge/templates'
+        self.free_task_url = 'http://114.212.81.11:39400/task'
+        self.result_url = 'http://114.212.81.11:39500/result'
+
+    def install_service(self):
+        pass
+
+    def open_data_source(self):
+        pass
+
+    def uninstall_service(self):
+        pass
+
+    def close_data_source(self):
+        pass
+
+    def get_install_state(self):
+        pass
+
+    def get_data_source_state(self):
+        pass
+
+    def get_installed_service_info(self):
+        pass
+
+
+server = BackendServer()
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware, allow_origins=["*"], allow_credentials=True,
+    allow_methods=["*"], allow_headers=["*"],
+)
 
 
 @app.get('/task')
 async def get_all_task():
     """
-    参考server_old
+
     :return:
     """
-    pass
+    tasks = []
+    for task in server.tasks:
+        tasks.append({task['name']: task['display']})
+    return tasks
 
 
 @app.get('/get_task_stage/{task}')
@@ -37,7 +143,11 @@ async def get_service_stage(task):
         },
     ]
     """
-    pass
+    for server_task in server.tasks:
+        if server_task['name'] == task:
+            return server_task['stage']
+
+    assert None, f'task name {task} error!'
 
 
 @app.post('/install')
@@ -109,7 +219,9 @@ async def get_service_info(service):
 @app.get("/node/get_video_info")
 async def get_video_info():
     """
-    [
+    :return:
+
+        [
         {
             "source_label": "car"
             "source_name": "交通监控摄像头",
@@ -130,38 +242,8 @@ async def get_video_info():
         }
 
     ]
-      {
-                "192.168.56.102:7000": {
-                    "0": {
-                        "type": "traffic flow"
-                    },
-                    "1": {
-                        "type": "people indoor"
-                    },
-                    "3":{
-                      "type":"会议室开会"
-                    },
-                },
-                "192.168.56.102:8000": {
-                    "0": {
-                        "type": "traffic flow"
-                    },
-                    "1": {
-                        "type": "people indoor"
-                    }
-                },
-                "192.168.56.102:9000": {
-                    "0": {
-                        "type": "traffic flow"
-                    },
-                    "1": {
-                        "type": "people indoor"
-                    }
-                },
-            }
-    :return:
     """
-    pass
+    return server.sources
 
 
 @app.post("/query/submit_query")
@@ -169,6 +251,7 @@ def submit_task():
     """
     body
     {
+        "source_label": "..."
         "delay_cons":"0.6",
         "acc_cons":"0.6",
         "urgency": "0.1",
