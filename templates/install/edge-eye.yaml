@@ -27,7 +27,7 @@ spec:
               - name: scheduler_name
                 value: cloud.kubeedge
               - name: modal
-                value: 'video'
+                value: 'edge-eye'
     - file:
         path: "/home/nvidia/zwh/Auto-Edge/files-mid"
       logLevel:
@@ -50,7 +50,7 @@ spec:
                 - name: scheduler_name
                   value: cloud.kubeedge
                 - name: modal
-                  value: 'video'
+                  value: 'edge-eye'
 
 ---
 
@@ -75,7 +75,7 @@ spec:
             name: controller
             env:
               - name: service_port
-                value: '{"car-detection": 39001, "license-plate-detection": 39002}'
+                value: '{"edge-eye-stage1": 39006, "edge-eye-stage2": 39007,"edge-eye-stage3": 39008}'
               - name: distributor_port
                 value: "39500"
               - name: distributor_name
@@ -101,7 +101,7 @@ spec:
             name: controller
             env:
               - name: service_port
-                value: '{"car-detection": 39001, "license-plate-detection": 39002}'
+                value: '{"edge-eye-stage1": 39006, "edge-eye-stage2": 39007,"edge-eye-stage3": 39008}'
               - name: distributor_port
                 value: "39500"
               - name: distributor_name
@@ -126,7 +126,7 @@ spec:
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
               - name: service_port
-                value: '{"car-detection": 39001, "license-plate-detection": 39002}'
+                value: '{"edge-eye-stage1": 39006, "edge-eye-stage2": 39007,"edge-eye-stage3": 39008}'
               - name: distributor_port
                 value: "39500"
               - name: distributor_name
@@ -295,15 +295,84 @@ spec:
 
 ---
 
+
 apiVersion: sedna.io/v1alpha1
 kind: JointMultiEdgeService
 metadata:
-  name: car-detection-service
+  name: edge-eye-stage1-service
+  namespace: auto-edge
+spec:
+  edgeWorker:
+    - kubeConfig:
+        path: "/home/nvidia/.kube"
+      logLevel:
+        level: "DEBUG"
+      template:
+        spec:
+          nodeName: edge1
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/edge-eye-stage1:mid-v1.0.0
+            imagePullPolicy: IfNotPresent
+            name: edge-eye-stage1
+            env:
+              - name: controller_port
+                value: "39200"
+              - name: max_queue_size
+                value: "5"
+            ports:
+              - containerPort: 9006
+                hostPort: 39006
+    - kubeConfig:
+        path: "/home/nvidia/.kube"
+      logLevel:
+        level: "DEBUG"
+      template:
+        spec:
+          nodeName: edge2
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/edge-eye-stage1:mid-v1.0.0
+            imagePullPolicy: IfNotPresent
+            name: edge-eye-stage1
+            env:
+              - name: controller_port
+                value: "39200"
+              - name: max_queue_size
+                value: "5"
+            ports:
+              - containerPort: 9006
+                hostPort: 39006
+  cloudWorker:
+    kubeConfig:
+      path: "/home/hx/.kube"
+    template:
+      spec:
+        nodeName: cloud.kubeedge
+        dnsPolicy: ClusterFirstWithHostNet
+        containers:
+          - image: onecheck/edge-eye-stage1:mid-v1.0.0
+            name:  edge-eye-stage1
+            imagePullPolicy: IfNotPresent
+            env:
+              - name: controller_port
+                value: "39200"
+              - name: max_queue_size
+                value: "5"
+            ports:
+              - containerPort: 9006
+                hostPort: 39006
+---
+
+apiVersion: sedna.io/v1alpha1
+kind: JointMultiEdgeService
+metadata:
+  name: edge-eye-stage2-service
   namespace: auto-edge
 spec:
   edgeWorker:
     - file:
-        path: "/home/nvidia/zwh/Auto-Edge/model_lib"
+        path: "/home/nvidia/zwh/Auto-Edge/model_lib_mid"
       kubeConfig:
         path: "/home/nvidia/.kube"
       logLevel:
@@ -313,19 +382,23 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:arm64-mid-v1.0.0
+          - image: onecheck/edge-eye-stage2:mid-v1.0.0
             imagePullPolicy: IfNotPresent
-            name: car-detection
+            name: edge-eye-stage2
             env:
               - name: controller_port
                 value: "39200"
               - name: max_queue_size
                 value: "5"
+              - name: distributor_name
+                value: cloud.kubeedge
+              - name: distributor_port
+                value: "39500"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
+              - containerPort: 9007
+                hostPort: 39007
     - file:
-        path: "/home/nvidia/zwh/Auto-Edge/model_lib"
+        path: "/home/nvidia/zwh/Auto-Edge/model_lib_mid"
       kubeConfig:
         path: "/home/nvidia/.kube"
       logLevel:
@@ -335,20 +408,24 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:arm64-mid-v1.0.0
+          - image: onecheck/edge-eye-stage2:mid-v1.0.0
             imagePullPolicy: IfNotPresent
-            name: car-detection
+            name: edge-eye-stage2
             env:
               - name: controller_port
                 value: "39200"
               - name: max_queue_size
                 value: "5"
+              - name: distributor_name
+                value: cloud.kubeedge
+              - name: distributor_port
+                value: "39500"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
+              - containerPort: 9007
+                hostPort: 39007
   cloudWorker:
     file:
-      path: "/home/hx/zwh/Auto-Edge/model_lib"
+      path: "/home/hx/zwh/Auto-Edge/model_lib_mid"
     kubeConfig:
       path: "/home/hx/.kube"
     template:
@@ -356,17 +433,101 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/car-detection:mid-v1.0.0
-            name:  car-detection
+          - image: onecheck/edge-eye-stage2:mid-v1.0.0
+            name:  edge-eye-stage2
             imagePullPolicy: IfNotPresent
             env:
               - name: controller_port
                 value: "39200"
               - name: max_queue_size
                 value: "5"
+              - name: distributor_name
+                value: cloud.kubeedge
+              - name: distributor_port
+                value: "39500"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
-
+              - containerPort: 9007
+                hostPort: 39007
 ---
+
+apiVersion: sedna.io/v1alpha1
+kind: JointMultiEdgeService
+metadata:
+  name: edge-eye-stage3-service
+  namespace: auto-edge
+spec:
+  edgeWorker:
+    - kubeConfig:
+        path: "/home/nvidia/.kube"
+      logLevel:
+        level: "DEBUG"
+      template:
+        spec:
+          nodeName: edge1
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/edge-eye-stage3:mid-v1.0.0
+            imagePullPolicy: IfNotPresent
+            name: edge-eye-stage3
+            env:
+              - name: controller_port
+                value: "39200"
+              - name: max_queue_size
+                value: "5"
+              - name: distributor_name
+                value: cloud.kubeedge
+              - name: distributor_port
+                value: "39500"
+            ports:
+              - containerPort: 9008
+                hostPort: 39008
+    - kubeConfig:
+        path: "/home/nvidia/.kube"
+      logLevel:
+        level: "DEBUG"
+      template:
+        spec:
+          nodeName: edge2
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/edge-eye-stage3:mid-v1.0.0
+            imagePullPolicy: IfNotPresent
+            name: edge-eye-stage3
+            env:
+              - name: controller_port
+                value: "39200"
+              - name: max_queue_size
+                value: "5"
+              - name: distributor_name
+                value: cloud.kubeedge
+              - name: distributor_port
+                value: "39500"
+            ports:
+              - containerPort: 9008
+                hostPort: 39008
+  cloudWorker:
+    kubeConfig:
+      path: "/home/hx/.kube"
+    template:
+      spec:
+        nodeName: cloud.kubeedge
+        dnsPolicy: ClusterFirstWithHostNet
+        containers:
+          - image: onecheck/edge-eye-stage3:mid-v1.0.0
+            name:  edge-eye-stage3
+            imagePullPolicy: IfNotPresent
+            env:
+              - name: controller_port
+                value: "39200"
+              - name: max_queue_size
+                value: "5"
+              - name: distributor_name
+                value: cloud.kubeedge
+              - name: distributor_port
+                value: "39500"
+            ports:
+              - containerPort: 9008
+                hostPort: 39008
+---
+
 

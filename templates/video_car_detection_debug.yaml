@@ -2,11 +2,13 @@
 apiVersion: sedna.io/v1alpha1
 kind: JointMultiEdgeService
 metadata:
-  name: license-plate-detection-service
+  name: car-detection-service
   namespace: auto-edge
 spec:
   edgeWorker:
-    - kubeConfig:
+    - file:
+        path: "/home/nvidia/zwh/Auto-Edge/model_lib"
+      kubeConfig:
         path: "/home/nvidia/.kube"
       logLevel:
         level: "DEBUG"
@@ -15,16 +17,20 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/license-plate-detection:arm64-mid-v0.1.0
+          - image: onecheck/car-detection:arm64-mid-v1.0.0
             imagePullPolicy: IfNotPresent
-            name: license-plate-detection
+            name: car-detection
             env:
               - name: controller_port
                 value: "39200"
+              - name: max_queue_size
+                value: "5"
             ports:
-              - containerPort: 9002
-                hostPort: 39002
-    - kubeConfig:
+              - containerPort: 9001
+                hostPort: 39001
+    - file:
+        path: "/home/nvidia/zwh/Auto-Edge/model_lib"
+      kubeConfig:
         path: "/home/nvidia/.kube"
       logLevel:
         level: "DEBUG"
@@ -33,16 +39,20 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/license-plate-detection:mid-v0.1.0
+          - image: onecheck/car-detection:arm64-mid-v1.0.0
             imagePullPolicy: IfNotPresent
-            name: license-plate-detection
+            name: car-detection
             env:
               - name: controller_port
                 value: "39200"
+              - name: max_queue_size
+                value: "5"
             ports:
-              - containerPort: 9002
-                hostPort: 39002
+              - containerPort: 9001
+                hostPort: 39001
   cloudWorker:
+    file:
+      path: "/home/hx/zwh/Auto-Edge/model_lib"
     kubeConfig:
       path: "/home/hx/.kube"
     template:
@@ -50,12 +60,14 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/license-plate-detection:mid-v0.1.0
-            name:  license-plate-detection
+          - image: onecheck/car-detection:mid-v1.0.0
+            name:  car-detection
             imagePullPolicy: IfNotPresent
             env:
               - name: controller_port
                 value: "39200"
+              - name: max_queue_size
+                value: "5"
             ports:
-              - containerPort: 9002
-                hostPort: 39002
+              - containerPort: 9001
+                hostPort: 39001

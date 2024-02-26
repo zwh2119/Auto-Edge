@@ -10,6 +10,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from kubernetes import client, config
 import requests
 
+from kubernetes import client, config
+config.kube_config.load_kube_config(config_file="/root/kubeconfig.yaml")
+
 
 class BackendServer:
     def __init__(self):

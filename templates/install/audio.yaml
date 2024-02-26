@@ -27,7 +27,7 @@ spec:
               - name: scheduler_name
                 value: cloud.kubeedge
               - name: modal
-                value: 'video'
+                value: "audio"
     - file:
         path: "/home/nvidia/zwh/Auto-Edge/files-mid"
       logLevel:
@@ -50,7 +50,7 @@ spec:
                 - name: scheduler_name
                   value: cloud.kubeedge
                 - name: modal
-                  value: 'video'
+                  value: "audio"
 
 ---
 
@@ -75,7 +75,7 @@ spec:
             name: controller
             env:
               - name: service_port
-                value: '{"car-detection": 39001, "license-plate-detection": 39002}'
+                value: '{"audio-sampling": 39004, "audio-classification": 39005}'
               - name: distributor_port
                 value: "39500"
               - name: distributor_name
@@ -101,7 +101,7 @@ spec:
             name: controller
             env:
               - name: service_port
-                value: '{"car-detection": 39001, "license-plate-detection": 39002}'
+                value: '{"audio-sampling": 39004, "audio-classification": 39005}'
               - name: distributor_port
                 value: "39500"
               - name: distributor_name
@@ -126,7 +126,7 @@ spec:
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
               - name: service_port
-                value: '{"car-detection": 39001, "license-plate-detection": 39002}'
+                value: '{"audio-sampling": 39004, "audio-classification": 39005}'
               - name: distributor_port
                 value: "39500"
               - name: distributor_name
@@ -298,12 +298,82 @@ spec:
 apiVersion: sedna.io/v1alpha1
 kind: JointMultiEdgeService
 metadata:
-  name: car-detection-service
+  name: audio-sampling-service
+  namespace: auto-edge
+spec:
+  edgeWorker:
+    - kubeConfig:
+        path: "/home/nvidia/.kube"
+      logLevel:
+        level: "DEBUG"
+      template:
+        spec:
+          nodeName: edge1
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/audio-sampling:mid-v1.0.0
+            imagePullPolicy: IfNotPresent
+            name: audio-sampling
+            env:
+              - name: controller_port
+                value: "39200"
+              - name: resample_rate
+                value: "16000"
+            ports:
+              - containerPort: 9004
+                hostPort: 39004
+    - kubeConfig:
+        path: "/home/nvidia/.kube"
+      logLevel:
+        level: "DEBUG"
+      template:
+        spec:
+          nodeName: edge2
+          dnsPolicy: ClusterFirstWithHostNet
+          containers:
+          - image: onecheck/audio-sampling:mid-v1.0.0
+            imagePullPolicy: IfNotPresent
+            name: audio-sampling
+            env:
+              - name: controller_port
+                value: "39200"
+              - name: resample_rate
+                value: "16000"
+            ports:
+              - containerPort: 9004
+                hostPort: 39004
+  cloudWorker:
+    kubeConfig:
+      path: "/home/hx/.kube"
+    template:
+      spec:
+        nodeName: cloud.kubeedge
+        dnsPolicy: ClusterFirstWithHostNet
+        containers:
+          - image: onecheck/audio-sampling:mid-v1.0.0
+            name:  audio-sampling
+            imagePullPolicy: IfNotPresent
+            env:
+              - name: controller_port
+                value: "39200"
+              - name: resample_rate
+                value: "16000"
+            ports:
+              - containerPort: 9004
+                hostPort: 39004
+
+
+---
+
+apiVersion: sedna.io/v1alpha1
+kind: JointMultiEdgeService
+metadata:
+  name: audio-classification-service
   namespace: auto-edge
 spec:
   edgeWorker:
     - file:
-        path: "/home/nvidia/zwh/Auto-Edge/model_lib"
+        path: "/home/nvidia/zwh/Auto-Edge/model_lib_mid"
       kubeConfig:
         path: "/home/nvidia/.kube"
       logLevel:
@@ -313,19 +383,17 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:arm64-mid-v1.0.0
+          - image: onecheck/audio-classification:mid-v1.0.0
             imagePullPolicy: IfNotPresent
-            name: car-detection
+            name: audio-classification
             env:
               - name: controller_port
                 value: "39200"
-              - name: max_queue_size
-                value: "5"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
+              - containerPort: 9005
+                hostPort: 39005
     - file:
-        path: "/home/nvidia/zwh/Auto-Edge/model_lib"
+        path: "/home/nvidia/zwh/Auto-Edge/model_lib_mid"
       kubeConfig:
         path: "/home/nvidia/.kube"
       logLevel:
@@ -335,20 +403,18 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:arm64-mid-v1.0.0
+          - image: onecheck/audio-classification:mid-v1.0.0
             imagePullPolicy: IfNotPresent
-            name: car-detection
+            name: audio-classification
             env:
               - name: controller_port
                 value: "39200"
-              - name: max_queue_size
-                value: "5"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
+              - containerPort: 9005
+                hostPort: 39005
   cloudWorker:
     file:
-      path: "/home/hx/zwh/Auto-Edge/model_lib"
+      path: "/home/hx/zwh/Auto-Edge/model_lib_mid"
     kubeConfig:
       path: "/home/hx/.kube"
     template:
@@ -356,17 +422,12 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/car-detection:mid-v1.0.0
-            name:  car-detection
+          - image: onecheck/audio-classification:mid-v1.0.0
+            name:  audio-classification
             imagePullPolicy: IfNotPresent
             env:
               - name: controller_port
                 value: "39200"
-              - name: max_queue_size
-                value: "5"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
-
----
-
+              - containerPort: 9005
+                hostPort: 39005

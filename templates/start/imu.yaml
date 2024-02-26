@@ -27,7 +27,7 @@ spec:
               - name: scheduler_name
                 value: cloud.kubeedge
               - name: modal
-                value: 'video'
+                value: "imu"
     - file:
         path: "/home/nvidia/zwh/Auto-Edge/files-mid"
       logLevel:
@@ -50,8 +50,7 @@ spec:
                 - name: scheduler_name
                   value: cloud.kubeedge
                 - name: modal
-                  value: 'video'
-
+                  value: "imu"
 ---
 
 apiVersion: sedna.io/v1alpha1
@@ -75,7 +74,7 @@ spec:
             name: controller
             env:
               - name: service_port
-                value: '{"car-detection": 39001, "license-plate-detection": 39002}'
+                value: '{"imu-trajectory-sensing": 39003}'
               - name: distributor_port
                 value: "39500"
               - name: distributor_name
@@ -101,7 +100,7 @@ spec:
             name: controller
             env:
               - name: service_port
-                value: '{"car-detection": 39001, "license-plate-detection": 39002}'
+                value: '{"imu-trajectory-sensing": 39003}'
               - name: distributor_port
                 value: "39500"
               - name: distributor_name
@@ -126,7 +125,7 @@ spec:
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
               - name: service_port
-                value: '{"car-detection": 39001, "license-plate-detection": 39002}'
+                value: '{"imu-trajectory-sensing": 39003}'
               - name: distributor_port
                 value: "39500"
               - name: distributor_name
@@ -298,13 +297,11 @@ spec:
 apiVersion: sedna.io/v1alpha1
 kind: JointMultiEdgeService
 metadata:
-  name: car-detection-service
+  name: imu-trajectory-sensing-service
   namespace: auto-edge
 spec:
   edgeWorker:
-    - file:
-        path: "/home/nvidia/zwh/Auto-Edge/model_lib"
-      kubeConfig:
+    - kubeConfig:
         path: "/home/nvidia/.kube"
       logLevel:
         level: "DEBUG"
@@ -313,20 +310,16 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:arm64-mid-v1.0.0
+          - image: onecheck/imu-trajectory-sensing:mid-v1.0.0
             imagePullPolicy: IfNotPresent
-            name: car-detection
+            name: imu-trajectory-sensing
             env:
               - name: controller_port
                 value: "39200"
-              - name: max_queue_size
-                value: "5"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
-    - file:
-        path: "/home/nvidia/zwh/Auto-Edge/model_lib"
-      kubeConfig:
+              - containerPort: 9003
+                hostPort: 39003
+    - kubeConfig:
         path: "/home/nvidia/.kube"
       logLevel:
         level: "DEBUG"
@@ -335,20 +328,16 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:arm64-mid-v1.0.0
+          - image: onecheck/imu-trajectory-sensing:mid-v1.0.0
             imagePullPolicy: IfNotPresent
-            name: car-detection
+            name: imu-trajectory-sensing
             env:
               - name: controller_port
                 value: "39200"
-              - name: max_queue_size
-                value: "5"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
+              - containerPort: 9003
+                hostPort: 39003
   cloudWorker:
-    file:
-      path: "/home/hx/zwh/Auto-Edge/model_lib"
     kubeConfig:
       path: "/home/hx/.kube"
     template:
@@ -356,17 +345,15 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/car-detection:mid-v1.0.0
-            name:  car-detection
+          - image: onecheck/imu-trajectory-sensing:mid-v1.0.0
+            name:  imu-trajectory-sensing
             imagePullPolicy: IfNotPresent
             env:
               - name: controller_port
                 value: "39200"
-              - name: max_queue_size
-                value: "5"
             ports:
-              - containerPort: 9001
-                hostPort: 39001
+              - containerPort: 9003
+                hostPort: 39003
 
----
+
 
