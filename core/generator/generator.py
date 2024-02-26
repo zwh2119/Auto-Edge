@@ -10,6 +10,8 @@ from core.lib.network import http_request
 
 class Generator:
     def __init__(self, source_id: int, task_pipeline: list, metadata: dict):
+        self.current_task = None
+
         self.source_id = source_id
         self.task_pipeline = Task.extract_pipeline(task_pipeline)
 
@@ -37,13 +39,20 @@ class Generator:
             self.after_schedule_operation(self, response)
 
     def submit_task_to_controller(self):
+
+        assert self.current_task, 'Task is empty when submit to controller!'
+
         controller_ip = NodeInfo.hostname2ip(controller_host)
         controller_address = get_merge_address(controller_ip,
                                                port=self.controller_port,
                                                path=NetworkAPIPath.CONTROLLER_TASK)
         response = http_request(url=controller_address,
                                 method=NetworkAPIMethod.CONTROLLER_TASK,
-                                data={})
+                                data={'data':Task.serialize(self.current_task)},
+                                files={'file': (f'tmp_{self.generator_id}.mp4',
+                                                open(compressed_video_pth, 'rb'),
+                                                'video/mp4')}
+                                )
 
     def run(self):
         assert None, 'Base Generator should not be invoked directly!'

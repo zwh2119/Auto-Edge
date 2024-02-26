@@ -1,6 +1,7 @@
 import cv2
 
 from generator import Generator
+from lib.content import Task
 
 from lib.common import ClassType, ClassFactory
 from lib.common import LOGGER
@@ -51,10 +52,20 @@ class VideoGenerator(Generator):
     def compress_frames(self):
         assert type(self.frame_buffer) is list and len(self.frame_buffer) > 0, 'Frame buffer is not list or is empty'
 
+    def submit_task_to_controller(self):
+        self.current_task = Task(source_id=self.source_id,
+                                 task_id=self.task_id,
+                                 pipeline=self.task_pipeline,
+                                 metadata=self.meta_data,
+
+                                 )
+        super().submit_task_to_controller()
+
     def run(self):
         self.frame_buffer = []
         while True:
             self.request_schedule_policy()
+
 
             frame = self.get_one_frame()
             if self.filter_frame(frame):
@@ -64,3 +75,7 @@ class VideoGenerator(Generator):
                 self.compress_frames()
 
                 self.submit_task_to_controller()
+
+            self.task_id += 1
+
+
