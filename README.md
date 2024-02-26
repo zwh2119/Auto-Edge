@@ -95,15 +95,14 @@ cloud device:
 - {code_dir}/files
   - schedule_config.yaml
 - {code_dir}/model_lib
-  - libmyplugins.so
-  - yolov5s.engine
+  (files used in services)
 
 edge device:
 - {code_dir}/files
   - video_config.yaml
 - {code_dir}/model_lib
-  - libmyplugins.so
-  - yolov5s.engine
+  (files used in services)
+  
 ```
 The 'model_lib' folder contains files for service inference, and it differs among different services.(current is for car-detection).
 
@@ -113,11 +112,11 @@ The template deploying files can be found in [shared link](https://box.nju.edu.c
 If Auto-Edge has been started before, the former pods should be deleted through scripts.
 
 ```shell
-bash tools/delete.sh
+bash tools/delete.sh -f <yaml file name>
 ```
 
 ### Start Auto-Edge system on KubeEdge
-start system with yaml files (eg:  [video_car_detection.yaml](templates/video_car_detection.yaml))
+start system with yaml files (eg:  [video_car_detection.yaml](templates/service_yaml/video_car_detection.yaml))
 ```shell
 # yaml files can be found in `templates` folder
 kubectl apply -f <file-name>
