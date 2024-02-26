@@ -9,9 +9,8 @@ from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from kubernetes import client, config
 import requests
-
-from kubernetes import client, config
-config.kube_config.load_kube_config(config_file="/root/kubeconfig.yaml")
+import eventlet
+from kube_helper import KubeHelper
 
 
 class BackendServer:
@@ -154,7 +153,7 @@ async def get_service_stage(task):
 
 
 @app.post('/install')
-async def install_service():
+async def install_service(data=Body(...)):
     """
     body
     {
@@ -165,7 +164,23 @@ async def install_service():
     {'msg': 'service start successfully'}
     {'msg': 'Invalid service name!'}
     """
-    pass
+    task_name = data['task_name']
+    images = data['image_list']
+
+    eventlet.monkey_patch()
+    try:
+        with eventlet.Timeout(30, True):
+            result = KubeHelper.apply_custom_resources()
+            while not KubeHelper.check_pods_running('auto-edge'):
+                continue
+
+    except eventlet.timeout.Timeout:
+        result = False
+
+    if result:
+        return {'state': 'success', 'msg': '服务下装成功'}
+    else:
+        return {'state': 'fail', 'msg': '服务下装失败，请联系管理员'}
 
 
 @app.get("/get_service_list")
@@ -194,26 +209,6 @@ async def get_service_info(service):
             "age"
         }
     ]
-    {
-                "114.212.81.11:5500": {
-                    "bandwidth": 1,
-                    "cpu": 1,
-                    "mem": 1,
-                    "url": "http://114.212.81.11:5500/execute_task/face_detection"
-                },
-                "172.27.138.183:5501": {
-                    "bandwidth": 1,
-                    "cpu": 1,
-                    "mem": 1,
-                    "url": "http://172.27.138.183:5501/execute_task/face_detection"
-                },
-                "172.27.151.135:5501": {
-                    "bandwidth": 1,
-                    "cpu": 1,
-                    "mem": 1,
-                    "url": "http://172.27.151.135:5501/execute_task/face_detection"
-                }
-            }
 
     """
     pass
@@ -274,7 +269,18 @@ async def stop_service():
 
     :return:
     """
-    pass
+    eventlet.monkey_patch()
+    try:
+        with eventlet.Timeout(30, True):
+            result = KubeHelper.delete_resources('auto-edge')
+
+    except eventlet.timeout.Timeout:
+        result = False
+
+    if result:
+        return
+    else:
+        return
 
 
 @app.post('/stop_query')
