@@ -1,5 +1,8 @@
+import time
+
 from kubernetes import client, config
 import yaml
+
 
 def apply_custom_resources(yaml_file_path):
     # Load kube config
@@ -33,7 +36,76 @@ def apply_custom_resources(yaml_file_path):
             except client.exceptions.ApiException as e:
                 print(f"An error occurred: {e}")
 
-# Path to your YAML file
-yaml_file_path = '../templates/video_car_detection.yaml'
 
-apply_custom_resources(yaml_file_path)
+def check_pods_running(namespace):
+    # Load the kube config
+    config.load_kube_config()
+
+    # Create an instance of the CoreV1Api
+    v1 = client.CoreV1Api()
+
+    # List all pods in the specified namespace
+    pods = v1.list_namespaced_pod(namespace)
+
+    all_running = True
+    for pod in pods.items:
+        # Check if the pod status is not 'Running' or if any container is not ready
+        if pod.status.phase != "Running" or not all([c.ready for c in pod.status.container_statuses]):
+            all_running = False
+            print(f"Pod {pod.metadata.name} is not fully running. Status: {pod.status.phase}")
+
+    if all_running:
+        print("All pods in the namespace are running.")
+    else:
+        print("Not all pods in the namespace are running.")
+
+    return all_running
+
+
+def delete_resources(namespace):
+    config.load_kube_config()
+
+    # Delete Services
+    v1 = client.CoreV1Api()
+
+    # If no specific services to delete, delete all services in the namespace
+    svc_list = v1.list_namespaced_service(namespace)
+    for svc in svc_list.items:
+        print(f"Deleting Service: {svc.metadata.name} in namespace {namespace}")
+        v1.delete_namespaced_service(name=svc.metadata.name, namespace=namespace)
+
+    # Delete Deployments
+    apps_v1 = client.AppsV1Api()
+    deployments = apps_v1.list_namespaced_deployment(namespace)
+    for dep in deployments.items:
+        print(f"Deleting Deployment: {dep.metadata.name} in namespace {namespace}")
+        apps_v1.delete_namespaced_deployment(name=dep.metadata.name, namespace=namespace)
+
+    # Delete Custom Resources (e.g., JointMultiEdgeService)
+    custom_api = client.CustomObjectsApi()
+    group = 'sedna.io'
+    version = 'v1alpha1'
+    plural = 'jointmultiedgeservices'
+    cr_list = custom_api.list_namespaced_custom_object(group=group, version=version, namespace=namespace, plural=plural)
+    for cr in cr_list.get('items', []):
+        print(f"Deleting Custom Resource: {cr['metadata']['name']} in namespace {namespace}")
+        custom_api.delete_namespaced_custom_object(group=group, version=version, plural=plural, name=cr['metadata']['name'], namespace=namespace, body=client.V1DeleteOptions())
+
+
+def main():
+    # Path to your YAML file
+    yaml_file_path = '../templates/video_car_detection.yaml'
+
+    apply_custom_resources(yaml_file_path)
+    while True:
+        if check_pods_running('auto-edge'):
+            break
+        time.sleep(0.3)
+
+    time.sleep(2)
+
+    delete_resources('auto-edge')
+
+
+if __name__ == '__main__':
+    main()
