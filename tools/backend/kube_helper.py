@@ -34,7 +34,7 @@ class KubeHelper:
             return True
 
     @staticmethod
-    def check_pods_running(namespace):
+    def check_pods_running(namespace='auto-edge'):
         config.load_kube_config()
         v1 = client.CoreV1Api()
 
@@ -57,10 +57,21 @@ class KubeHelper:
         v1 = client.CoreV1Api()
 
         pods = v1.list_namespaced_pod(namespace)
-        return len(pods.items()) == 0
+        return len(pods.items()) > 0
 
     @staticmethod
-    def delete_resources(namespace):
+    def check_pod_name(name, namespace='auto-edge'):
+        config.load_kube_config()
+        v1 = client.CoreV1Api()
+
+        pods = v1.list_namespaced_pod(namespace)
+        for pod in pods.items:
+            if name in pod.metadata.name:
+                return True
+        return False
+
+    @staticmethod
+    def delete_resources(namespace='auto-edge'):
         config.load_kube_config()
         v1 = client.CoreV1Api()
 
@@ -89,3 +100,17 @@ class KubeHelper:
             custom_api.delete_namespaced_custom_object(group=group, version=version, plural=plural,
                                                        name=cr['metadata']['name'], namespace=namespace,
                                                        body=client.V1DeleteOptions())
+
+    @staticmethod
+    def get_service_info(service_name, namespace='auto-edge'):
+        config.load_kube_config()
+        v1 = client.CoreV1Api()
+
+        info = []
+
+        pods = v1.list_namespaced_pod(namespace)
+        for pod in pods.items:
+            if service_name in pod.metadata.name:
+                pass
+
+        return info

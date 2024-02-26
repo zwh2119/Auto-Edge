@@ -20,32 +20,48 @@ class BackendServer:
                 'name': 'road-detection',
                 'display': '交通路面监控',
                 'yaml': 'video_car_detection.yaml',
+                'word': 'car',
                 'stage': [
-
+                    {
+                        "stage_name": "",
+                        "image_list": []
+                    },
                 ]
             },
             {
                 'name': 'audio',
                 'display': '音频识别',
                 'yaml': 'audio.yaml',
+                'word':'audio',
                 'stage': [
-
+                    {
+                        "stage_name": "",
+                        "image_list": []
+                    },
                 ]
             },
             {
                 'name': 'imu',
                 'display': '惯性轨迹感知',
                 'yaml': 'imu.yaml',
+                'word': 'imu',
                 'stage': [
-
+                    {
+                        "stage_name": "",
+                        "image_list": []
+                    },
                 ]
             },
             {
                 'name': 'edge-eye',
                 'display': '工业视觉纠偏',
                 'yaml': 'edge-eye.yaml',
+                'word': 'eye',
                 'stage': [
-
+                    {
+                        "stage_name": "",
+                        "image_list": []
+                    },
                 ]
             },
         ]
@@ -64,10 +80,86 @@ class BackendServer:
                         "fps": "25fps"
 
                     },
-                    {}
+                    {
+                        "name": "摄像头1",
+                        "url": "rtsp/114.212.81.11...",
+                        "describe": "某十字路口",
+                        "resolution": "1080p",
+                        "fps": "25fps"
+                    }
                 ]
 
-            }
+            },
+            {
+                "source_label": "car",
+                "source_name": "交通监控摄像头",
+                "source_type": "视频流",
+                "camera_list": [
+                    {
+                        "name": "摄像头1",
+                        "url": "rtsp/114.212.81.11...",
+                        "describe": "某十字路口",
+                        "resolution": "1080p",
+                        "fps": "25fps"
+
+                    },
+                    {
+                        "name": "摄像头1",
+                        "url": "rtsp/114.212.81.11...",
+                        "describe": "某十字路口",
+                        "resolution": "1080p",
+                        "fps": "25fps"
+                    }
+                ]
+
+            },
+            {
+                "source_label": "car",
+                "source_name": "交通监控摄像头",
+                "source_type": "视频流",
+                "camera_list": [
+                    {
+                        "name": "摄像头1",
+                        "url": "rtsp/114.212.81.11...",
+                        "describe": "某十字路口",
+                        "resolution": "1080p",
+                        "fps": "25fps"
+
+                    },
+                    {
+                        "name": "摄像头1",
+                        "url": "rtsp/114.212.81.11...",
+                        "describe": "某十字路口",
+                        "resolution": "1080p",
+                        "fps": "25fps"
+                    }
+                ]
+
+            },
+            {
+                "source_label": "car",
+                "source_name": "交通监控摄像头",
+                "source_type": "视频流",
+                "camera_list": [
+                    {
+                        "name": "摄像头1",
+                        "url": "rtsp/114.212.81.11...",
+                        "describe": "某十字路口",
+                        "resolution": "1080p",
+                        "fps": "25fps"
+
+                    },
+                    {
+                        "name": "摄像头1",
+                        "url": "rtsp/114.212.81.11...",
+                        "describe": "某十字路口",
+                        "resolution": "1080p",
+                        "fps": "25fps"
+                    }
+                ]
+
+            },
+
         ]
 
         self.tasks_dict = {'car': '路面交通监控', 'human': '路面行人监控',
@@ -164,13 +256,24 @@ async def install_service(data=Body(...)):
     {'msg': 'service start successfully'}
     {'msg': 'Invalid service name!'}
     """
+
     task_name = data['task_name']
     images = data['image_list']
+
+    cur_task = None
+
+    for task in server.tasks:
+        if task['name'] == task_name:
+            cur_task = task
+            break
+
+    if cur_task is None:
+        return {'state': 'fail', 'msg': '服务不存在'}
 
     eventlet.monkey_patch()
     try:
         with eventlet.Timeout(30, True):
-            result = KubeHelper.apply_custom_resources()
+            result = KubeHelper.apply_custom_resources(cur_task['yaml'])
             while not KubeHelper.check_pods_running('auto-edge'):
                 continue
 
@@ -190,7 +293,12 @@ async def get_service_list():
     :return:
     ["face_detection", "..."]
     """
-    pass
+    if KubeHelper.check_pods_running('auto-edge'):
+        for task in server.tasks:
+            if KubeHelper.check_pod_name(task['word']):
+                return [stage['stage_name'] for stage in task['stage']]
+    else:
+        return []
 
 
 @app.get("/get_execute_url/{service}")
@@ -245,7 +353,7 @@ async def get_video_info():
 
 
 @app.post("/query/submit_query")
-def submit_task():
+def submit_task(data: Body(...)):
     """
     body
     {
@@ -259,7 +367,11 @@ def submit_task():
     {'msg': 'service start successfully'}
     {'msg': 'Invalid service name!'}
     """
-    pass
+    source_label = data['source_label']
+    delay_constraint = data['delay_cons']
+    acc_constraint = data['acc_cons']
+    urgency_weight = data['urgency']
+    importance_weight = data['importance']
 
 
 @app.post('/stop_service')
@@ -299,7 +411,8 @@ async def get_install_state():
     :return:
     {'state':'install/uninstall'}
     """
-    pass
+    state = 'install' if KubeHelper.check_pods_exist('auto-edge') else 'uninstall'
+    return {'state': state}
 
 
 @app.get('/query_state')
