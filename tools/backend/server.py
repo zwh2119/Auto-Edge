@@ -1,14 +1,14 @@
 import eventlet
 eventlet.monkey_patch()
+
 import json
 import os
 import time
 
 import uvicorn
-from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form, Body, Request
+from fastapi import FastAPI,  Body, Request
 
-from fastapi.routing import APIRoute
-from starlette.responses import JSONResponse
+
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 
