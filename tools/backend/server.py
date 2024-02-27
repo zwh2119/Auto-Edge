@@ -276,6 +276,7 @@ class BackendServer:
         self.result_url = 'http://114.212.81.11:39500/result'
 
         self.resource_url = 'http://114.212.81.11:39400/resource'
+        self.parameters_url = 'http://114.212.81.11:39400/parameters'
 
         self.source_open = False
 
@@ -464,6 +465,10 @@ def submit_query(data=Body(...)):
     acc_constraint = data['acc_cons']
     urgency_weight = data['urgency']
     importance_weight = data['importance']
+
+    http_request(server.parameters_url, method='POST', json={'user_constraint': delay_constraint,
+                                                             'urgency_weight': urgency_weight,
+                                                             'importance_weight': importance_weight})
 
     server.source_open = True
     server.source_label = source_label
