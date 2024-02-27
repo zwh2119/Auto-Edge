@@ -18,6 +18,8 @@ def apply_custom_resources(yaml_file_path):
         api_instance = client.CustomObjectsApi()
 
         for doc in docs:
+            if doc is None:
+                continue
             # Extract necessary metadata for CustomObjectsApi
             group = 'sedna.io'  # The API group of the Custom Resource
             version = doc['apiVersion'].split('/')[-1]  # Extract version
@@ -110,6 +112,23 @@ def get_node_info():
         #     elif address.type == "Hostname":
         #         print(f"Hostname: {address.address}")
 
+    # Assuming Metrics Server is installed and running
+    api = client.CustomObjectsApi()
+
+    # Example of fetching CPU usage for all pods in the `default` namespace
+    cpu_usage = api.list_namespaced_custom_object(
+        group="metrics.k8s.io",
+        version="v1beta1",
+        namespace="auto-edge",
+        plural="pods"
+    )
+
+    for pod in cpu_usage.get('items', []):
+        print(f"Pod: {pod['metadata']['name']}")
+        for container in pod.get('containers', []):
+            print(
+                f"Container: {container['name']}, CPU: {container['usage']['cpu']}, Memory: {container['usage']['memory']}")
+
 
 def main():
     # # Path to your YAML file
@@ -123,7 +142,7 @@ def main():
 
     time.sleep(2)
 
-    KubeHelper.delete_resources('auto-edge')
+    # KubeHelper.delete_resources('auto-edge')
 
     get_node_info()
 

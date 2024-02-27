@@ -1,4 +1,5 @@
 import eventlet
+
 eventlet.monkey_patch()
 
 import json
@@ -6,8 +7,7 @@ import os
 import time
 
 import uvicorn
-from fastapi import FastAPI,  Body, Request
-
+from fastapi import FastAPI, Body, Request
 
 from fastapi.middleware.cors import CORSMiddleware
 import requests
@@ -44,9 +44,12 @@ class BackendServer:
                     {
                         "stage_name": "car-detection",
                         "image_list": [
-                            {'image_name': 'onecheck/car-detection:v1.0', 'url': '...'},
-                            {'image_name': 'onecheck/car-detection:v1.5', 'url': '...'},
-                            {'image_name': 'onecheck/car-detection:v2.0', 'url': '...'},
+                            {'image_name': 'onecheck/car-detection:v1.0',
+                             'url': 'https://hub.docker.com/layers/onecheck/car-detection/v1.0.0'},
+                            {'image_name': 'onecheck/car-detection:v1.2',
+                             'url': 'https://hub.docker.com/layers/onecheck/car-detection/v1.2.0'},
+                            {'image_name': 'onecheck/car-detection:v2.3',
+                             'url': 'https://hub.docker.com/layers/onecheck/car-detection/v2.3.0'},
                         ]
                     },
                 ]
@@ -60,17 +63,23 @@ class BackendServer:
                     {
                         "stage_name": "audio-sampling",
                         "image_list": [
-                            {'image_name': 'onecheck/audio-sampling:v1.0', 'url': '...'},
-                            {'image_name': 'onecheck/audio-sampling:v1.5', 'url': '...'},
-                            {'image_name': 'onecheck/audio-sampling:v2.0', 'url': '...'},
+                            {'image_name': 'onecheck/audio-sampling:v1.1',
+                             'url': 'https://hub.docker.com/layers/onecheck/audio-sampling/v1.1.0'},
+                            {'image_name': 'onecheck/audio-sampling:v1.5',
+                             'url': 'https://hub.docker.com/layers/onecheck/audio-sampling/v1.5.0'},
+                            {'image_name': 'onecheck/audio-sampling:v2.0',
+                             'url': 'https://hub.docker.com/layers/onecheck/audio-sampling/v2.0.0'},
                         ]
                     },
                     {
                         "stage_name": "audio-classification",
                         "image_list": [
-                            {'image_name': 'onecheck/audio-classification:v1.0', 'url': '...'},
-                            {'image_name': 'onecheck/audio-classification:v1.5', 'url': '...'},
-                            {'image_name': 'onecheck/audio-classification:v2.0', 'url': '...'},
+                            {'image_name': 'onecheck/audio-classification:v1.0',
+                             'url': 'https://hub.docker.com/layers/onecheck/audio-classification/v1.0.0'},
+                            {'image_name': 'onecheck/audio-classification:v1.4',
+                             'url': 'https://hub.docker.com/layers/onecheck/audio-classification/v1.4.0'},
+                            {'image_name': 'onecheck/audio-classification:v2.7',
+                             'url': 'https://hub.docker.com/layers/onecheck/audio-classification/v2.7.0'},
                         ]
                     },
                 ]
@@ -84,9 +93,12 @@ class BackendServer:
                     {
                         "stage_name": "imu-trajectory-sensing",
                         "image_list": [
-                            {'image_name': 'onecheck/imu-trajectory-sensing:v1.0', 'url': '...'},
-                            {'image_name': 'onecheck/imu-trajectory-sensing:v1.5', 'url': '...'},
-                            {'image_name': 'onecheck/imu-trajectory-sensing:v2.0', 'url': '...'},
+                            {'image_name': 'onecheck/imu-trajectory-sensing:v1.1',
+                             'url': 'https://hub.docker.com/layers/onecheck/imu-trajectory-sensing/v1.1.0'},
+                            {'image_name': 'onecheck/imu-trajectory-sensing:v1.5',
+                             'url': 'https://hub.docker.com/layers/onecheck/imu-trajectory-sensing/v1.5.0'},
+                            {'image_name': 'onecheck/imu-trajectory-sensing:v2.2',
+                             'url': 'https://hub.docker.com/layers/onecheck/imu-trajectory-sensing/v2.2.0'},
                         ]
                     },
                 ]
@@ -100,25 +112,34 @@ class BackendServer:
                     {
                         "stage_name": "edge-eye-stage1",
                         "image_list": [
-                            {'image_name': 'onecheck/edge-eye-stage1:v1.0', 'url': '...'},
-                            {'image_name': 'onecheck/edge-eye-stage1:v1.5', 'url': '...'},
-                            {'image_name': 'onecheck/edge-eye-stage1:v2.0', 'url': '...'},
+                            {'image_name': 'onecheck/edge-eye-stage1:v1.0',
+                             'url': 'https://hub.docker.com/layers/onecheck/edge-eye-stage1/v1.0.0'},
+                            {'image_name': 'onecheck/edge-eye-stage1:v1.6',
+                             'url': 'https://hub.docker.com/layers/onecheck/edge-eye-stage1/v1.6.0'},
+                            {'image_name': 'onecheck/edge-eye-stage1:v2.3',
+                             'url': 'https://hub.docker.com/layers/onecheck/edge-eye-stage1/v2.3.0'},
                         ]
                     },
                     {
                         "stage_name": "edge-eye-stage2",
                         "image_list": [
-                            {'image_name': 'onecheck/edge-eye-stage2:v1.0', 'url': '...'},
-                            {'image_name': 'onecheck/edge-eye-stage2:v1.5', 'url': '...'},
-                            {'image_name': 'onecheck/edge-eye-stage2:v2.0', 'url': '...'},
+                            {'image_name': 'onecheck/edge-eye-stage2:v1.2',
+                             'url': 'https://hub.docker.com/layers/onecheck/edge-eye-stage2/v1.2.0'},
+                            {'image_name': 'onecheck/edge-eye-stage2:v1.5',
+                             'url': 'https://hub.docker.com/layers/onecheck/edge-eye-stage2/v1.5.0'},
+                            {'image_name': 'onecheck/edge-eye-stage2:v2.3',
+                             'url': 'https://hub.docker.com/layers/onecheck/edge-eye-stage2/v2.3.0'},
                         ]
                     },
                     {
                         "stage_name": "edge-eye-stage3",
                         "image_list": [
-                            {'image_name': 'onecheck/edge-eye-stage3:v1.0', 'url': '...'},
-                            {'image_name': 'onecheck/edge-eye-stage3:v1.5', 'url': '...'},
-                            {'image_name': 'onecheck/edge-eye-stage3:v2.0', 'url': '...'},
+                            {'image_name': 'onecheck/edge-eye-stage3:v1.4',
+                             'url': 'https://hub.docker.com/layers/onecheck/edge-eye-stage3/v1.4.0'},
+                            {'image_name': 'onecheck/edge-eye-stage3:v1.7',
+                             'url': 'https://hub.docker.com/layers/onecheck/edge-eye-stage3/v1.7.0'},
+                            {'image_name': 'onecheck/edge-eye-stage3:v2.0',
+                             'url': 'https://hub.docker.com/layers/onecheck/edge-eye-stage3/v2.0.0'},
                         ]
                     },
                 ]
@@ -133,7 +154,7 @@ class BackendServer:
                 "camera_list": [
                     {
                         "name": "摄像头1",
-                        "url": "rtsp/192.168.51/video0",
+                        "url": "rtsp://192.168.1.51/video0",
                         "describe": "高速公路监控摄像头",
                         "resolution": "1080p",
                         "fps": "25fps"
@@ -141,7 +162,7 @@ class BackendServer:
                     },
                     {
                         "name": "摄像头2",
-                        "url": "rtsp/192.168.55/video1",
+                        "url": "rtsp://192.168.1.55/video1",
                         "describe": "十字路口监控摄像头",
                         "resolution": "1080p",
                         "fps": "30fps"
@@ -156,13 +177,13 @@ class BackendServer:
                 "camera_list": [
                     {
                         "name": "音频流1",
-                        "url": "rtsp/114.212.81.11...",
+                        "url": "http://192.168.2.22:3381/audio",
                         "describe": "音频来源1",
 
                     },
                     {
                         "name": "音频流2",
-                        "url": "rtsp/114.212.81.11...",
+                        "url": "http://192.168.2.22:3382/audio",
                         "describe": "音频来源2",
                     }
                 ]
@@ -175,13 +196,13 @@ class BackendServer:
                 "camera_list": [
                     {
                         "name": "IMU流1",
-                        "url": "rtsp/114.212.81.11...",
+                        "url": "http://192.168.2.11:3000/imu",
                         "describe": "IMU场景1",
 
                     },
                     {
                         "name": "IMU流2",
-                        "url": "rtsp/114.212.81.11...",
+                        "url": "http://192.168.2.91:3001/imu",
                         "describe": "IMU场景2",
                     }
                 ]
@@ -194,7 +215,7 @@ class BackendServer:
                 "camera_list": [
                     {
                         "name": "摄像头1",
-                        "url": "rtsp/114.212.81.11...",
+                        "url": "rtsp://192.168.1.67/video0",
                         "describe": "工厂1",
                         "resolution": "1080p",
                         "fps": "25fps"
@@ -202,7 +223,7 @@ class BackendServer:
                     },
                     {
                         "name": "摄像头2",
-                        "url": "rtsp/114.212.81.11...",
+                        "url": "rtsp://192.168.1.83/video1",
                         "describe": "工厂2",
                         "resolution": "1080p",
                         "fps": "25fps"
@@ -304,9 +325,8 @@ async def install_service(data=Body(...)):
     yaml_file = os.path.join(server.templates_path, cur_task['yaml'])
     print(f'yaml_file: {yaml_file}')
 
-
     try:
-        with eventlet.Timeout(30, True):
+        with eventlet.Timeout(40, True):
             result = KubeHelper.apply_custom_resources(yaml_file)
             while not KubeHelper.check_pods_running('auto-edge'):
                 time.sleep(1)
