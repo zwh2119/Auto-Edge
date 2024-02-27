@@ -435,10 +435,7 @@ async def get_video_info():
                 },
                 {}
             ]
-
-
         }
-
     ]
     """
     return server.sources
