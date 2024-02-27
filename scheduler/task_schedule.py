@@ -95,6 +95,15 @@ class Scheduler:
         }
         return cold_plan
 
+    def update_hyper_parameter(self, user_constraint, importance_weight, urgency_weight):
+        self.user_constraint = user_constraint
+        for source in self.schedule_table:
+            self.schedule_table[source]['pid'].set_setpoint(self.user_constraint)
+
+        self.priority_profiler = PriorityProfiler(importance_weight=importance_weight,
+                                                  urgency_weight=urgency_weight,
+                                                  deadline=self.user_constraint)
+
     def run(self):
         while True:
             # LOGGER.debug('update schedule')

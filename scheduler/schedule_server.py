@@ -59,6 +59,11 @@ class ScheduleServer:
                      self.register_new_config,
                      response_class=JSONResponse,
                      methods=['POST']
+                     ),
+            APIRoute('/parameters',
+                     self.update_parameters,
+                     response_class=JSONResponse,
+                     methods=['POST']
                      )
         ], log_level='trace', timeout=6000)
 
@@ -147,6 +152,15 @@ class ScheduleServer:
             else:
                 counter['counter'] = cycle_num
         return {'msg': 'Task submit success.', 'success': True}
+
+    async def update_parameters(self, request: Request):
+        data = await request.json()
+        user_constraint = data['user_constraint']
+        importance_weight = data['importance_weight']
+        urgency_weight = data['urgency_weight']
+        self.scheduler.update_hyper_parameter(user_constraint=user_constraint,
+                                              importance_weight=importance_weight,
+                                              urgency_weight=urgency_weight)
 
 
 app = ScheduleServer().app
