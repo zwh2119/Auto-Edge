@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()
+import json
 import os
 import time
 
@@ -8,7 +11,7 @@ from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import requests
-import eventlet
+
 from kube_helper import KubeHelper
 import yaml
 
@@ -283,7 +286,8 @@ async def install_service(data=Body(...)):
     {'msg': 'service start successfully'}
     {'msg': 'Invalid service name!'}
     """
-
+    data = json.loads(str(data, encoding='utf-8'))
+    # print(type(data))
     task_name = data['task_name']
     images = data['image_list']
 
@@ -298,15 +302,17 @@ async def install_service(data=Body(...)):
         return {'state': 'fail', 'msg': '服务不存在'}
 
     yaml_file = os.path.join(server.templates_path, cur_task['yaml'])
+    print(f'yaml_file: {yaml_file}')
 
-    eventlet.monkey_patch()
+
     try:
         with eventlet.Timeout(30, True):
             result = KubeHelper.apply_custom_resources(yaml_file)
             while not KubeHelper.check_pods_running('auto-edge'):
-                continue
+                time.sleep(1)
 
-    except eventlet.timeout.Timeout:
+    except Exception as e:
+        print(f'Error: {e}')
         result = False
 
     if result:
@@ -348,7 +354,7 @@ async def get_service_info(service):
     ]
 
     """
-    pass
+    return KubeHelper.get_service_info(service_name=service)
 
 
 @app.get("/node/get_video_info")
@@ -382,7 +388,7 @@ async def get_video_info():
 
 
 @app.post("/query/submit_query")
-def submit_query(data: Body(...)):
+def submit_query(data=Body(...)):
     """
     body
     {
@@ -415,14 +421,15 @@ async def stop_service():
 
     :return:
     """
-    eventlet.monkey_patch()
+
     try:
         with eventlet.Timeout(30, True):
             result = KubeHelper.delete_resources('auto-edge')
             while KubeHelper.check_pods_exist('auto-edge'):
-                continue
+                time.sleep(1)
 
-    except eventlet.timeout.Timeout:
+    except Exception as e:
+        print(f'Error: {e}')
         result = False
 
     if result:

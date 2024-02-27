@@ -2,6 +2,7 @@ import time
 
 from kubernetes import client, config
 import yaml
+from kube_helper import KubeHelper
 
 
 def apply_custom_resources(yaml_file_path):
@@ -92,19 +93,39 @@ def delete_resources(namespace):
         custom_api.delete_namespaced_custom_object(group=group, version=version, plural=plural, name=cr['metadata']['name'], namespace=namespace, body=client.V1DeleteOptions())
 
 
-def main():
-    # Path to your YAML file
-    yaml_file_path = '../templates/video_car_detection.yaml'
+def get_node_info():
+    config.load_kube_config()
 
-    apply_custom_resources(yaml_file_path)
+    # Create an instance of the CoreV1Api
+    v1 = client.CoreV1Api()
+
+    # To get more detailed node information
+    nodes = v1.list_node()
+    for node in nodes.items:
+        print(f"Node Name: {node.metadata.name}")
+        print(node.status.addresses)
+        # for address in node.status.addresses:
+        #     if address.type == "InternalIP":
+        #         print(f"Internal IP: {address.address}")
+        #     elif address.type == "Hostname":
+        #         print(f"Hostname: {address.address}")
+
+
+def main():
+    # # Path to your YAML file
+    yaml_file_path = '/home/hx/zwh/Auto-Edge/templates/video_car_detection.yaml'
+
+    KubeHelper.apply_custom_resources(yaml_file_path)
     while True:
-        if check_pods_running('auto-edge'):
+        if KubeHelper.check_pods_running('auto-edge'):
             break
         time.sleep(0.3)
 
     time.sleep(2)
 
-    delete_resources('auto-edge')
+    KubeHelper.delete_resources('auto-edge')
+
+    get_node_info()
 
 
 if __name__ == '__main__':
