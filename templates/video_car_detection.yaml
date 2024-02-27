@@ -368,5 +368,3 @@ spec:
               - containerPort: 9001
                 hostPort: 39001
 
----
-

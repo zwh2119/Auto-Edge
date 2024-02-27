@@ -1,6 +1,7 @@
 from kubernetes import client, config
 import yaml
-
+import datetime
+import pytz
 
 class KubeHelper:
 
@@ -13,6 +14,8 @@ class KubeHelper:
             api_instance = client.CustomObjectsApi()
 
             for doc in docs:
+                if doc is None:
+                    continue
                 group = 'sedna.io'  # The API group of the Custom Resource
                 version = doc['apiVersion'].split('/')[-1]  # Extract version
                 namespace = doc['metadata']['namespace']  # Extract namespace
@@ -100,6 +103,7 @@ class KubeHelper:
             custom_api.delete_namespaced_custom_object(group=group, version=version, plural=plural,
                                                        name=cr['metadata']['name'], namespace=namespace,
                                                        body=client.V1DeleteOptions())
+        return True
 
     @staticmethod
     def get_service_info(service_name, namespace='auto-edge'):
@@ -111,13 +115,15 @@ class KubeHelper:
         pods = v1.list_namespaced_pod(namespace)
         for pod in pods.items:
             if service_name in pod.metadata.name:
-                info_dict = {'age': pod.metadata.creation_timestamp,
+                info_dict = {'age': pod.metadata.creation_timestamp.astimezone(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S'),
                              'hostname': pod.spec.node_name,
                              'ip': KubeHelper.get_node_ip(pod.spec.node_name),
                              'cpu': '20%',
                              'memory': '20%',
                              'bandwidth': '1Mbps'}
                 info.append(info_dict)
+                print('time: ', pod.metadata.creation_timestamp)
+                # print(pod.metadata)
 
         return info
 

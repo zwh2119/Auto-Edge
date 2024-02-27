@@ -287,7 +287,7 @@ async def install_service(data=Body(...)):
     {'msg': 'Invalid service name!'}
     """
     data = json.loads(str(data, encoding='utf-8'))
-    # print(type(data))
+
     task_name = data['task_name']
     images = data['image_list']
 
@@ -311,7 +311,7 @@ async def install_service(data=Body(...)):
             while not KubeHelper.check_pods_running('auto-edge'):
                 time.sleep(1)
 
-    except Exception as e:
+    except eventlet.timeout.Timeout as e:
         print(f'Error: {e}')
         result = False
 
@@ -402,6 +402,9 @@ def submit_query(data=Body(...)):
     {'msg': 'service start successfully'}
     {'msg': 'Invalid service name!'}
     """
+
+    data = json.loads(str(data, encoding='utf-8'))
+
     source_label = data['source_label']
     delay_constraint = data['delay_cons']
     acc_constraint = data['acc_cons']
@@ -423,12 +426,12 @@ async def stop_service():
     """
 
     try:
-        with eventlet.Timeout(30, True):
+        with eventlet.Timeout(120, True):
             result = KubeHelper.delete_resources('auto-edge')
             while KubeHelper.check_pods_exist('auto-edge'):
                 time.sleep(1)
 
-    except Exception as e:
+    except eventlet.timeout.Timeout as e:
         print(f'Error: {e}')
         result = False
 
@@ -445,6 +448,9 @@ async def stop_query():
     :return:
     {'state':"success/fail",'msg':'...'}
     """
+
+    server.source_open = False
+    server.source_label = ''
 
     return {'state': 'success', 'msg': '数据流关闭成功'}
 
