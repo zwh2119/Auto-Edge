@@ -106,6 +106,7 @@ def get_node_info():
     for node in nodes.items:
         print(f"Node Name: {node.metadata.name}")
         print(node.status.addresses)
+        print(node.status.capacity['cpu'])
         # for address in node.status.addresses:
         #     if address.type == "InternalIP":
         #         print(f"Internal IP: {address.address}")
@@ -128,6 +129,21 @@ def get_node_info():
         for container in pod.get('containers', []):
             print(
                 f"Container: {container['name']}, CPU: {container['usage']['cpu']}, Memory: {container['usage']['memory']}")
+
+    group = 'metrics.k8s.io'
+    version = 'v1beta1'
+    plural = 'nodes'
+
+    try:
+        # Fetch the node metrics
+        api_response = api.list_cluster_custom_object(group, version, plural)
+        for node in api_response['items']:
+            node_name = node['metadata']['name']
+            cpu_usage = node['usage']['cpu']
+            memory_usage = node['usage']['memory']
+            print(f"Node: {node_name}, CPU Usage: {cpu_usage}, Memory Usage: {memory_usage}")
+    except client.ApiException as e:
+        print("Exception when calling CustomObjectsApi->list_cluster_custom_object: %s\n" % e)
 
 
 def main():

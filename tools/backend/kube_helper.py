@@ -1,7 +1,8 @@
 from kubernetes import client, config
 import yaml
-import datetime
+import psutil
 import pytz
+
 
 class KubeHelper:
 
@@ -110,20 +111,37 @@ class KubeHelper:
         config.load_kube_config()
         v1 = client.CoreV1Api()
 
+        api = client.CustomObjectsApi()
+        cpu_usage = api.list_namespaced_custom_object(
+            group="metrics.k8s.io",
+            version="v1beta1",
+            namespace="auto-edge",
+            plural="pods"
+        )
+        cpu_dict = {}
+        mem_dict = {}
+
+        for pod in cpu_usage.get('items', []):
+            pod_name = pod['metadata']['name']
+            container = pod.get('containers')[0]
+            cpu_dict[pod_name] = int(container['usage']['cpu'][:-1])/1000000/1000
+            mem_dict[pod_name] = int(container['usage']['memory'][:-2])*1024
+        # print(cpu_dict)
+
         info = []
 
         pods = v1.list_namespaced_pod(namespace)
         for pod in pods.items:
             if service_name in pod.metadata.name:
-                info_dict = {'age': pod.metadata.creation_timestamp.astimezone(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S'),
-                             'hostname': pod.spec.node_name,
-                             'ip': KubeHelper.get_node_ip(pod.spec.node_name),
-                             'cpu': '20%',
-                             'memory': '20%',
-                             'bandwidth': '1Mbps'}
+
+                info_dict = {'age': pod.metadata.creation_timestamp.astimezone(pytz.timezone('Asia/Shanghai')).strftime(
+                    '%Y-%m-%d %H:%M:%S'),
+                    'hostname': pod.spec.node_name,
+                    'ip': KubeHelper.get_node_ip(pod.spec.node_name),
+                    'cpu': f'{cpu_dict[pod.metadata.name]/KubeHelper.get_node_cpu(pod.spec.node_name)*100:.2f}%',
+                    'memory': f'{mem_dict[pod.metadata.name]/psutil.virtual_memory().total*100:.2f}%',
+                    'bandwidth': ''}
                 info.append(info_dict)
-                print('time: ', pod.metadata.creation_timestamp)
-                # print(pod.metadata)
 
         return info
 
@@ -140,3 +158,14 @@ class KubeHelper:
                         return address.address
         return ''
 
+    @staticmethod
+    def get_node_cpu(hostname):
+        config.load_kube_config()
+        v1 = client.CoreV1Api()
+
+        nodes = v1.list_node()
+        for node in nodes.items:
+            if node.metadata.name == hostname:
+                return int(node.status.capacity['cpu'][-1])
+
+        assert None, f'hostname of {hostname} not exists'
