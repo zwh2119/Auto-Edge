@@ -28,6 +28,7 @@ def iperf_server(port):
 
 class MonitorServer:
     def __init__(self):
+        self.local_hostname = Context.get_parameters('NODE_NAME')
         self.local_ip = get_nodes_info()[Context.get_parameters('NODE_NAME')]
         self.monitor_interval = eval(Context.get_parameters('interval'))
         self.iperf3_server = eval(Context.get_parameters('iperf3_server'))
@@ -76,7 +77,7 @@ class MonitorServer:
             LOGGER.debug(f'resource info: {data}')
 
             resource_post_url = get_merge_address(self.scheduler_ip, port=self.scheduler_port, path='resource')
-            http_request(resource_post_url, method='POST', json={'device': self.local_ip, 'resource': data})
+            http_request(resource_post_url, method='POST', json={'device': self.local_hostname, 'resource': data})
 
             time.sleep(self.monitor_interval)
 

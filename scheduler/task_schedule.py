@@ -76,6 +76,9 @@ class Scheduler:
         self.register_resource_table(device)
         self.resource_table[device] = resource_data
 
+    def get_scheduler_resource(self):
+        return self.resource_table
+
     def get_device_resource(self, device):
         if device not in self.resource_table:
             LOGGER.warning(f'device of {device} not exists!')

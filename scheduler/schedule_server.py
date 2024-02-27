@@ -33,6 +33,11 @@ class ScheduleServer:
                      response_class=JSONResponse,
                      methods=['POST']
                      ),
+            APIRoute('/resource',
+                     self.get_resource_data,
+                     response_class=JSONResponse,
+                     methods=['GET']
+                     ),
             APIRoute('/priority',
                      self.generate_task_priority,
                      response_class=JSONResponse,
@@ -84,6 +89,9 @@ class ScheduleServer:
         device = data['device']
         resource_data = data['resource']
         self.scheduler.update_scheduler_resource(device, resource_data)
+
+    async def get_resource_data(self):
+        return self.scheduler.get_scheduler_resource()
 
     def update_scenario(self, data):
         self.scheduler.update_scheduler_scenario(data['source_id'], data['scenario'])

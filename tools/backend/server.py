@@ -16,6 +16,35 @@ from kube_helper import KubeHelper
 import yaml
 
 
+def http_request(url,
+                 method=None,
+                 timeout=None,
+                 binary=True,
+                 no_decode=False,
+                 **kwargs):
+    _maxTimeout = timeout if timeout else 300
+    _method = 'GET' if not method else method
+
+    try:
+        response = requests.request(method=_method, url=url, **kwargs)
+        if response.status_code == 200:
+            if no_decode:
+                return response
+            else:
+                return response.json() if binary else response.content.decode('utf-8')
+        elif 200 < response.status_code < 400:
+            print(f'Redirect URL: {response.url}')
+        print(f'Get invalid status code {response.status_code} in request {url}')
+    except (ConnectionRefusedError, requests.exceptions.ConnectionError):
+        print(f'Connection refused in request {url}')
+    except requests.exceptions.HTTPError as err:
+        print(f'Http Error in request {url}: {err}')
+    except requests.exceptions.Timeout as err:
+        print(f'Timeout error in request {url}: {err}')
+    except requests.exceptions.RequestException as err:
+        print(f'Error occurred in request {url}: {err}')
+
+
 def read_yaml(yaml_file):
     '''读取yaml文件'''
     with open(yaml_file, 'r', encoding="utf-8") as f:
@@ -246,6 +275,8 @@ class BackendServer:
         self.free_task_url = 'http://114.212.81.11:39400/task'
         self.result_url = 'http://114.212.81.11:39500/result'
 
+        self.resource_url = 'http://114.212.81.11:39400/resource'
+
         self.source_open = False
 
         self.source_label = ''
@@ -374,7 +405,13 @@ async def get_service_info(service):
     ]
 
     """
-    return KubeHelper.get_service_info(service_name=service)
+    info = KubeHelper.get_service_info(service_name=service)
+    resource_data = http_request(server.resource_url, method='GET')
+    print(resource_data)
+    for single_info in info:
+        single_info['bandwidth'] = f"{resource_data[single_info['hostname']]}Mbps"
+
+    return info
 
 
 @app.get("/node/get_video_info")
