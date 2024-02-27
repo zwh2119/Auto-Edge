@@ -130,85 +130,77 @@ class BackendServer:
                 "camera_list": [
                     {
                         "name": "摄像头1",
-                        "url": "rtsp/114.212.81.11...",
-                        "describe": "某十字路口",
+                        "url": "rtsp/192.168.51/video0",
+                        "describe": "高速公路监控摄像头",
                         "resolution": "1080p",
                         "fps": "25fps"
 
                     },
                     {
-                        "name": "摄像头1",
-                        "url": "rtsp/114.212.81.11...",
-                        "describe": "某十字路口",
+                        "name": "摄像头2",
+                        "url": "rtsp/192.168.55/video1",
+                        "describe": "十字路口监控摄像头",
                         "resolution": "1080p",
-                        "fps": "25fps"
+                        "fps": "30fps"
                     }
                 ]
 
             },
             {
-                "source_label": "car",
-                "source_name": "交通监控摄像头",
-                "source_type": "视频流",
+                "source_label": "audio",
+                "source_name": "音频数据流",
+                "source_type": "音频流",
                 "camera_list": [
                     {
-                        "name": "摄像头1",
+                        "name": "音频流1",
                         "url": "rtsp/114.212.81.11...",
-                        "describe": "某十字路口",
-                        "resolution": "1080p",
-                        "fps": "25fps"
+                        "describe": "音频来源1",
 
                     },
                     {
-                        "name": "摄像头1",
+                        "name": "音频流2",
                         "url": "rtsp/114.212.81.11...",
-                        "describe": "某十字路口",
-                        "resolution": "1080p",
-                        "fps": "25fps"
+                        "describe": "音频来源2",
                     }
                 ]
 
             },
             {
-                "source_label": "car",
-                "source_name": "交通监控摄像头",
-                "source_type": "视频流",
+                "source_label": "imu",
+                "source_name": "惯性数据流",
+                "source_type": "IMU流",
                 "camera_list": [
                     {
-                        "name": "摄像头1",
+                        "name": "IMU流1",
                         "url": "rtsp/114.212.81.11...",
-                        "describe": "某十字路口",
-                        "resolution": "1080p",
-                        "fps": "25fps"
+                        "describe": "IMU场景1",
 
                     },
                     {
-                        "name": "摄像头1",
+                        "name": "IMU流2",
                         "url": "rtsp/114.212.81.11...",
-                        "describe": "某十字路口",
-                        "resolution": "1080p",
-                        "fps": "25fps"
+                        "describe": "IMU场景2",
                     }
                 ]
 
             },
             {
-                "source_label": "car",
-                "source_name": "交通监控摄像头",
+                "source_label": "edge-eye",
+                "source_name": "工厂摄像头",
                 "source_type": "视频流",
                 "camera_list": [
                     {
                         "name": "摄像头1",
                         "url": "rtsp/114.212.81.11...",
-                        "describe": "某十字路口",
+                        "describe": "工厂1",
                         "resolution": "1080p",
                         "fps": "25fps"
 
                     },
                     {
-                        "name": "摄像头1",
+                        "name": "摄像头2",
                         "url": "rtsp/114.212.81.11...",
-                        "describe": "某十字路口",
+                        "describe": "工厂2",
                         "resolution": "1080p",
                         "fps": "25fps"
                     }
@@ -217,10 +209,6 @@ class BackendServer:
             },
 
         ]
-
-        self.tasks_dict = {'car': '路面交通监控', 'human': '路面行人监控',
-                           'audio': '音频识别', 'imu': '惯性轨迹感知',
-                           'edge-eye': '工业视觉纠偏'}
 
         self.devices = {
             'http://114.212.81.11:39200/submit_task': 'cloud',
@@ -233,6 +221,10 @@ class BackendServer:
         self.templates_path = '/home/hx/zwh/Auto-Edge/templates'
         self.free_task_url = 'http://114.212.81.11:39400/task'
         self.result_url = 'http://114.212.81.11:39500/result'
+
+        self.source_open = False
+
+        self.source_label = ''
 
 
 server = BackendServer()
@@ -410,6 +402,11 @@ def submit_query(data: Body(...)):
     urgency_weight = data['urgency']
     importance_weight = data['importance']
 
+    server.source_open = True
+    server.source_label = source_label
+
+    return {'state': 'success', 'msg': '数据流打开成功'}
+
 
 @app.post('/stop_service')
 async def stop_service():
@@ -422,14 +419,16 @@ async def stop_service():
     try:
         with eventlet.Timeout(30, True):
             result = KubeHelper.delete_resources('auto-edge')
+            while KubeHelper.check_pods_exist('auto-edge'):
+                continue
 
     except eventlet.timeout.Timeout:
         result = False
 
     if result:
-        return
+        return {'state': 'success', 'msg': '服务停止成功'}
     else:
-        return
+        return {'state': 'fail', 'msg': '服务停止失败，请联系管理员'}
 
 
 @app.post('/stop_query')
@@ -439,7 +438,8 @@ async def stop_query():
     :return:
     {'state':"success/fail",'msg':'...'}
     """
-    pass
+
+    return {'state': 'success', 'msg': '数据流关闭成功'}
 
 
 @app.get('/install_state')
@@ -459,7 +459,7 @@ async def get_query_state():
     :return:
     {'state':'open/close','source_label':''}
     """
-    pass
+    return {'state': 'open' if server.source_open else 'close', 'source_label': server.source_label}
 
 
 def main():
