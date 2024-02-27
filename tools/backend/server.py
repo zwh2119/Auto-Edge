@@ -7,10 +7,26 @@ from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form, Body, Requ
 from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from kubernetes import client, config
 import requests
 import eventlet
 from kube_helper import KubeHelper
+import yaml
+
+
+def read_yaml(yaml_file):
+    '''读取yaml文件'''
+    with open(yaml_file, 'r', encoding="utf-8") as f:
+        values = yaml.load(f, Loader=yaml.Loader)
+    return values
+
+
+def write_yaml(value_dict, yaml_file):
+    '''写yaml文件'''
+    with open(yaml_file, 'a', encoding="utf-8") as f:
+        try:
+            yaml.dump(data=value_dict, stream=f, encoding="utf-8", allow_unicode=True)
+        except Exception as e:
+            print(e)
 
 
 class BackendServer:
@@ -23,8 +39,12 @@ class BackendServer:
                 'word': 'car',
                 'stage': [
                     {
-                        "stage_name": "",
-                        "image_list": []
+                        "stage_name": "car-detection",
+                        "image_list": [
+                            {'image_name': 'onecheck/car-detection:v1.0', 'url': '...'},
+                            {'image_name': 'onecheck/car-detection:v1.5', 'url': '...'},
+                            {'image_name': 'onecheck/car-detection:v2.0', 'url': '...'},
+                        ]
                     },
                 ]
             },
@@ -32,11 +52,23 @@ class BackendServer:
                 'name': 'audio',
                 'display': '音频识别',
                 'yaml': 'audio.yaml',
-                'word':'audio',
+                'word': 'audio',
                 'stage': [
                     {
-                        "stage_name": "",
-                        "image_list": []
+                        "stage_name": "audio-sampling",
+                        "image_list": [
+                            {'image_name': 'onecheck/audio-sampling:v1.0', 'url': '...'},
+                            {'image_name': 'onecheck/audio-sampling:v1.5', 'url': '...'},
+                            {'image_name': 'onecheck/audio-sampling:v2.0', 'url': '...'},
+                        ]
+                    },
+                    {
+                        "stage_name": "audio-classification",
+                        "image_list": [
+                            {'image_name': 'onecheck/audio-classification:v1.0', 'url': '...'},
+                            {'image_name': 'onecheck/audio-classification:v1.5', 'url': '...'},
+                            {'image_name': 'onecheck/audio-classification:v2.0', 'url': '...'},
+                        ]
                     },
                 ]
             },
@@ -47,8 +79,12 @@ class BackendServer:
                 'word': 'imu',
                 'stage': [
                     {
-                        "stage_name": "",
-                        "image_list": []
+                        "stage_name": "imu-trajectory-sensing",
+                        "image_list": [
+                            {'image_name': 'onecheck/imu-trajectory-sensing:v1.0', 'url': '...'},
+                            {'image_name': 'onecheck/imu-trajectory-sensing:v1.5', 'url': '...'},
+                            {'image_name': 'onecheck/imu-trajectory-sensing:v2.0', 'url': '...'},
+                        ]
                     },
                 ]
             },
@@ -59,8 +95,28 @@ class BackendServer:
                 'word': 'eye',
                 'stage': [
                     {
-                        "stage_name": "",
-                        "image_list": []
+                        "stage_name": "edge-eye-stage1",
+                        "image_list": [
+                            {'image_name': 'onecheck/edge-eye-stage1:v1.0', 'url': '...'},
+                            {'image_name': 'onecheck/edge-eye-stage1:v1.5', 'url': '...'},
+                            {'image_name': 'onecheck/edge-eye-stage1:v2.0', 'url': '...'},
+                        ]
+                    },
+                    {
+                        "stage_name": "edge-eye-stage2",
+                        "image_list": [
+                            {'image_name': 'onecheck/edge-eye-stage2:v1.0', 'url': '...'},
+                            {'image_name': 'onecheck/edge-eye-stage2:v1.5', 'url': '...'},
+                            {'image_name': 'onecheck/edge-eye-stage2:v2.0', 'url': '...'},
+                        ]
+                    },
+                    {
+                        "stage_name": "edge-eye-stage3",
+                        "image_list": [
+                            {'image_name': 'onecheck/edge-eye-stage3:v1.0', 'url': '...'},
+                            {'image_name': 'onecheck/edge-eye-stage3:v1.5', 'url': '...'},
+                            {'image_name': 'onecheck/edge-eye-stage3:v2.0', 'url': '...'},
+                        ]
                     },
                 ]
             },
@@ -178,27 +234,6 @@ class BackendServer:
         self.free_task_url = 'http://114.212.81.11:39400/task'
         self.result_url = 'http://114.212.81.11:39500/result'
 
-    def install_service(self):
-        pass
-
-    def open_data_source(self):
-        pass
-
-    def uninstall_service(self):
-        pass
-
-    def close_data_source(self):
-        pass
-
-    def get_install_state(self):
-        pass
-
-    def get_data_source_state(self):
-        pass
-
-    def get_installed_service_info(self):
-        pass
-
 
 server = BackendServer()
 
@@ -270,10 +305,12 @@ async def install_service(data=Body(...)):
     if cur_task is None:
         return {'state': 'fail', 'msg': '服务不存在'}
 
+    yaml_file = os.path.join(server.templates_path, cur_task['yaml'])
+
     eventlet.monkey_patch()
     try:
         with eventlet.Timeout(30, True):
-            result = KubeHelper.apply_custom_resources(cur_task['yaml'])
+            result = KubeHelper.apply_custom_resources(yaml_file)
             while not KubeHelper.check_pods_running('auto-edge'):
                 continue
 
@@ -353,7 +390,7 @@ async def get_video_info():
 
 
 @app.post("/query/submit_query")
-def submit_task(data: Body(...)):
+def submit_query(data: Body(...)):
     """
     body
     {
