@@ -412,9 +412,10 @@ async def get_service_info(service):
         # print(resource_data)
         for single_info in info:
             single_info['bandwidth'] = f"{resource_data[single_info['hostname']]['bandwidth']:.2f}Mbps" if \
-            resource_data[single_info['hostname']]['bandwidth'] != 0 else '-'
+                resource_data[single_info['hostname']]['bandwidth'] != 0 else '-'
     except Exception as e:
         print(f'get info error: {e}')
+        raise e
         return []
 
     return info
@@ -558,6 +559,148 @@ async def get_execute_result(self, data: Request):
         return response
     else:
         return {}
+
+
+@app.get('/source_list')
+async def get_source_list():
+    """
+    [
+        {
+            "id":"video_source1",
+            "label":"数据源1"
+        },
+        ...
+    ]
+    :return:
+    """
+    pass
+
+
+@app.get('/pipeline_info')
+async def get_pipeline_info():
+    """[stage_name1,stage_name2]"""
+    pass
+
+
+@app.get('/result_prompt')
+async def get_result_prompt():
+    """
+    结果提示文字
+    :return:
+    {'prompt':'...'}
+    """
+    pass
+
+
+@app.get('/task_result')
+async def get_task_result():
+    """
+    10个最近
+    {
+    'datasource1':[
+        taskId: 12,
+        result: 23 (数值),
+        delay: 0.6,
+        visualize: "" (base64编码image)
+
+    ],
+    'datasource2':[]
+    }
+    :return:
+    """
+    pass
+
+
+@app.get('/queue_result')
+async def get_queue_result():
+    """
+    10个
+    {
+        'datasource1':
+        [
+            {
+                taskId: 1,
+                priorityTrace:[
+                    {urgency:x
+                    importance:x
+                    priority:x},
+                    {}
+                ]
+            },
+            {...}
+        ],
+
+    }
+    :return:
+    """
+    pass
+
+
+@app.post('/start_free_task')
+async def start_free_task():
+    """
+    body
+        {
+            'source_label':'...',
+            'duration':20  (seconds)
+        }
+
+
+    :return:
+    """
+
+    pass
+
+
+@app.get('/free_state/{source}')
+async def get_free_state(source):
+    """
+
+    :return:
+    {
+        'state':0/1,
+        'duration':20
+    }
+    """
+    pass
+
+
+@app.get('/stop_free_task/{source}')
+async def stop_free_task(source):
+    """
+    终止自由任务
+    :param source:
+    :return:
+    """
+    pass
+
+
+@app.get('/free_task_result/{source}')
+async def get_free_task_result(source):
+    """
+
+    :param source:
+    :return:
+    {
+        'state':0/1,(是否有结果)
+        'task_info':
+        [
+            {name:任务数量, value:20},
+            {name:最大, value:20},
+            {name:平均, value:20},
+        ],
+
+        'delay':[
+            时延数据
+        ],
+        'start_time': 'xxx',
+        'end_time': 'xxx'
+
+    }
+    """
+
+    pass
+
 
 def main():
     uvicorn.run(app, host='0.0.0.0', port=8910)
