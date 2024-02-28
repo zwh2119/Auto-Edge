@@ -60,13 +60,17 @@ class DataSource:
         print(f'open datasource {modal}')
 
         if modal == 'car':
-            commands = ['', '']
+            commands = ['bash push.sh video/traffic-mid0.mp4 rtsp://127.0.0.1/video0',
+                        'bash push.sh video/traffic-mid1.mp4 rtsp://127.0.0.1/video1']
         elif modal == 'audio':
-            commands = ['', '']
+            commands = ['python3 audio_datasource.py --dataset audio/1 --port 6000',
+                        'python3 audio_datasource.py --dataset audio/2 --port 6001']
         elif modal == 'imu':
-            commands = ['', '']
+            commands = ['python3 imu_datasource.py --dataset imu/1 --port 5000',
+                        'python3 imu_datasource.py --dataset imu/2 --port 5001']
         elif modal == 'edge-eye':
-            commands = ['', '']
+            commands = ['bash push.sh video/ixpe0.mp4 rtsp://127.0.0.1/eye0',
+                        'bash push.sh video/ixpe1.mp4 rtsp://127.0.0.1/eye1']
         else:
             print(f'datasource of {modal} not exists!')
             return
