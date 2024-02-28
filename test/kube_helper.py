@@ -13,6 +13,8 @@ class KubeHelper:
             api_instance = client.CustomObjectsApi()
 
             for doc in docs:
+                if doc is None:
+                    continue
                 group = 'sedna.io'  # The API group of the Custom Resource
                 version = doc['apiVersion'].split('/')[-1]  # Extract version
                 namespace = doc['metadata']['namespace']  # Extract namespace
