@@ -1,10 +1,10 @@
+import os
+import subprocess
+import signal
+import time
+
 import requests
 
-
-class DataSource:
-    def __init__(self):
-        self.source_label = ''
-        self.source_open = False
 
 def http_request(url,
                  method=None,
@@ -35,8 +35,77 @@ def http_request(url,
         print(f'Error occurred in request {url}: {err}')
 
 
+def start_script(command):
+    process = subprocess.Popen(command, shell=True, preexec_fn=os.setsid)
+    return process
+
+
+def stop_script(process):
+    os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+
+
+class DataSource:
+    def __init__(self):
+        self.source_label = ''
+        self.source_open = False
+
+        self.process_list = []
+
+        self.source_url = 'http://114.212.81.11:8910/query_state'
+
+    def open_datasource(self, modal):
+        if self.source_open:
+            return
+
+        print(f'open datasource {modal}')
+
+        if modal == 'car':
+            commands = ['', '']
+        elif modal == 'audio':
+            commands = ['', '']
+        elif modal == 'imu':
+            commands = ['', '']
+        elif modal == 'edge-eye':
+            commands = ['', '']
+        else:
+            print(f'datasource of {modal} not exists!')
+            return
+
+        for command in commands:
+            process = start_script(command)
+            self.process_list.append(process)
+
+        self.source_label = modal
+        self.source_open = True
+
+    def close_datasource(self):
+        if not self.source_open:
+            return
+
+        print('close datasource')
+
+        for process in self.process_list:
+            stop_script(process)
+
+        self.source_label = ''
+        self.source_open = False
+
+    def run(self):
+        while True:
+            response = http_request(self.source_url, method='GET')
+            if response:
+                if response['state']:
+                    self.open_datasource(modal=response['source_label'])
+                else:
+                    self.close_datasource()
+            else:
+                self.close_datasource()
+            time.sleep(2)
+
+
 def main():
-    pass
+    server = DataSource()
+    server.run()
 
 
 if __name__ == '__main__':
