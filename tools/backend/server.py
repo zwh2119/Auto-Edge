@@ -16,6 +16,7 @@ import requests
 
 from kube_helper import KubeHelper
 import yaml
+import logging
 
 
 def http_request(url,
@@ -71,6 +72,7 @@ class BackendServer:
                 'display': '交通路面监控',
                 'yaml': 'video_car_detection.yaml',
                 'word': 'car',
+                'prompt': '车流数量',
                 'stage': [
                     {
                         "stage_name": "car-detection",
@@ -90,6 +92,7 @@ class BackendServer:
                 'display': '音频识别',
                 'yaml': 'audio.yaml',
                 'word': 'audio',
+                'prompt': '音频类别',
                 'stage': [
                     {
                         "stage_name": "audio-sampling",
@@ -120,6 +123,7 @@ class BackendServer:
                 'display': '惯性轨迹感知',
                 'yaml': 'imu.yaml',
                 'word': 'imu',
+                'prompt': 'IMU轨迹长度',
                 'stage': [
                     {
                         "stage_name": "imu-trajectory-sensing",
@@ -139,6 +143,7 @@ class BackendServer:
                 'display': '工业视觉纠偏',
                 'yaml': 'edge-eye.yaml',
                 'word': 'eye',
+                'prompt': '材料中心点位置',
                 'stage': [
                     {
                         "stage_name": "edge-eye-stage1",
@@ -184,7 +189,7 @@ class BackendServer:
                 "source_type": "视频流",
                 "camera_list": [
                     {
-                        "name": "摄像头1",
+                        "name": "交通摄像头1",
                         "url": "rtsp://192.168.1.51/video0",
                         "describe": "高速公路监控摄像头",
                         "resolution": "1080p",
@@ -192,7 +197,7 @@ class BackendServer:
 
                     },
                     {
-                        "name": "摄像头2",
+                        "name": "交通摄像头2",
                         "url": "rtsp://192.168.1.55/video1",
                         "describe": "十字路口监控摄像头",
                         "resolution": "1080p",
@@ -245,7 +250,7 @@ class BackendServer:
                 "source_type": "视频流",
                 "camera_list": [
                     {
-                        "name": "摄像头1",
+                        "name": "工厂摄像头1",
                         "url": "rtsp://192.168.1.67/video0",
                         "describe": "工厂1",
                         "resolution": "1080p",
@@ -253,7 +258,7 @@ class BackendServer:
 
                     },
                     {
-                        "name": "摄像头2",
+                        "name": "工厂摄像头2",
                         "url": "rtsp://192.168.1.83/video1",
                         "describe": "工厂2",
                         "resolution": "1080p",
@@ -275,6 +280,7 @@ class BackendServer:
 
         self.templates_path = '/home/hx/zwh/Auto-Edge/templates'
         self.free_task_url = 'http://114.212.81.11:39400/task'
+
         self.result_url = 'http://114.212.81.11:39500/result'
 
         self.resource_url = 'http://114.212.81.11:39400/resource'
@@ -284,8 +290,14 @@ class BackendServer:
 
         self.source_label = ''
 
+        self.save_logs_path = ''
+
+        self.task_results = []
+        self.queue_results = []
+
     def get_result(self):
-        pass
+        while True:
+            pass
 
 
 server = BackendServer()
@@ -369,7 +381,7 @@ async def install_service(data=Body(...)):
                 time.sleep(1)
 
     except eventlet.timeout.Timeout as e:
-        print(f'Error: {e}')
+        logging.exception(e)
         result = False
 
     if result:
@@ -419,8 +431,7 @@ async def get_service_info(service):
             single_info['bandwidth'] = f"{resource_data[single_info['hostname']]['bandwidth']:.2f}Mbps" if \
                 resource_data[single_info['hostname']]['bandwidth'] != 0 else '-'
     except Exception as e:
-        print(f'get info error: {e}')
-        raise e
+        logging.exception(e)
         return []
 
     return info
@@ -502,7 +513,7 @@ async def stop_service():
                 time.sleep(1)
 
     except eventlet.timeout.Timeout as e:
-        print(f'Error: {e}')
+        logging.exception(e)
         result = False
 
     if result:
@@ -545,27 +556,6 @@ async def get_query_state():
     return {'state': 'open' if server.source_open else 'close', 'source_label': server.source_label}
 
 
-@app.post('/result')
-async def get_execute_result(self, data: Request):
-    input_json = await data.json()
-    print(input_json)
-    time_ticket = input_json['time_ticket']
-    size = input_json['size']
-
-    response = http_request(url=self.result_url, method='GET', json={'time_ticket': time_ticket, "size": size})
-    if response:
-
-        for task in response['result']:
-            if task['task_type'] == 'human':
-                task['pipeline'][0]['service_name'] = 'human-detection'
-            task['task_type'] = self.tasks_dict[task['task_type']]
-        self.time_ticket = response['time_ticket']
-        print(response)
-        return response
-    else:
-        return {}
-
-
 @app.get('/source_list')
 async def get_source_list():
     """
@@ -578,13 +568,24 @@ async def get_source_list():
     ]
     :return:
     """
-    pass
+    if server.source_open:
+        for source in server.sources:
+            if source['source_label'] == server.source_label:
+                return [camera['name'] for camera in source['camera_list']]
+    else:
+        return []
 
 
 @app.get('/pipeline_info')
 async def get_pipeline_info():
     """[stage_name1,stage_name2]"""
-    pass
+
+    if KubeHelper.check_pods_running('auto-edge'):
+        for task in server.tasks:
+            if KubeHelper.check_pod_name(task['word']):
+                return [stage['stage_name'] for stage in task['stage']]
+    else:
+        return []
 
 
 @app.get('/result_prompt')
@@ -594,7 +595,12 @@ async def get_result_prompt():
     :return:
     {'prompt':'...'}
     """
-    pass
+    if KubeHelper.check_pods_running('auto-edge'):
+        for task in server.tasks:
+            if KubeHelper.check_pod_name(task['word']):
+                return {'prompt': task['prompt']}
+    else:
+        return {'prompt': ''}
 
 
 @app.get('/task_result')

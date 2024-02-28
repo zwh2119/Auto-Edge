@@ -126,7 +126,6 @@ class KubeHelper:
             container = pod.get('containers')[0]
             cpu_dict[pod_name] = int(container['usage']['cpu'][:-1])/1000000/1000
             mem_dict[pod_name] = int(container['usage']['memory'][:-2])*1024
-        # print(cpu_dict)
 
         info = []
 
