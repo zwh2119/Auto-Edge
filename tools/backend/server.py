@@ -1,3 +1,5 @@
+import threading
+
 import eventlet
 
 eventlet.monkey_patch()
@@ -281,6 +283,9 @@ class BackendServer:
         self.source_open = False
 
         self.source_label = ''
+
+    def get_result(self):
+        pass
 
 
 server = BackendServer()
@@ -703,6 +708,7 @@ async def get_free_task_result(source):
 
 
 def main():
+    threading.Thread(target=server.get_result).start()
     uvicorn.run(app, host='0.0.0.0', port=8910)
 
 
