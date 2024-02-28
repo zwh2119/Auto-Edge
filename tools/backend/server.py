@@ -406,11 +406,16 @@ async def get_service_info(service):
     ]
 
     """
-    info = KubeHelper.get_service_info(service_name=service)
-    resource_data = http_request(server.resource_url, method='GET')
-    print(resource_data)
-    for single_info in info:
-        single_info['bandwidth'] = f"{resource_data[single_info['hostname']]}Mbps"
+    try:
+        info = KubeHelper.get_service_info(service_name=service)
+        resource_data = http_request(server.resource_url, method='GET')
+        # print(resource_data)
+        for single_info in info:
+            single_info['bandwidth'] = f"{resource_data[single_info['hostname']]['bandwidth']:.2f}Mbps" if \
+            resource_data[single_info['hostname']]['bandwidth'] != 0 else '-'
+    except Exception as e:
+        print(f'get info error: {e}')
+        return []
 
     return info
 
@@ -533,6 +538,26 @@ async def get_query_state():
     """
     return {'state': 'open' if server.source_open else 'close', 'source_label': server.source_label}
 
+
+@app.post('/result')
+async def get_execute_result(self, data: Request):
+    input_json = await data.json()
+    print(input_json)
+    time_ticket = input_json['time_ticket']
+    size = input_json['size']
+
+    response = http_request(url=self.result_url, method='GET', json={'time_ticket': time_ticket, "size": size})
+    if response:
+
+        for task in response['result']:
+            if task['task_type'] == 'human':
+                task['pipeline'][0]['service_name'] = 'human-detection'
+            task['task_type'] = self.tasks_dict[task['task_type']]
+        self.time_ticket = response['time_ticket']
+        print(response)
+        return response
+    else:
+        return {}
 
 def main():
     uvicorn.run(app, host='0.0.0.0', port=8910)

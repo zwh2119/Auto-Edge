@@ -134,12 +134,15 @@ class KubeHelper:
         for pod in pods.items:
             if service_name in pod.metadata.name:
 
+                cpu_usage = f'{cpu_dict[pod.metadata.name]/KubeHelper.get_node_cpu(pod.spec.node_name)*100:.2f}%' if pod.metadata.name in cpu_dict else ''
+                mem_usage = f'{mem_dict[pod.metadata.name]/psutil.virtual_memory().total*100:.2f}%' if pod.metadata.name in mem_dict else ''
+
                 info_dict = {'age': pod.metadata.creation_timestamp.astimezone(pytz.timezone('Asia/Shanghai')).strftime(
                     '%Y-%m-%d %H:%M:%S'),
                     'hostname': pod.spec.node_name,
                     'ip': KubeHelper.get_node_ip(pod.spec.node_name),
-                    'cpu': f'{cpu_dict[pod.metadata.name]/KubeHelper.get_node_cpu(pod.spec.node_name)*100:.2f}%',
-                    'memory': f'{mem_dict[pod.metadata.name]/psutil.virtual_memory().total*100:.2f}%',
+                    'cpu': cpu_usage,
+                    'memory': mem_usage,
                     'bandwidth': ''}
                 info.append(info_dict)
 
