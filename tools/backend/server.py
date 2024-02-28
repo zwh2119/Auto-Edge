@@ -1,3 +1,4 @@
+import datetime
 import threading
 
 import eventlet
@@ -295,9 +296,21 @@ class BackendServer:
         self.task_results = []
         self.queue_results = []
 
+        self.free_open = False
+        self.is_free_result = False
+        self.free_start = ''
+        self.free_end = ''
+
     def get_result(self):
         while True:
             pass
+
+    def timer(self, duration):
+        self.free_start = f'{datetime.datetime.now():%T}'
+        time.sleep(duration)
+        self.free_end = f'{datetime.datetime.now():%T}'
+
+        self.is_free_result = True
 
 
 server = BackendServer()
@@ -648,7 +661,8 @@ async def get_queue_result():
 
 
 @app.post('/start_free_task')
-async def start_free_task():
+async def start_free_task(data=Body(...)):
+
     """
     body
         {
