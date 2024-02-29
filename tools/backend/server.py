@@ -18,6 +18,34 @@ import requests
 from kube_helper import KubeHelper
 import yaml
 import logging
+import queue
+
+
+class ResultQueue:
+    def __init__(self, length):
+        self.__queue = queue.Queue()
+        self.__length = length
+        self.__lock = threading.Lock()
+
+    def pop(self):
+        with self.__lock:
+            return self.__queue.get()
+
+    def push(self, obj):
+        with self.__lock:
+            self.__queue.put(obj)
+
+    def save_results(self, results):
+        for result in results:
+            self.__queue.put(result)
+            if self.__queue.qsize() > 10:
+                self.__queue.get()
+
+    def get_results(self):
+        results = []
+        while not self.__queue.empty():
+            results.append(self.__queue.get())
+        return results
 
 
 def http_request(url,
@@ -750,7 +778,10 @@ async def get_free_task_result(source):
     }
     """
 
-    pass
+    if source not in server.is_free_result or not server.is_free_result[source]:
+        return {'state': 0}
+    else:
+        pass
 
 
 def main():
