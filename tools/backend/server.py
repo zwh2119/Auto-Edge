@@ -304,7 +304,7 @@ class BackendServer:
 
     def get_result(self):
         while True:
-            pass
+            response = http_request(self.result_url, method='GET',)
 
     def timer(self, duration, source_label):
         self.free_start[source_label] = f'{datetime.datetime.now():%T}'

@@ -147,7 +147,7 @@ class DistributorServer:
     async def query_result(self, request: Request):
         data = await request.json()
         files = self.find_record_by_time(data['time_ticket'])
-        if len(files) > data['size']:
+        if data['size'] != 0 and len(files) > data['size']:
             files = files[:data['size']]
         return {'result': self.extract_record(files),
                 'time_ticket': int(files[-1].split('.')[0].split('_')[6]) if len(files) > 0 else data['time_ticket'],
