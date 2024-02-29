@@ -296,21 +296,35 @@ class BackendServer:
         self.task_results = []
         self.queue_results = []
 
-        self.free_open = False
-        self.is_free_result = False
-        self.free_start = ''
-        self.free_end = ''
+        self.free_open = {}
+        self.is_free_result = {}
+        self.free_start = {}
+        self.free_end = {}
+        self.free_duration = {}
 
     def get_result(self):
         while True:
             pass
 
-    def timer(self, duration):
-        self.free_start = f'{datetime.datetime.now():%T}'
+    def timer(self, duration, source_label):
+        self.free_start[source_label] = f'{datetime.datetime.now():%T}'
         time.sleep(duration)
-        self.free_end = f'{datetime.datetime.now():%T}'
+        self.free_end[source_label] = f'{datetime.datetime.now():%T}'
+        if source_label in self.free_open:
+            self.is_free_result[source_label] = True
 
-        self.is_free_result = True
+    def clear_free(self, source_label):
+        if source_label in self.free_open:
+            del self.free_open[source_label]
+        if source_label in self.is_free_result:
+            del self.is_free_result[source_label]
+        if source_label in self.free_start:
+            del self.free_start[source_label]
+        if source_label in self.free_end:
+            del self.free_end[source_label]
+        if source_label in self.free_duration:
+            del self.free_duration[source_label]
+
 
 
 server = BackendServer()
@@ -662,7 +676,6 @@ async def get_queue_result():
 
 @app.post('/start_free_task')
 async def start_free_task(data=Body(...)):
-
     """
     body
         {
@@ -673,8 +686,12 @@ async def start_free_task(data=Body(...)):
 
     :return:
     """
-
-    pass
+    source_label = data['source_label']
+    duration = data['duration']
+    server.free_open[source_label] = True
+    server.is_free_result[source_label] = False
+    server.free_duration[source_label] = duration
+    threading.Thread(target=server.timer).start()
 
 
 @app.get('/free_state/{source}')
@@ -687,7 +704,10 @@ async def get_free_state(source):
         'duration':20
     }
     """
-    pass
+    if source not in server.free_open:
+        return {'state': 0}
+    else:
+        return {'state': 1, 'duration': server.free_duration[source]} if server.free_open[source] else {'state': 0}
 
 
 @app.get('/stop_free_task/{source}')
@@ -697,7 +717,8 @@ async def stop_free_task(source):
     :param source:
     :return:
     """
-    pass
+    if source in server.free_open:
+        server.clear_free(source)
 
 
 @app.get('/free_task_result/{source}')
