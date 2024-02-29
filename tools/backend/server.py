@@ -38,15 +38,9 @@ def http_request(url,
                 return response.json() if binary else response.content.decode('utf-8')
         elif 200 < response.status_code < 400:
             print(f'Redirect URL: {response.url}')
-        print(f'Get invalid status code {response.status_code} in request {url}')
-    except (ConnectionRefusedError, requests.exceptions.ConnectionError):
-        print(f'Connection refused in request {url}')
-    except requests.exceptions.HTTPError as err:
-        print(f'Http Error in request {url}: {err}')
-    except requests.exceptions.Timeout as err:
-        print(f'Timeout error in request {url}: {err}')
-    except requests.exceptions.RequestException as err:
-        print(f'Error occurred in request {url}: {err}')
+        # print(f'Get invalid status code {response.status_code} in request {url}')
+    except Exception as e:
+        pass
 
 
 def read_yaml(yaml_file):
@@ -304,7 +298,8 @@ class BackendServer:
 
     def get_result(self):
         while True:
-            response = http_request(self.result_url, method='GET',)
+            response = http_request(self.result_url, method='GET', )
+            time.sleep(1)
 
     def timer(self, duration, source_label):
         self.free_start[source_label] = f'{datetime.datetime.now():%T}'
@@ -324,7 +319,6 @@ class BackendServer:
             del self.free_end[source_label]
         if source_label in self.free_duration:
             del self.free_duration[source_label]
-
 
 
 server = BackendServer()
@@ -688,10 +682,14 @@ async def start_free_task(data=Body(...)):
     """
     source_label = data['source_label']
     duration = data['duration']
+    if source_label in server.free_open:
+        return {'state': 'fail', 'msg': '启动自由任务失败，该数据源有自由任务正在执行'}
     server.free_open[source_label] = True
     server.is_free_result[source_label] = False
     server.free_duration[source_label] = duration
     threading.Thread(target=server.timer).start()
+
+    return {'state': 'success', 'msg': '启动自由任务成功'}
 
 
 @app.get('/free_state/{source}')
@@ -719,6 +717,10 @@ async def stop_free_task(source):
     """
     if source in server.free_open:
         server.clear_free(source)
+
+        return {'state': 'success', 'msg': '终止自由任务成功'}
+    else:
+        return {'state': 'fail', 'msg': '终止自由任务失败，该数据源未开启自由任务'}
 
 
 @app.get('/free_task_result/{source}')

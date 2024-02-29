@@ -123,18 +123,18 @@ class KubeHelper:
 
         for pod in cpu_usage.get('items', []):
             pod_name = pod['metadata']['name']
-            container = pod.get('containers')[0]
-            cpu_dict[pod_name] = int(container['usage']['cpu'][:-1])/1000000/1000
-            mem_dict[pod_name] = int(container['usage']['memory'][:-2])*1024
+            if service_name in pod_name:
+                container = pod.get('containers')[0]
+                cpu_dict[pod_name] = int(container['usage']['cpu'][:-1]) / 1000000 / 1000
+                mem_dict[pod_name] = int(container['usage']['memory'][:-2]) * 1024
 
         info = []
 
         pods = v1.list_namespaced_pod(namespace)
         for pod in pods.items:
             if service_name in pod.metadata.name:
-
-                cpu_usage = f'{cpu_dict[pod.metadata.name]/KubeHelper.get_node_cpu(pod.spec.node_name)*100:.2f}%' if pod.metadata.name in cpu_dict else ''
-                mem_usage = f'{mem_dict[pod.metadata.name]/psutil.virtual_memory().total*100:.2f}%' if pod.metadata.name in mem_dict else ''
+                cpu_usage = f'{cpu_dict[pod.metadata.name] / KubeHelper.get_node_cpu(pod.spec.node_name) * 100:.2f}%' if pod.metadata.name in cpu_dict else ''
+                mem_usage = f'{mem_dict[pod.metadata.name] / psutil.virtual_memory().total * 100:.2f}%' if pod.metadata.name in mem_dict else ''
 
                 info_dict = {'age': pod.metadata.creation_timestamp.astimezone(pytz.timezone('Asia/Shanghai')).strftime(
                     '%Y-%m-%d %H:%M:%S'),
