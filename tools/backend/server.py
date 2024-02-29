@@ -297,8 +297,11 @@ class BackendServer:
         self.free_duration = {}
 
     def get_result(self):
+        time_ticket = 0
         while True:
-            response = http_request(self.result_url, method='GET', )
+            response = http_request(self.result_url, method='GET', json={'time_ticket': time_ticket, 'size': 0})
+            if response:
+                time_ticket = response["time_ticket"]
             time.sleep(1)
 
     def timer(self, duration, source_label):
