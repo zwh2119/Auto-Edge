@@ -141,7 +141,10 @@ class ControllerServer:
             data['priority'] = priority
 
             # post to distributor
-            http_request(url=self.distribute_address, method='POST', json=data)
+            http_request(url=self.distribute_address, method='POST',
+                         data={'data': json.dumps(data)},
+                         files={'file': (data['file_name'], open(tmp_path, 'rb'), 'multipart/form-data')}
+                         )
             LOGGER.debug(f'controller post data from source {source_id} to distributor')
 
         os.remove(tmp_path)

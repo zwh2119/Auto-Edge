@@ -1,9 +1,9 @@
 import shutil
 
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form
 
 from fastapi.routing import APIRoute
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, FileResponse
 from starlette.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -34,6 +34,11 @@ class DistributorServer:
             APIRoute('/redis',
                      self.get_edge_eye_value,
                      response_class=JSONResponse,
+                     methods=['GET']
+                     ),
+            APIRoute('/file',
+                     self.download_file,
+                     response_class=FileResponse,
                      methods=['GET']
                      ),
             APIRoute('/redis',
@@ -80,7 +85,7 @@ class DistributorServer:
         with open(file_path, 'w') as f:
             json.dump(data, f)
 
-    def distribute_data(self, data):
+    def distribute_data(self, data, file_data):
         pipeline = data['pipeline_flow']
         tmp_data = data['tmp_data']
         index = data['cur_flow_index']
@@ -97,6 +102,7 @@ class DistributorServer:
         task_type = data['task_type']
         meta_data = data['meta_data']
         priority = data['priority']
+        file_name = data['file_name']
         LOGGER.debug(f'priority info: {priority}')
 
         if content == 'discard':
@@ -114,6 +120,8 @@ class DistributorServer:
                        'meta_data': meta_data,
                        'priority': priority}
         self.record_process_data(source_id, task_id, record_data)
+        with open(os.path.join(self.record_dir, f'file_source_{source_id}_task_{task_id}'), 'wb') as buffer:
+            buffer.write(file_data)
 
         # post scenario data to scheduler
         http_request(url=self.scheduler_address, method='POST',
@@ -122,9 +130,10 @@ class DistributorServer:
                                                                 'obj_size': size,
                                                                 'meta_data': meta_data}})
 
-    async def deal_response(self, request: Request, backtask: BackgroundTasks):
-        data = await request.json()
-        backtask.add_task(self.distribute_data, data)
+    async def deal_response(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
+        file_data = await file.read()
+        data = json.loads(data)
+        backtask.add_task(self.distribute_data, data, file_data)
         return {'msg': 'data send success!'}
 
     def find_record_by_time(self, time_begin):
@@ -152,6 +161,14 @@ class DistributorServer:
         return {'result': self.extract_record(files),
                 'time_ticket': int(files[-1].split('.')[0].split('_')[6]) if len(files) > 0 else data['time_ticket'],
                 'size': len(files)}
+
+    async def download_file(self, request: Request):
+        data = await request.json()
+        source_id = data['source_id']
+        task_id = data['task_id']
+        file_path = os.path.join(self.record_dir, f'file_source_{source_id}_task_{task_id}')
+        return FileResponse(path=file_path,
+                            filename=f'file_source_{source_id}_task_{task_id}')
 
 
 server = DistributorServer()

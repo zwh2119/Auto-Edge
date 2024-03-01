@@ -765,6 +765,9 @@ async def get_free_task_result(source):
     :return:
     {
         'state':0/1,(是否有结果)
+        0：无任务
+        1：正在执行
+        2：有结果
         'task_info':
         [
             {name:任务数量, value:20},
