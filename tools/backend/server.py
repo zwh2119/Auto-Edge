@@ -416,6 +416,7 @@ class BackendServer:
 
     def get_base64_data(self, file, task_type, result):
         image = None
+        # TODO: car/edge-eye -> draw bbox /  imu -> from content
         if task_type == 'car':
             video_cap = cv2.VideoCapture(file)
             success, image = video_cap.read()
@@ -433,7 +434,6 @@ class BackendServer:
         base64_str = cv2.imencode('.jpg', image)[1].tostring()
         base64_str = base64.b64encode(base64_str)
         return base64_str
-
 
     def timer(self, duration, source_label):
         self.free_start[source_label] = f'{datetime.datetime.now():%T}'

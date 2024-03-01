@@ -118,7 +118,8 @@ class DistributorServer:
                        'obj_num': num, 'obj_size': size,
                        'pipeline': pipeline,
                        'meta_data': meta_data,
-                       'priority': priority}
+                       'priority': priority,
+                       'content':content}
         self.record_process_data(source_id, task_id, record_data)
         with open(os.path.join(self.record_dir, f'file_source_{source_id}_task_{task_id}'), 'wb') as buffer:
             buffer.write(file_data)
