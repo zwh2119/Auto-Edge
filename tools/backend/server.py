@@ -1,3 +1,4 @@
+import base64
 import datetime
 import threading
 
@@ -19,6 +20,7 @@ from kube_helper import KubeHelper
 import yaml
 import logging
 import queue
+import cv2
 
 
 class ResultQueue:
@@ -215,6 +217,7 @@ class BackendServer:
                 "source_type": "视频流",
                 "camera_list": [
                     {
+                        'id': 'car_video_source1',
                         "name": "交通摄像头1",
                         "url": "rtsp://192.168.1.51/video0",
                         "describe": "高速公路监控摄像头",
@@ -223,6 +226,7 @@ class BackendServer:
 
                     },
                     {
+                        'id': 'car_video_source2',
                         "name": "交通摄像头2",
                         "url": "rtsp://192.168.1.55/video1",
                         "describe": "十字路口监控摄像头",
@@ -238,12 +242,14 @@ class BackendServer:
                 "source_type": "音频流",
                 "camera_list": [
                     {
+                        'id': 'audio_source1',
                         "name": "音频流1",
                         "url": "http://192.168.2.22:3381/audio",
                         "describe": "音频来源1",
 
                     },
                     {
+                        'id': 'audio_source2',
                         "name": "音频流2",
                         "url": "http://192.168.2.22:3382/audio",
                         "describe": "音频来源2",
@@ -257,12 +263,14 @@ class BackendServer:
                 "source_type": "IMU流",
                 "camera_list": [
                     {
+                        'id': 'imu_source1',
                         "name": "IMU流1",
                         "url": "http://192.168.2.11:3000/imu",
                         "describe": "IMU场景1",
 
                     },
                     {
+                        'id': 'imu_source2',
                         "name": "IMU流2",
                         "url": "http://192.168.2.91:3001/imu",
                         "describe": "IMU场景2",
@@ -276,6 +284,7 @@ class BackendServer:
                 "source_type": "视频流",
                 "camera_list": [
                     {
+                        'id': 'edge_eye_video_source1',
                         "name": "工厂摄像头1",
                         "url": "rtsp://192.168.1.67/video0",
                         "describe": "工厂1",
@@ -284,6 +293,7 @@ class BackendServer:
 
                     },
                     {
+                        'id': 'edge_eye_video_source2',
                         "name": "工厂摄像头2",
                         "url": "rtsp://192.168.1.83/video1",
                         "describe": "工厂2",
@@ -308,6 +318,7 @@ class BackendServer:
         self.free_task_url = 'http://114.212.81.11:39400/task'
 
         self.result_url = 'http://114.212.81.11:39500/result'
+        self.result_file_url = 'http://114.212.81.11:39500/file'
 
         self.resource_url = 'http://114.212.81.11:39400/resource'
         self.parameters_url = 'http://114.212.81.11:39400/parameters'
@@ -318,23 +329,111 @@ class BackendServer:
 
         self.save_logs_path = ''
 
-        self.task_results = ResultQueue(10)
-        self.queue_results = ResultQueue(10)
+        self.task_results = {}
+        self.queue_results = {}
+
+        self.is_get_result = False
 
         self.free_open = {}
         self.is_free_result = {}
         self.free_start = {}
         self.free_end = {}
         self.free_duration = {}
-        self.free_result = ResultQueue()
+        self.free_result = {}
 
-    def get_result(self):
+    def get_source_id(self):
+
+        source_ids = []
+        for source in self.sources:
+            if source['source_label'] == self.source_label:
+                source_ids.append(source['id'])
+        return source_ids
+
+    def run_get_result(self):
         time_ticket = 0
-        while True:
+        while self.is_get_result:
             response = http_request(self.result_url, method='GET', json={'time_ticket': time_ticket, 'size': 0})
             if response:
                 time_ticket = response["time_ticket"]
+                results = response['result']
+                for result in results:
+                    source_id = result['source']
+                    task_id = result['task']
+                    delay = self.cal_pipeline_delay(result['pipeline'])
+                    priority_trace = self.get_pipeline_priority(result['priority'])
+                    task_result = result['obj_num']
+
+                    task_type = result['task_type']
+                    file_path = self.get_file_result(source_id, task_id)
+                    base64_data = self.get_base64_data(file_path, task_type, task_result)
+
+                    source_id_text = self.source_id_num_2_id_text(source_id)
+                    self.task_results[source_id_text].save_results({
+                        'taskId': task_id,
+                        'result': task_result,
+                        'delay': delay,
+                        'visualize': base64_data
+                    })
+                    self.queue_results[source_id_text].save_results({
+                        'taskId': task_id,
+                        'priorityTrace': priority_trace
+                    })
+
             time.sleep(1)
+
+    def cal_pipeline_delay(self, pipeline):
+        delay = 0
+        for stage in pipeline:
+            execute = stage['execute_data']
+            if 'transmit_time' in execute:
+                delay += execute['transmit_time']
+            if 'service_time' in execute:
+                delay += execute['service_time']
+        return delay
+
+    def get_file_result(self, source_id, task_id):
+        file_name = f'file_{source_id}_{task_id}'
+        response = http_request(self.result_file_url, method='GET', json={'source_id': source_id, 'task_id': task_id},
+                                stream=True)
+        with open(file_name, 'wb') as file_out:
+            for chunk in response.iter_content(chunk_size=8192):
+                file_out.write(chunk)
+        return file_name
+
+    def get_pipeline_priority(self, priority):
+        trace = []
+        for stage in priority:
+            trace.append({
+                'urgency': stage['urgency'],
+                'importance': stage['importance'],
+                'priority': stage['priority']
+            })
+        return trace
+
+    def source_id_num_2_id_text(self, source_id):
+        source_id_text_list = self.get_source_id()
+        return source_id_text_list[source_id]
+
+    def get_base64_data(self, file, task_type, result):
+        image = None
+        if task_type == 'car':
+            video_cap = cv2.VideoCapture(file)
+            success, image = video_cap.read()
+        elif task_type == 'imu':
+            image = cv2.imread(file)
+        elif task_type == 'audio':
+            img_path = os.path.join('audio_class_img', f'{result}.png')
+            image = cv2.imread(img_path)
+        elif task_type == 'edge-eye':
+            video_cap = cv2.VideoCapture(file)
+            success, image = video_cap.read()
+        else:
+            assert None, f'Invalid task type of {task_type}'
+
+        base64_str = cv2.imencode('.jpg', image)[1].tostring()
+        base64_str = base64.b64encode(base64_str)
+        return base64_str
+
 
     def timer(self, duration, source_label):
         self.free_start[source_label] = f'{datetime.datetime.now():%T}'
@@ -354,6 +453,8 @@ class BackendServer:
             del self.free_end[source_label]
         if source_label in self.free_duration:
             del self.free_duration[source_label]
+        if source_label in self.free_result:
+            del self.free_result[source_label]
 
 
 server = BackendServer()
@@ -548,6 +649,13 @@ def submit_query(data=Body(...)):
                                                              'urgency_weight': urgency_weight,
                                                              'importance_weight': importance_weight})
 
+    for source_id in server.get_source_id():
+        server.task_results[source_id] = ResultQueue(10)
+        server.queue_results[source_id] = ResultQueue(10)
+
+    server.is_get_result = True
+    threading.Thread(target=server.run_get_result).start()
+
     server.source_open = True
     server.source_label = source_label
 
@@ -588,6 +696,9 @@ async def stop_query():
 
     server.source_open = False
     server.source_label = ''
+    server.is_get_result = False
+    server.task_results = {}
+    server.queue_results = {}
 
     return {'state': 'success', 'msg': '数据流关闭成功'}
 
@@ -675,7 +786,11 @@ async def get_task_result():
     }
     :return:
     """
-    pass
+    ans = {}
+    for source_id in server.get_source_id():
+        ans[source_id] = server.task_results[source_id].get_results()
+
+    return ans
 
 
 @app.get('/queue_result')
@@ -699,7 +814,11 @@ async def get_queue_result():
     }
     :return:
     """
-    pass
+    ans = {}
+    for source_id in server.get_source_id():
+        ans[source_id] = server.queue_results[source_id].get_results()
+
+    return ans
 
 
 @app.post('/start_free_task')
@@ -721,6 +840,7 @@ async def start_free_task(data=Body(...)):
     server.free_open[source_label] = True
     server.is_free_result[source_label] = False
     server.free_duration[source_label] = duration
+    server.free_result[source_label] = ResultQueue()
     threading.Thread(target=server.timer).start()
 
     return {'state': 'success', 'msg': '启动自由任务成功'}
@@ -732,14 +852,16 @@ async def get_free_state(source):
 
     :return:
     {
-        'state':0/1,
+        'state':0/1/2,
         'duration':20
     }
     """
-    if source not in server.free_open:
+    if source not in server.free_open or not server.free_open[source]:
         return {'state': 0}
+    elif not server.is_free_result[source]:
+        return {'state': 1, 'duration': server.free_duration[source]}
     else:
-        return {'state': 1, 'duration': server.free_duration[source]} if server.free_open[source] else {'state': 0}
+        return {'state': 2, 'duration': server.free_duration[source]}
 
 
 @app.get('/stop_free_task/{source}')
@@ -764,7 +886,7 @@ async def get_free_task_result(source):
     :param source:
     :return:
     {
-        'state':0/1,(是否有结果)
+        'state':0/1/2,(是否有结果)
         0：无任务
         1：正在执行
         2：有结果
@@ -783,15 +905,16 @@ async def get_free_task_result(source):
 
     }
     """
-
-    if source not in server.is_free_result or not server.is_free_result[source]:
+    if source not in server.free_open or not server.free_open[source]:
         return {'state': 0}
+    if source not in server.is_free_result or not server.is_free_result[source]:
+        return {'state': 1}
     else:
-        pass
+        return {'state': 2, 'start_time': server.free_start, 'end_time': server.free_end,
+                }
 
 
 def main():
-    threading.Thread(target=server.get_result).start()
     uvicorn.run(app, host='0.0.0.0', port=8910)
 
 
