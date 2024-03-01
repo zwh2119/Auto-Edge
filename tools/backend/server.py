@@ -22,7 +22,7 @@ import queue
 
 
 class ResultQueue:
-    def __init__(self, length):
+    def __init__(self, length=0):
         self.__queue = queue.Queue()
         self.__length = length
         self.__lock = threading.Lock()
@@ -38,7 +38,7 @@ class ResultQueue:
     def save_results(self, results):
         for result in results:
             self.__queue.put(result)
-            if self.__queue.qsize() > 10:
+            if 0 < self.__length < self.__queue.qsize():
                 self.__queue.get()
 
     def get_results(self):
@@ -46,6 +46,9 @@ class ResultQueue:
         while not self.__queue.empty():
             results.append(self.__queue.get())
         return results
+
+    def clear_results(self):
+        self.get_results()
 
 
 def http_request(url,
@@ -315,14 +318,15 @@ class BackendServer:
 
         self.save_logs_path = ''
 
-        self.task_results = []
-        self.queue_results = []
+        self.task_results = ResultQueue(10)
+        self.queue_results = ResultQueue(10)
 
         self.free_open = {}
         self.is_free_result = {}
         self.free_start = {}
         self.free_end = {}
         self.free_duration = {}
+        self.free_result = ResultQueue()
 
     def get_result(self):
         time_ticket = 0
@@ -692,7 +696,6 @@ async def get_queue_result():
             },
             {...}
         ],
-
     }
     :return:
     """
