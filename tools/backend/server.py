@@ -3,6 +3,7 @@ import datetime
 import threading
 
 import eventlet
+import numpy as np
 
 eventlet.monkey_patch()
 
@@ -348,7 +349,8 @@ class BackendServer:
             if source['source_label'] == self.source_label:
                 for camera in source['camera_list']:
                     source_ids.append(camera['id'])
-                return source_ids
+
+        return source_ids
 
     def run_get_result(self):
         time_ticket = 0
@@ -367,7 +369,7 @@ class BackendServer:
                     task_type = result['task_type']
                     content = None
                     file_path = self.get_file_result(source_id, task_id)
-                    base64_data = self.get_base64_data(file_path, task_type, task_result,content)
+                    base64_data = self.get_base64_data(file_path, task_type, task_result, content)
 
                     source_id_text = self.source_id_num_2_id_text(source_id)
                     self.task_results[source_id_text].save_results([{
@@ -380,6 +382,13 @@ class BackendServer:
                         'taskId': task_id,
                         'priorityTrace': priority_trace
                     }])
+
+                    if source_id_text in self.free_open and self.free_open[source_id_text]:
+                        self.free_result[source_id_text].save_results([
+                            {'taskId': task_id,
+                             'result': task_result,
+                             'delay': delay, }
+                        ])
 
             time.sleep(1)
 
@@ -395,7 +404,8 @@ class BackendServer:
 
     def get_file_result(self, source_id, task_id):
         file_name = f'file_{source_id}_{task_id}'
-        response = http_request(self.result_file_url, method='GET', no_decode=True, json={'source_id': source_id, 'task_id': task_id},
+        response = http_request(self.result_file_url, method='GET', no_decode=True,
+                                json={'source_id': source_id, 'task_id': task_id},
                                 stream=True)
         with open(file_name, 'wb') as file_out:
             for chunk in response.iter_content(chunk_size=8192):
@@ -435,7 +445,7 @@ class BackendServer:
         image = cv2.resize(image, (320, 240))
         base64_str = cv2.imencode('.jpg', image)[1].tostring()
         base64_str = base64.b64encode(base64_str)
-        base64_str = bytes('data:image/jpg;base64,',encoding='utf8') + base64_str
+        base64_str = bytes('data:image/jpg;base64,', encoding='utf8') + base64_str
         return base64_str
 
     def draw_bboxes(self, frame, bbox):
@@ -443,9 +453,9 @@ class BackendServer:
             pass
 
     def timer(self, duration, source_label):
-        self.free_start[source_label] = f'{datetime.datetime.now():%T}'
+        self.free_start[source_label] = f'{datetime.datetime.now():%Y-%m-%d %H:%M:%S}'
         time.sleep(duration)
-        self.free_end[source_label] = f'{datetime.datetime.now():%T}'
+        self.free_end[source_label] = f'{datetime.datetime.now():%Y-%m-%d %H:%M:%S}'
         if source_label in self.free_open:
             self.is_free_result[source_label] = True
 
@@ -849,7 +859,7 @@ async def start_free_task(data=Body(...)):
     server.is_free_result[source_label] = False
     server.free_duration[source_label] = duration
     server.free_result[source_label] = ResultQueue()
-    threading.Thread(target=server.timer).start()
+    threading.Thread(target=server.timer, args=(duration, source_label)).start()
 
     return {'state': 'success', 'msg': '启动自由任务成功'}
 
@@ -918,7 +928,32 @@ async def get_free_task_result(source):
     if source not in server.is_free_result or not server.is_free_result[source]:
         return {'state': 1}
     else:
-        return {'state': 2, 'start_time': server.free_start, 'end_time': server.free_end,
+
+        results = server.free_result[source].get_results()
+        delay = []
+        task_info = []
+        result_count = []
+        for result in results:
+            delay.append(result['delay'])
+            result_count.append(result['result'])
+
+        task_info.append({'name': '任务数量', 'value': len(result_count)})
+
+        if server.source_label == 'car':
+            task_info.append({'name': '车流峰值', 'value': max(result_count)})
+            task_info.append({'name': '车流平均值', 'value': np.mean(result_count)})
+        elif server.source_label == 'audio':
+            pass
+        elif server.source_label == 'imu':
+            pass
+        elif server.source_label == 'edge-eye':
+            pass
+
+        return {'state': 2,
+                'start_time': server.free_start[source],
+                'end_time': server.free_end[source],
+                'delay': delay,
+                'task_info': task_info
                 }
 
 

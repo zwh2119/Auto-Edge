@@ -149,9 +149,10 @@ class DistributorServer:
     def extract_record(self, files):
         content = []
         for file in files:
-            file_path = os.path.join(self.record_dir, file)
-            with open(file_path, 'r') as f:
-                content.append(json.load(f))
+            if file.endswith('json'):
+                file_path = os.path.join(self.record_dir, file)
+                with open(file_path, 'r') as f:
+                    content.append(json.load(f))
         return content
 
     async def query_result(self, request: Request):
