@@ -11,15 +11,17 @@ class ServiceProcessor1:
         self.bar_selector = util_ixpe.BarSelection(bar_area=self.bar_area)
         self.first_done_flag = False
 
-    def __call__(self, data):
+    def __call__(self, frame):
         output = []
-        for frame in data:
-            result = self.process_frame(frame)
-            if 'bar_roi' in result:
-                result['bar_roi'] = encode_image(result['bar_roi'])
-            if 'abs_point' in result:
-                result['abs_point'] = list(result['abs_point'])
-            output.append(result)
+
+        output_ctx = self.process_frame(frame)
+        if 'frame' in output_ctx:
+            output_ctx['frame'] = encode_image(output_ctx['frame'])
+        if 'bar_roi' in output_ctx:
+            output_ctx['bar_roi'] = encode_image(output_ctx['bar_roi'])
+        if 'abs_point' in output_ctx:
+            output_ctx['abs_point'] = list(output_ctx['abs_point'])
+        output.append(output_ctx)
         return output
 
     def process_frame(self, frame):
@@ -34,4 +36,5 @@ class ServiceProcessor1:
                 LOGGER.debug('select bar roi success')
             output_ctx["bar_roi"] = bar_roi
             output_ctx["abs_point"] = abs_point
+            output_ctx["frame"] = frame
         return output_ctx

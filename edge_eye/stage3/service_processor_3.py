@@ -1,3 +1,5 @@
+from log import LOGGER
+
 import util_ixpe
 from client import http_request
 from utils import encode_image, decode_image
@@ -14,37 +16,38 @@ class ServiceProcessor3:
         self.lastrs = self.rps
         self.first_done_flag = False
 
-    def __call__(self, data, redis_address):
-        output = []
-        for input_ctx in data:
+    def __call__(self, input_ctx, redis_address):
+        if 'frame' in input_ctx:
+            input_ctx['frame'] = decode_image(input_ctx['frame'])
+        if "bar_roi" in input_ctx:
+            input_ctx["bar_roi"] = decode_image(input_ctx["bar_roi"])
+        if "abs_point" in input_ctx:
+            input_ctx["abs_point"] = tuple(input_ctx["abs_point"])
+        if "srl" in input_ctx:
+            input_ctx["srl"] = decode_image(input_ctx["srl"])
+        if "srr" in input_ctx:
+            input_ctx["srr"] = decode_image(input_ctx["srr"])
+        if "labs_point" in input_ctx:
+            input_ctx["labs_point"] = tuple(input_ctx["labs_point"])
+        if "rabs_point" in input_ctx:
+            input_ctx["rabs_point"] = tuple(input_ctx["rabs_point"])
 
-            if "bar_roi" in input_ctx:
-                input_ctx["bar_roi"] = decode_image(input_ctx["bar_roi"])
-            if "abs_point" in input_ctx:
-                input_ctx["abs_point"] = tuple(input_ctx["abs_point"])
-            if "srl" in input_ctx:
-                input_ctx["srl"] = decode_image(input_ctx["srl"])
-            if "srr" in input_ctx:
-                input_ctx["srr"] = decode_image(input_ctx["srr"])
-            if "labs_point" in input_ctx:
-                input_ctx["labs_point"] = tuple(input_ctx["labs_point"])
-            if "rabs_point" in input_ctx:
-                input_ctx["rabs_point"] = tuple(input_ctx["rabs_point"])
+        output_ctx = self.process_task(input_ctx, redis_address)
 
-            result = self.process_task(input_ctx, redis_address)
+        if "frame" in output_ctx:
+            output_ctx["frame"] = encode_image(output_ctx["frame"])
 
-            output.append(result)
-        return output
+        return output_ctx
 
     def process_task(self, input_ctx, redis_address):
         output_ctx = {}
 
-        if 'bar_roi' not in input_ctx:
+        if 'frame' not in input_ctx:
             return output_ctx
 
         if len(input_ctx) == 3:
-            print("get three parameters from input_ctx")
-            bar_roi, abs_point = input_ctx["bar_roi"], input_ctx["abs_point"]
+            LOGGER.DEBUG("get three parameters from input_ctx")
+            bar_roi, abs_point,frame = input_ctx["bar_roi"], input_ctx["abs_point"], input_ctx["frame"]
             self.lps, self.rps = self.pos_calculator.calculatePosInBarROI(
                 bar_roi=bar_roi, abs_point=abs_point)
 
@@ -52,6 +55,7 @@ class ServiceProcessor3:
                 self.lastls = self.lps
             else:
                 self.lps = self.lastls
+
             if self.lps != 0:
                 self.lps = int(self.lps + abs_point[0])
 
@@ -63,17 +67,17 @@ class ServiceProcessor3:
                 self.rps = int(self.rps + abs_point[0])
 
         elif len(input_ctx) == 5:
-            print("get five parameters from input_ctx")
+            LOGGER.debug("get five parameters from input_ctx")
             if not self.first_done_flag:
                 self.first_done_flag = True
-                print('start get SR frame from queue')
+                LOGGER.debug('start get SR frame from queue')
             # 因为roi size变大 2*h and 2*w 导致不能直接使用计算出来的单位xxx
-            lroi, rroi, labs_point, rabs_point = input_ctx["srl"], input_ctx["srr"], input_ctx[
-                "labs_point"], input_ctx["rabs_point"]
+            lroi, rroi, labs_point, rabs_point,frame = input_ctx["srl"], input_ctx["srr"], input_ctx[
+                "labs_point"], input_ctx["rabs_point"],input_ctx['frame']
             # print(type(lroi))
             # print(type(rroi))
-            print(labs_point)
-            print(rabs_point)
+            LOGGER.debug(f'{labs_point=}, {rabs_point=}')
+
             if len(lroi) == 1:
                 self.lps = lroi
             else:
