@@ -8,6 +8,7 @@ from starlette.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from task_schedule import Scheduler
+from log import LOGGER
 
 
 class ScheduleServer:
@@ -131,6 +132,8 @@ class ScheduleServer:
         self.task_counter[source_id]['counter'] -= 1
         if self.task_counter[source_id]['counter'] == 0:
             self.task_counter[source_id]['task_type'] = self.default_task_type
+
+        LOGGER.debug(f'task_type: {task_type}, pipeline: {pipeline}')
 
         return {'task_type': task_type, 'pipeline': pipeline}
 
