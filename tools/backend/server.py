@@ -23,6 +23,8 @@ import logging
 import queue
 import cv2
 
+import matplotlib.pyplot as plt
+
 
 class ResultQueue:
     def __init__(self, length=0):
@@ -435,9 +437,17 @@ class BackendServer:
             video_cap = cv2.VideoCapture(file)
             success, image = video_cap.read()
         elif task_type == 'imu':
-            image = cv2.imread(file)
+            process_data = np.array(content[0])
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+            ax.plot3D(process_data[:, 0], process_data[:, 1], process_data[:, 2])
+            ax.set_title('Displacement')
+
+            plt.savefig('imu.png')
+            image = cv2.imread('imu.png')
+
         elif task_type == 'audio':
-            img_path = os.path.join('audio_class_img', f'{result}.png')
+            img_path = os.path.join('audio_class_img', f'{result[0]}.png')
             image = cv2.imread(img_path)
         elif task_type == 'edge-eye':
             video_cap = cv2.VideoCapture(file)
@@ -449,6 +459,9 @@ class BackendServer:
         base64_str = base64.b64encode(base64_str)
         base64_str = bytes('data:image/jpg;base64,', encoding='utf8') + base64_str
         return base64_str
+
+    def plot_imu_visualization(self):
+        pass
 
     def draw_bboxes(self, frame, bbox):
         for box in bbox:

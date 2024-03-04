@@ -15,17 +15,10 @@ class ImuProcessor:
         output_ctx['parameters'] = {}
         output_ctx['parameters']['obj_num'] = []
 
-        csv_data = pd.read_csv(file_path)
-        start_id, end_id = self.end_point_detection(csv_data)
-        num_bin = len(start_id)
-        for bi in range(num_bin):
-            start_idx = int(start_id[bi])
-            end_idx = int(end_id[bi]) + 1
-            data = csv_data.iloc[start_idx:end_idx, [1, 6, 7, 8, 19, 20, 21]].values
-            data = np.ascontiguousarray(data)
-            process_result = self.getPCA4(data, R)
-            output_ctx['result'].append(process_result)
-            output_ctx['parameters']['obj_num'].append(len(process_result))
+        data = np.load(file_path)
+        process_result = self.getPCA4(data, R)
+        output_ctx['result'].append(process_result)
+        output_ctx['parameters']['obj_num'].append(len(process_result))
 
         return output_ctx
 
