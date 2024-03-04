@@ -71,9 +71,9 @@ def http_request(url,
                 return response.json() if binary else response.content.decode('utf-8')
         elif 200 < response.status_code < 400:
             print(f'Redirect URL: {response.url}')
-        # print(f'Get invalid status code {response.status_code} in request {url}')
+        print(f'Get invalid status code {response.status_code} in request {url}')
     except Exception as e:
-        pass
+        logging.exception(e)
 
 
 def read_yaml(yaml_file):
@@ -346,8 +346,9 @@ class BackendServer:
         source_ids = []
         for source in self.sources:
             if source['source_label'] == self.source_label:
-                source_ids.append(source['id'])
-        return source_ids
+                for camera in source['camera_list']:
+                    source_ids.append(camera['id'])
+                return source_ids
 
     def run_get_result(self):
         time_ticket = 0
@@ -364,20 +365,21 @@ class BackendServer:
                     task_result = result['obj_num']
 
                     task_type = result['task_type']
+                    content = None
                     file_path = self.get_file_result(source_id, task_id)
-                    base64_data = self.get_base64_data(file_path, task_type, task_result)
+                    base64_data = self.get_base64_data(file_path, task_type, task_result,content)
 
                     source_id_text = self.source_id_num_2_id_text(source_id)
-                    self.task_results[source_id_text].save_results({
+                    self.task_results[source_id_text].save_results([{
                         'taskId': task_id,
                         'result': task_result,
                         'delay': delay,
                         'visualize': base64_data
-                    })
-                    self.queue_results[source_id_text].save_results({
+                    }])
+                    self.queue_results[source_id_text].save_results([{
                         'taskId': task_id,
                         'priorityTrace': priority_trace
-                    })
+                    }])
 
             time.sleep(1)
 
@@ -393,7 +395,7 @@ class BackendServer:
 
     def get_file_result(self, source_id, task_id):
         file_name = f'file_{source_id}_{task_id}'
-        response = http_request(self.result_file_url, method='GET', json={'source_id': source_id, 'task_id': task_id},
+        response = http_request(self.result_file_url, method='GET', no_decode=True, json={'source_id': source_id, 'task_id': task_id},
                                 stream=True)
         with open(file_name, 'wb') as file_out:
             for chunk in response.iter_content(chunk_size=8192):
@@ -414,7 +416,7 @@ class BackendServer:
         source_id_text_list = self.get_source_id()
         return source_id_text_list[source_id]
 
-    def get_base64_data(self, file, task_type, result):
+    def get_base64_data(self, file, task_type, result, content):
         image = None
         # TODO: car/edge-eye -> draw bbox /  imu -> from content
         if task_type == 'car':
@@ -430,10 +432,15 @@ class BackendServer:
             success, image = video_cap.read()
         else:
             assert None, f'Invalid task type of {task_type}'
-
+        image = cv2.resize(image, (320, 240))
         base64_str = cv2.imencode('.jpg', image)[1].tostring()
         base64_str = base64.b64encode(base64_str)
+        base64_str = bytes('data:image/jpg;base64,',encoding='utf8') + base64_str
         return base64_str
+
+    def draw_bboxes(self, frame, bbox):
+        for box in bbox:
+            pass
 
     def timer(self, duration, source_label):
         self.free_start[source_label] = f'{datetime.datetime.now():%T}'
@@ -648,16 +655,14 @@ def submit_query(data=Body(...)):
     http_request(server.parameters_url, method='POST', json={'user_constraint': delay_constraint,
                                                              'urgency_weight': urgency_weight,
                                                              'importance_weight': importance_weight})
-
+    server.source_open = True
+    server.source_label = source_label
     for source_id in server.get_source_id():
         server.task_results[source_id] = ResultQueue(10)
         server.queue_results[source_id] = ResultQueue(10)
 
     server.is_get_result = True
     threading.Thread(target=server.run_get_result).start()
-
-    server.source_open = True
-    server.source_label = source_label
 
     return {'state': 'success', 'msg': '数据流打开成功'}
 
@@ -738,7 +743,7 @@ async def get_source_list():
     if server.source_open:
         for source in server.sources:
             if source['source_label'] == server.source_label:
-                return [camera['name'] for camera in source['camera_list']]
+                return [{'id': camera['id'], 'label': camera['name']} for camera in source['camera_list']]
     else:
         return []
 
@@ -786,10 +791,13 @@ async def get_task_result():
     }
     :return:
     """
+    if not server.source_open:
+        return {}
     ans = {}
     for source_id in server.get_source_id():
         ans[source_id] = server.task_results[source_id].get_results()
 
+    # print(f'task result: {ans}')
     return ans
 
 
