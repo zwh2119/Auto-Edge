@@ -1,5 +1,5 @@
 ARG dir=audio_classification
-FROM python:3.10
+FROM python:3.10-slim
 MAINTAINER Wenhui Zhou
 
 RUN apt-get update && apt-get install -y \
