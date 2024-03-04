@@ -341,6 +341,7 @@ class BackendServer:
         self.free_end = {}
         self.free_duration = {}
         self.free_result = {}
+        self.free_result_save = {}
 
     def get_source_id(self):
 
@@ -383,7 +384,8 @@ class BackendServer:
                         'priorityTrace': priority_trace
                     }])
 
-                    if source_id_text in self.free_open and self.free_open[source_id_text]:
+                    if source_id_text in self.free_open and self.free_open[source_id_text] \
+                            and not self.is_free_result[source_id_text]:
                         self.free_result[source_id_text].save_results([
                             {'taskId': task_id,
                              'result': task_result,
@@ -472,6 +474,8 @@ class BackendServer:
             del self.free_duration[source_label]
         if source_label in self.free_result:
             del self.free_result[source_label]
+        if source_label in self.free_result_save:
+            del self.free_result_save[source_label]
 
 
 server = BackendServer()
@@ -859,6 +863,7 @@ async def start_free_task(data=Body(...)):
     server.is_free_result[source_label] = False
     server.free_duration[source_label] = duration
     server.free_result[source_label] = ResultQueue()
+    server.free_result_save[source_label] = {}
     threading.Thread(target=server.timer, args=(duration, source_label)).start()
 
     return {'state': 'success', 'msg': '启动自由任务成功'}
@@ -930,24 +935,31 @@ async def get_free_task_result(source):
     else:
 
         results = server.free_result[source].get_results()
-        delay = []
-        task_info = []
-        result_count = []
-        for result in results:
-            delay.append(result['delay'])
-            result_count.append(result['result'])
+        if not results:
+            delay = server.free_result_save[source]['delay']
+            task_info = server.free_result_save[source]['task_info']
+        else:
+            delay = []
+            task_info = []
+            result_count = []
+            for result in results:
+                delay.append(result['delay'])
+                result_count.append(result['result'])
 
-        task_info.append({'name': '任务数量', 'value': len(result_count)})
+            task_info.append({'name': '任务数量', 'value': len(result_count)})
 
-        if server.source_label == 'car':
-            task_info.append({'name': '车流峰值', 'value': max(result_count)})
-            task_info.append({'name': '车流平均值', 'value': np.mean(result_count)})
-        elif server.source_label == 'audio':
-            pass
-        elif server.source_label == 'imu':
-            pass
-        elif server.source_label == 'edge-eye':
-            pass
+            if server.source_label == 'car':
+                task_info.append({'name': '车流峰值', 'value': max(result_count)})
+                task_info.append({'name': '车流平均值', 'value': int(np.mean(result_count))})
+            elif server.source_label == 'audio':
+                pass
+            elif server.source_label == 'imu':
+                pass
+            elif server.source_label == 'edge-eye':
+                pass
+
+            server.free_result_save[source]['delay'] = delay
+            server.free_result_save[source]['task_info'] = task_info
 
         return {'state': 2,
                 'start_time': server.free_start[source],
