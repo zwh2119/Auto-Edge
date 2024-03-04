@@ -37,7 +37,7 @@ class AudioClassification:
         output_ctx = {}
         output_ctx['parameters'] = {}
         output_ctx['parameters']['obj_num'] = []
-        output_ctx['parameters']['obj_num'].append(index)
+        output_ctx['parameters']['obj_num'].append(index.item())
 
         return output_ctx
 
