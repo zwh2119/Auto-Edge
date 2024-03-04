@@ -117,7 +117,7 @@ class ControllerServer:
 
                 # post to service
                 service_name = pipeline[index]['service_name']
-                assert service_name in self.service_ports_dict
+                assert service_name in self.service_ports_dict, f'service {service_name} not in service dict!'
                 service_address = get_merge_address(self.local_ip, port=self.service_ports_dict[service_name],
                                                     path='predict')
                 LOGGER.debug(f'post data to service {service_name}')

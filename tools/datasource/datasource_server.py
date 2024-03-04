@@ -60,8 +60,8 @@ class DataSource:
         print(f'open datasource {modal}')
 
         if modal == 'car':
-            commands = ['bash push.sh video/traffic-mid0.mp4 rtsp://127.0.0.1/video0',
-                        'bash push.sh video/traffic-mid1.mp4 rtsp://127.0.0.1/video1']
+            commands = ['bash push.sh video/traffic0.mp4 video0',
+                        'bash push.sh video/traffic1.mp4 video1']
         elif modal == 'audio':
             commands = ['python3 audio_datasource.py --dataset audio/1 --port 6000',
                         'python3 audio_datasource.py --dataset audio/2 --port 6001']
@@ -98,7 +98,7 @@ class DataSource:
         while True:
             response = http_request(self.source_url, method='GET')
             if response:
-                if response['state']:
+                if response['state'] == 'open':
                     self.open_datasource(modal=response['source_label'])
                 else:
                     self.close_datasource()
