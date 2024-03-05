@@ -487,7 +487,7 @@ class BackendServer:
             ax = fig.add_subplot(111, projection='3d')
             ax.plot3D(process_data[:, 0], process_data[:, 1], process_data[:, 2])
 
-            plt.savefig('imu.png', pad_inches=0.0)
+            plt.savefig('imu.png', bbox_inches='tight', pad_inches=0.1)
             plt.close(fig)
             image = cv2.imread('imu.png')
 
@@ -513,8 +513,9 @@ class BackendServer:
         return decoded_img
 
     def draw_bboxes(self, frame, bbox):
-        for box in bbox:
-            pass
+        for x_min, y_min, x_max, y_max in bbox:
+            cv2.rectangle(frame, (int(x_min), int(y_min)), (int(x_max), int(y_max)), (0,255,0), 4)
+        return frame
 
     def timer(self, duration, source_label):
         self.free_start[source_label] = f'{datetime.datetime.now():%Y-%m-%d %H:%M:%S}'
