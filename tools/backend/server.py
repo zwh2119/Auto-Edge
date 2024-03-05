@@ -309,6 +309,19 @@ class BackendServer:
 
         ]
 
+        self.audio_class = [
+            "空调运转声",
+            "汽车喇叭声",
+            "嘻戏打闹声",
+            "狗叫声",
+            "钻孔声",
+            "引擎怠速声",
+            "枪声",
+            "挖掘机工作声",
+            "警报声",
+            "流行音乐声"
+        ]
+
         self.devices = {
             'http://114.212.81.11:39200/submit_task': 'cloud',
             'http://192.168.1.2:39200/submit_task': 'edge1',
@@ -441,13 +454,12 @@ class BackendServer:
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
             ax.plot3D(process_data[:, 0], process_data[:, 1], process_data[:, 2])
-            ax.set_title('Displacement')
 
             plt.savefig('imu.png')
             image = cv2.imread('imu.png')
 
         elif task_type == 'audio':
-            img_path = os.path.join('audio_class_img', f'{result[0]}.png')
+            img_path = os.path.join('audio_class_img', f'{result}.png')
             image = cv2.imread(img_path)
         elif task_type == 'edge-eye':
             video_cap = cv2.VideoCapture(file)
@@ -965,7 +977,12 @@ async def get_free_task_result(source):
                 task_info.append({'name': '车流峰值', 'value': max(result_count)})
                 task_info.append({'name': '车流平均值', 'value': int(np.mean(result_count))})
             elif server.source_label == 'audio':
-                pass
+                task_info.append({'name': '音频最多识别类别',
+                                  'value': server.audio_class[max(result_count, key=result_count.count)]})
+                task_info.append({'name': '音频最大识别次数',
+                                  'value': max([result_count.count(x) for x in set(result_count)])})
+                task_info.append({'name': '音频平均识别次数',
+                                  'value': np.mean([result_count.count(x) for x in set(result_count)])})
             elif server.source_label == 'imu':
                 pass
             elif server.source_label == 'edge-eye':
