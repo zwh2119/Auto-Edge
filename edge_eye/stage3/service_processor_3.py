@@ -45,6 +45,8 @@ class ServiceProcessor3:
         if 'frame' not in input_ctx:
             return output_ctx
 
+        frame = input_ctx['frame']
+
         if len(input_ctx) == 3:
             LOGGER.DEBUG("get three parameters from input_ctx")
             bar_roi, abs_point,frame = input_ctx["bar_roi"], input_ctx["abs_point"], input_ctx["frame"]
@@ -95,6 +97,7 @@ class ServiceProcessor3:
         # lps, rps = abnormal_detector.repair(lpx=lps, rpx=rps)  # func3
         # update lps, rps
         self.set_edge_position(int(self.lps), int(self.rps), redis_address)
+        output_ctx["frame"] = frame
         output_ctx["lps"] = self.lps
         output_ctx["rps"] = self.rps
         return output_ctx
