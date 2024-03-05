@@ -383,7 +383,7 @@ class BackendServer:
                     task_result = result['obj_num']
 
                     task_type = result['task_type']
-                    content = None
+                    content = result['content']
                     file_path = self.get_file_result(source_id, task_id)
                     base64_data = self.get_base64_data(file_path, task_type, task_result, content)
 
@@ -456,6 +456,7 @@ class BackendServer:
             ax.plot3D(process_data[:, 0], process_data[:, 1], process_data[:, 2])
 
             plt.savefig('imu.png')
+            plt.close(fig)
             image = cv2.imread('imu.png')
 
         elif task_type == 'audio':
@@ -984,7 +985,8 @@ async def get_free_task_result(source):
                 task_info.append({'name': '音频平均识别次数',
                                   'value': np.mean([result_count.count(x) for x in set(result_count)])})
             elif server.source_label == 'imu':
-                pass
+                task_info.append({'name': '轨迹长度最大值', 'value': max(result_count)})
+                task_info.append({'name': '轨迹长度平均值', 'value': int(np.mean(result_count))})
             elif server.source_label == 'edge-eye':
                 pass
 

@@ -1,7 +1,8 @@
 import time
 import socket
 from kubernetes import client, config
-
+import cv2
+import base64
 
 def record_time(data: dict, time_sign: str):
     if time_sign in data:
@@ -79,3 +80,12 @@ def get_nodes_info():
                 node_dict[node_name] = address.address
 
     return node_dict
+
+
+def encode_image(img):
+    # 编码图像
+    _, encoded_img = cv2.imencode('.jpg', img)
+    encoded_img_bytes = encoded_img.tobytes()
+    # 转换为 Base64 编码的字符串
+    encoded_img_str = base64.b64encode(encoded_img_bytes).decode('utf-8')
+    return encoded_img_str

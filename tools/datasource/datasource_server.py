@@ -69,8 +69,8 @@ class DataSource:
             commands = ['python3 imu_datasource.py --dataset imu/1 --port 5000',
                         'python3 imu_datasource.py --dataset imu/2 --port 5001']
         elif modal == 'edge-eye':
-            commands = ['bash push.sh video/ixpe0.mp4 rtsp://127.0.0.1/eye0',
-                        'bash push.sh video/ixpe1.mp4 rtsp://127.0.0.1/eye1']
+            commands = ['bash push.sh video/ixpe0.mp4 eye0',
+                        'bash push.sh video/ixpe1.mp4 eye1']
         else:
             print(f'datasource of {modal} not exists!')
             return

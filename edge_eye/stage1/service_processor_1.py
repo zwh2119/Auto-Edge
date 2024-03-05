@@ -11,9 +11,10 @@ class ServiceProcessor1:
         self.bar_selector = util_ixpe.BarSelection(bar_area=self.bar_area)
         self.first_done_flag = False
 
-    def __call__(self, frame):
+    def __call__(self, input_ctx):
         output = []
-
+        frame = input_ctx['frame']
+        frame = decode_image(frame)
         output_ctx = self.process_frame(frame)
         if 'frame' in output_ctx:
             output_ctx['frame'] = encode_image(output_ctx['frame'])

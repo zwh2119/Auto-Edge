@@ -49,9 +49,9 @@ class ServiceServer:
 
         self.task_queue = LocalPriorityQueue()
 
-    def cal(self, frame):
+    def cal(self, input_ctx):
 
-        result = self.estimator(frame)
+        result = self.estimator(input_ctx)
 
         return result
 
@@ -98,9 +98,8 @@ class ServiceServer:
                     scenario = task.metadata['scenario_data']
                     content = task.metadata['content_data']
                     task_type = task.metadata['task_type']
-                    frame = content['frame']
 
-                    result = self.cal(frame)
+                    result = self.cal(content)
 
                     content = copy.deepcopy(result)
 
