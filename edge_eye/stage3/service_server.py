@@ -118,7 +118,7 @@ class ServiceServer:
                     #         rps_list.append(0)
                     lps = result['lps'] if 'lps' in result else 0
                     rps = result['rps'] if 'rps' in result else 0
-                    scenario.update({'obj_num': (lps+rps)/2})
+                    scenario.update({'obj_num': [(lps+rps)/2]})
 
                     # end record service time
                     tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
