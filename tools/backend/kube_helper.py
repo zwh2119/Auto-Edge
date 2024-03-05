@@ -7,7 +7,7 @@ import pytz
 class KubeHelper:
 
     @staticmethod
-    def apply_custom_resources(yaml_file_path):
+    def apply_custom_resources(yaml_file_path, namespace='auto-edge'):
         config.load_kube_config()
 
         with open(yaml_file_path, 'r') as file:
@@ -19,7 +19,7 @@ class KubeHelper:
                     continue
                 group = 'sedna.io'  # The API group of the Custom Resource
                 version = doc['apiVersion'].split('/')[-1]  # Extract version
-                namespace = doc['metadata']['namespace']  # Extract namespace
+                doc['metadata']['namespace'] = namespace  # Extract namespace
                 plural = 'jointmultiedgeservices'  # Plural form of the CRD, make sure it's correct
 
                 try:

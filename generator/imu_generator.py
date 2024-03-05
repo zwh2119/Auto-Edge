@@ -55,6 +55,7 @@ class IMUGenerator:
             csv_data = pd.read_csv(file_path)
             start_id, end_id = self.end_point_detection(csv_data)
             num_bin = len(start_id)
+            LOGGER.debug(f'num_bin:{num_bin}')
             for bi in range(num_bin):
                 start_idx = int(start_id[bi])
                 end_idx = int(end_id[bi]) + 1
@@ -89,7 +90,7 @@ class IMUGenerator:
 
                 cur_id += 1
 
-                time.sleep(2)
+                time.sleep(1)
 
             os.remove(file_path)
 

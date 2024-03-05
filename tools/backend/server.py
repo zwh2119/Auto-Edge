@@ -386,7 +386,7 @@ class BackendServer:
                     content = result['content']
                     file_path = self.get_file_result(source_id, task_id)
                     base64_data = self.get_base64_data(file_path, task_type, task_result, content)
-
+                    os.remove(file_path)
                     source_id_text = self.source_id_num_2_id_text(source_id)
                     self.task_results[source_id_text].save_results([{
                         'taskId': task_id,
@@ -455,7 +455,7 @@ class BackendServer:
             ax = fig.add_subplot(111, projection='3d')
             ax.plot3D(process_data[:, 0], process_data[:, 1], process_data[:, 2])
 
-            plt.savefig('imu.png')
+            plt.savefig('imu.png', pad_inches=0.0)
             plt.close(fig)
             image = cv2.imread('imu.png')
 
@@ -463,18 +463,22 @@ class BackendServer:
             img_path = os.path.join('audio_class_img', f'{result}.png')
             image = cv2.imread(img_path)
         elif task_type == 'edge-eye':
-            video_cap = cv2.VideoCapture(file)
-            success, image = video_cap.read()
+            frame = content['frame']
+            image = self.decode_image(frame)
         else:
             assert None, f'Invalid task type of {task_type}'
         image = cv2.resize(image, (320, 240))
-        base64_str = cv2.imencode('.jpg', image)[1].tostring()
+        base64_str = cv2.imencode('.jpg', image)[1].tobytes()
         base64_str = base64.b64encode(base64_str)
         base64_str = bytes('data:image/jpg;base64,', encoding='utf8') + base64_str
         return base64_str
 
-    def plot_imu_visualization(self):
-        pass
+    def decode_image(self, encoded_img_str):
+        # 将 Base64 编码的字符串转换回 bytes
+        encoded_img_bytes = base64.b64decode(encoded_img_str)
+        # 解码图像
+        decoded_img = cv2.imdecode(np.frombuffer(encoded_img_bytes, np.uint8), cv2.IMREAD_COLOR)
+        return decoded_img
 
     def draw_bboxes(self, frame, bbox):
         for box in bbox:
@@ -687,10 +691,10 @@ def submit_query(data=Body(...)):
     data = json.loads(str(data, encoding='utf-8'))
 
     source_label = data['source_label']
-    delay_constraint = data['delay_cons']
-    acc_constraint = data['acc_cons']
-    urgency_weight = data['urgency']
-    importance_weight = data['importance']
+    delay_constraint = float(data['delay_cons'])
+    acc_constraint = float(data['acc_cons'])
+    urgency_weight = float(data['urgency'])
+    importance_weight = float(data['importance'])
 
     http_request(server.parameters_url, method='POST', json={'user_constraint': delay_constraint,
                                                              'urgency_weight': urgency_weight,

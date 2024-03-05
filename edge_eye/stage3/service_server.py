@@ -105,18 +105,18 @@ class ServiceServer:
                     result = self.cal(content, self.distributor_address)
                     content = copy.deepcopy(result)
 
-                    lps_list = []
-                    rps_list = []
-                    for output_ctx in result:
-                        if 'lps' in lps_list:
-                            lps_list.append(output_ctx['lps'])
-                        else:
-                            lps_list.append(0)
-                        if 'rps' in rps_list:
-                            rps_list.append(output_ctx['rps'])
-                        else:
-                            rps_list.append(0)
-                    scenario.update({'obj_num': [f'左：{np.mean(lps_list)}   右：{np.mean(rps_list)}']})
+                    # lps_list = []
+                    # rps_list = []
+                    # for output_ctx in result:
+                    #     if 'lps' in lps_list:
+                    #         lps_list.append(output_ctx['lps'])
+                    #     else:
+                    #         lps_list.append(0)
+                    #     if 'rps' in rps_list:
+                    #         rps_list.append(output_ctx['rps'])
+                    #     else:
+                    #         rps_list.append(0)
+                    scenario.update({'obj_num': (result['lps']+result['rps'])/2})
 
                     # end record service time
                     tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
