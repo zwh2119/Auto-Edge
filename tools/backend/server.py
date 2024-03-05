@@ -408,6 +408,11 @@ class BackendServer:
                     source_id = result['source']
                     task_id = result['task']
                     delay = self.cal_pipeline_delay(result['pipeline'])
+
+                    if delay > 3:
+                        print(f'task delay of {delay} filtered!')
+                        continue
+
                     priority_trace = self.get_pipeline_priority(result['priority'])
                     task_result = result['obj_num']
 
@@ -440,12 +445,15 @@ class BackendServer:
 
     def cal_pipeline_delay(self, pipeline):
         delay = 0
-        for stage in pipeline:
+        print('delay:  ',end='')
+        for i, stage in enumerate(pipeline):
             execute = stage['execute_data']
             if 'transmit_time' in execute:
                 delay += execute['transmit_time']
             if 'service_time' in execute:
                 delay += execute['service_time']
+                print(f'stage{i}->{execute["service_time"]:.2f}s  ')
+        print(f'total:->{delay:.2f}s')
         return delay
 
     def get_file_result(self, source_id, task_id):
@@ -774,6 +782,8 @@ async def stop_service():
             result = KubeHelper.delete_resources(namespace)
             while KubeHelper.check_pods_exist(namespace):
                 time.sleep(1)
+
+        server.is_get_result = False
 
     except eventlet.timeout.Timeout as e:
         logging.exception(e)

@@ -102,7 +102,7 @@ class IMUGenerator:
                 cur_id += 1
 
                 os.remove(file_name)
-                time.sleep(1)
+                time.sleep(1.5)
 
             os.remove(file_path)
 
