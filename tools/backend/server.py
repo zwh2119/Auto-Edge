@@ -22,8 +22,19 @@ import yaml
 import logging
 import queue
 import cv2
+import random
 
 import matplotlib.pyplot as plt
+
+
+class NameCounter:
+    counter = 0
+    boundary = 10000
+
+    @classmethod
+    def get_name_counter(cls):
+        cls.counter += 1
+        return cls.counter % cls.boundary + cls.boundary
 
 
 class ResultQueue:
@@ -102,6 +113,7 @@ class BackendServer:
                 'name': 'road-detection',
                 'display': '交通路面监控',
                 'yaml': 'video_car_detection.yaml',
+                'namespace': 'auto-edge-car',
                 'word': 'car',
                 'prompt': '车流数量',
                 'stage': [
@@ -122,6 +134,7 @@ class BackendServer:
                 'name': 'audio',
                 'display': '音频识别',
                 'yaml': 'audio.yaml',
+                'namespace': 'auto-edge-audio',
                 'word': 'audio',
                 'prompt': '音频类别',
                 'stage': [
@@ -153,6 +166,7 @@ class BackendServer:
                 'name': 'imu',
                 'display': '惯性轨迹感知',
                 'yaml': 'imu.yaml',
+                'namespace': 'auto-edge-imu',
                 'word': 'imu',
                 'prompt': 'IMU轨迹长度',
                 'stage': [
@@ -173,6 +187,7 @@ class BackendServer:
                 'name': 'edge-eye',
                 'display': '工业视觉纠偏',
                 'yaml': 'edge-eye.yaml',
+                'namespace': 'auto-edge-edge-eye',
                 'word': 'eye',
                 'prompt': '材料中心点位置',
                 'stage': [
@@ -328,6 +343,8 @@ class BackendServer:
             'http://192.168.1.4:39200/submit_task': 'edge2',
         }
 
+        self.latest_namespace = 'auto-edge'
+
         self.time_ticket = 0
 
         self.templates_path = '/home/hx/zwh/Auto-Edge/templates'
@@ -367,6 +384,18 @@ class BackendServer:
                     source_ids.append(camera['id'])
 
         return source_ids
+
+    def find_latest_task_namespace(self):
+        return self.latest_namespace
+
+    def create_new_namespace(self, task_namespace):
+        # self.latest_namespace = 'mid-' + task_namespace + '-' + str(NameCounter.get_name_counter())
+        # KubeHelper.create_namespace(self.latest_namespace)
+
+        return self.latest_namespace
+
+    def clear_latest_namespace(self):
+        pass
 
     def run_get_result(self):
         time_ticket = 0
@@ -449,8 +478,11 @@ class BackendServer:
         if task_type == 'car':
             video_cap = cv2.VideoCapture(file)
             success, image = video_cap.read()
+            image = self.draw_bboxes(image, content[0])
         elif task_type == 'imu':
+            print(f'content length:{len(content[0])}  result length:{result}')
             process_data = np.array(content[0])
+            np.save(f'debug/{int(time.time())}.npy', process_data)
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
             ax.plot3D(process_data[:, 0], process_data[:, 1], process_data[:, 2])
@@ -506,6 +538,14 @@ class BackendServer:
             del self.free_result[source_label]
         if source_label in self.free_result_save:
             del self.free_result_save[source_label]
+
+    def run_manage_namespace(self):
+        while True:
+            namespace_list = KubeHelper.list_namespaces('mid')
+            for namespace in namespace_list:
+                if not KubeHelper.check_pods_exist(namespace):
+                    KubeHelper.delete_namespace(namespace)
+            time.sleep(5)
 
 
 server = BackendServer()
@@ -582,15 +622,19 @@ async def install_service(data=Body(...)):
     yaml_file = os.path.join(server.templates_path, cur_task['yaml'])
     print(f'yaml_file: {yaml_file}')
 
+    namespace = server.create_new_namespace(cur_task['namespace'])
+
     try:
-        with eventlet.Timeout(40, True):
-            result = KubeHelper.apply_custom_resources(yaml_file)
-            while not KubeHelper.check_pods_running('auto-edge'):
+        with eventlet.Timeout(60, True):
+            result = KubeHelper.apply_custom_resources(yaml_file, namespace)
+            while not KubeHelper.check_pods_running(namespace):
                 time.sleep(1)
 
     except eventlet.timeout.Timeout as e:
         logging.exception(e)
         result = False
+
+    server.newest_task = cur_task['name']
 
     if result:
         return {'state': 'success', 'msg': '服务下装成功'}
@@ -605,9 +649,13 @@ async def get_service_list():
     :return:
     ["face_detection", "..."]
     """
-    if KubeHelper.check_pods_running('auto-edge'):
+
+    namespace = server.find_latest_task_namespace()
+    if namespace == '':
+        return []
+    if KubeHelper.check_pods_running(namespace):
         for task in server.tasks:
-            if KubeHelper.check_pod_name(task['word']):
+            if KubeHelper.check_pod_name(task['word'], namespace=namespace):
                 return [stage['stage_name'] for stage in task['stage']]
     else:
         return []
@@ -632,7 +680,8 @@ async def get_service_info(service):
 
     """
     try:
-        info = KubeHelper.get_service_info(service_name=service)
+        namespace = server.find_latest_task_namespace()
+        info = KubeHelper.get_service_info(service_name=service, namespace=namespace)
         resource_data = http_request(server.resource_url, method='GET')
         # print(resource_data)
         for single_info in info:
@@ -718,14 +767,17 @@ async def stop_service():
 
     :return:
     """
-
+    namespace = server.find_latest_task_namespace()
     try:
         with eventlet.Timeout(120, True):
-            result = KubeHelper.delete_resources('auto-edge')
-            while KubeHelper.check_pods_exist('auto-edge'):
+            result = KubeHelper.delete_resources(namespace)
+            while KubeHelper.check_pods_exist(namespace):
                 time.sleep(1)
 
     except eventlet.timeout.Timeout as e:
+        logging.exception(e)
+        result = False
+    except Exception as e:
         logging.exception(e)
         result = False
 
@@ -758,7 +810,11 @@ async def get_install_state():
     :return:
     {'state':'install/uninstall'}
     """
-    state = 'install' if KubeHelper.check_pods_exist('auto-edge') else 'uninstall'
+    namespace = server.find_latest_task_namespace()
+    if namespace == '':
+        state = 'uninstall'
+    else:
+        state = 'install' if KubeHelper.check_pods_exist(namespace) else 'uninstall'
     return {'state': state}
 
 
@@ -795,10 +851,12 @@ async def get_source_list():
 @app.get('/pipeline_info')
 async def get_pipeline_info():
     """[stage_name1,stage_name2]"""
-
-    if KubeHelper.check_pods_running('auto-edge'):
+    namespace = server.find_latest_task_namespace()
+    if namespace == '':
+        return []
+    if KubeHelper.check_pods_running(namespace):
         for task in server.tasks:
-            if KubeHelper.check_pod_name(task['word']):
+            if KubeHelper.check_pod_name(task['word'], namespace=namespace):
                 return [stage['stage_name'] for stage in task['stage']]
     else:
         return []
@@ -811,9 +869,12 @@ async def get_result_prompt():
     :return:
     {'prompt':'...'}
     """
-    if KubeHelper.check_pods_running('auto-edge'):
+    namespace = server.find_latest_task_namespace()
+    if namespace == '':
+        return {'prompt': ''}
+    if KubeHelper.check_pods_running(namespace):
         for task in server.tasks:
-            if KubeHelper.check_pod_name(task['word']):
+            if KubeHelper.check_pod_name(task['word'], namespace=namespace):
                 return {'prompt': task['prompt']}
     else:
         return {'prompt': ''}
@@ -1006,6 +1067,7 @@ async def get_free_task_result(source):
 
 
 def main():
+    # threading.Thread(target=server.run_manage_namespace).start()
     uvicorn.run(app, host='0.0.0.0', port=8910)
 
 

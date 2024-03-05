@@ -171,3 +171,44 @@ class KubeHelper:
                 return int(node.status.capacity['cpu'][-1])
 
         assert None, f'hostname of {hostname} not exists'
+
+    @staticmethod
+    def create_namespace(namespace_name):
+        config.load_kube_config()
+        v1 = client.CoreV1Api()
+        namespace = client.V1Namespace(
+            metadata=client.V1ObjectMeta(name=namespace_name)
+        )
+
+        try:
+            api_response = v1.create_namespace(body=namespace)
+            print(f"Namespace {namespace_name} created. Status: {api_response.status}")
+        except Exception as e:
+            print(f"Exception when calling CoreV1Api->create_namespace: {e}")
+
+    @staticmethod
+    def delete_namespace(namespace_name):
+        config.load_kube_config()
+        v1 = client.CoreV1Api()
+
+        try:
+            api_response = v1.delete_namespace(name=namespace_name)
+            print(f"Namespace {namespace_name} deleted. Status: {api_response.status}")
+        except Exception as e:
+            print(f"Exception when calling CoreV1Api->delete_namespace: {e}")
+
+    @staticmethod
+    def list_namespaces(filter_name=None):
+        config.load_kube_config()
+        v1 = client.CoreV1Api()
+
+        try:
+            namespace_list = []
+            namespaces = v1.list_namespace()
+            for ns in namespaces.items:
+                if filter_name is None or filter_name in ns.metadata.name:
+                    namespace_list.append(ns.metadata.name)
+            return namespace_list
+        except client.exceptions.ApiException as e:
+            print(f"Exception when calling CoreV1Api->list_namespace: {e}")
+            return []

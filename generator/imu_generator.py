@@ -56,10 +56,21 @@ class IMUGenerator:
             start_id, end_id = self.end_point_detection(csv_data)
             num_bin = len(start_id)
             LOGGER.debug(f'num_bin:{num_bin}')
+
+            linear_acceleration = csv_data.iloc[:, 19:22].values
+            angular_velocity = csv_data.iloc[:, 6:9].values
+            timestamp = csv_data.iloc[:, 1:2].values
+            angular_velocity = angular_velocity / 180 * np.pi
+            linear_acceleration = linear_acceleration * 9.81
+
             for bi in range(num_bin):
                 start_idx = int(start_id[bi])
                 end_idx = int(end_id[bi]) + 1
-                data = csv_data.iloc[start_idx:end_idx, [1, 6, 7, 8, 19, 20, 21]].values
+                # data = csv_data.iloc[start_idx:end_idx, [1, 6, 7, 8, 19, 20, 21]].values
+                datatime = timestamp[start_idx:end_idx, :]
+                datagyro = angular_velocity[start_idx:end_idx, :]
+                dataacc = linear_acceleration[start_idx:end_idx, :]
+                data = np.column_stack((datatime, datagyro, dataacc))
                 data = np.ascontiguousarray(data)
 
                 meta_data = {'source_ip': self.local_ip}
@@ -90,6 +101,7 @@ class IMUGenerator:
 
                 cur_id += 1
 
+                os.remove(file_name)
                 time.sleep(1)
 
             os.remove(file_path)
@@ -131,7 +143,7 @@ class IMUGenerator:
         else:
             return None
 
-    def end_point_detection(self, csv_data):
+    def end_point_detection(self,csv_data):
         linear_acceleration = csv_data.iloc[:, 19:22].values
         angular_velocity = csv_data.iloc[:, 6:9].values
         timestamp = csv_data.iloc[:, 1:2].values
