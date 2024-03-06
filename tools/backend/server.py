@@ -419,6 +419,9 @@ class BackendServer:
                     task_type = result['task_type']
                     content = result['content']
                     file_path = self.get_file_result(source_id, task_id)
+                    if task_type == 'edge-eye' and 'frame' not in content:
+                        print('edge eye not have frame, skip..')
+                        continue
                     base64_data = self.get_base64_data(file_path, task_type, task_result, content)
                     os.remove(file_path)
                     source_id_text = self.source_id_num_2_id_text(source_id)

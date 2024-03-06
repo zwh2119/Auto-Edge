@@ -2,6 +2,7 @@ import util_ixpe
 from utils import encode_image, decode_image
 from log import LOGGER
 
+
 class ServiceProcessor1:
     def __init__(self):
         self.d_area = [[440, 370], [790, 500]]
@@ -12,7 +13,6 @@ class ServiceProcessor1:
         self.first_done_flag = False
 
     def __call__(self, input_ctx):
-        output = []
         frame = input_ctx['frame']
         frame = decode_image(frame)
         output_ctx = self.process_frame(frame)
@@ -22,8 +22,7 @@ class ServiceProcessor1:
             output_ctx['bar_roi'] = encode_image(output_ctx['bar_roi'])
         if 'abs_point' in output_ctx:
             output_ctx['abs_point'] = list(output_ctx['abs_point'])
-        output.append(output_ctx)
-        return output
+        return output_ctx
 
     def process_frame(self, frame):
         output_ctx = {}
