@@ -540,7 +540,7 @@ class BackendServer:
             params = f.getparams()
             nchannels, sampwidth, framerate, nframes = params[:4]
             data = f.readframes(nframes)
-            img_path = self.draw_audio_spec(data, framerate, nchannels)
+            img_path = self.draw_audio_spec(data, framerate, nchannels, self.audio_class[result])
             image = cv2.imread(img_path)
         elif task_type == 'edge-eye':
             frame = content['frame']
@@ -576,7 +576,9 @@ class BackendServer:
         plt.close(fig)
         return 'imu.png'
 
-    def draw_audio_spec(self, data, framerate, nchannels):
+    def draw_audio_spec(self, data, framerate, nchannels, result):
+        # TODO: plot result class type on picture
+
         def cal_norm(nparray):
             # [-1, 1]
             return 2 * (nparray - np.min(nparray)) / (np.max(nparray) - np.min(nparray)) - 1
