@@ -29,7 +29,7 @@ class AudioSampling:
     def remove_noise(self, data, framerate, sampwidth, nchannels):
         if sampwidth == 2:
             data = np.frombuffer(data, dtype=np.short)  # 将音频转换为数组
-            data = logmmse.logmmse(data=data, sampling_rate=framerate, noise_threshold=0.05)
+            # data = logmmse.logmmse(data=data, sampling_rate=framerate, noise_threshold=0.05)
             if nchannels == 2:
                 data = (data[::2] + data[1::2]) / 2
             return data.astype(np.short).tobytes()
