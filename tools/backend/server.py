@@ -448,14 +448,14 @@ class BackendServer:
 
     def cal_pipeline_delay(self, pipeline):
         delay = 0
-        print('delay:  ',end='')
+        print('delay:  ', end='')
         for i, stage in enumerate(pipeline):
             execute = stage['execute_data']
             if 'transmit_time' in execute:
                 delay += execute['transmit_time']
             if 'service_time' in execute:
                 delay += execute['service_time']
-                print(f'stage{i}->{execute["service_time"]:.2f}s  ',end='')
+                print(f'stage{i}->{execute["service_time"]:.2f}s  ', end='')
         print(f'total:->{delay:.2f}s')
         return delay
 
@@ -525,7 +525,7 @@ class BackendServer:
 
     def draw_bboxes(self, frame, bbox):
         for x_min, y_min, x_max, y_max in bbox:
-            cv2.rectangle(frame, (int(x_min), int(y_min)), (int(x_max), int(y_max)), (0,255,0), 4)
+            cv2.rectangle(frame, (int(x_min), int(y_min)), (int(x_max), int(y_max)), (0, 255, 0), 4)
         return frame
 
     def timer(self, duration, source_label):
@@ -572,6 +572,7 @@ app.add_middleware(
 
 @app.get('/task')
 async def get_all_task():
+    # TODO: 改成显示已有流水线 {dag_id:dag_name}
     """
 
     :return:
@@ -673,6 +674,81 @@ async def get_service_list():
         return []
 
 
+@app.get('/get_dag_workflows_api')
+async def get_dag_workflows():
+    # TODO
+    """
+    获取已有流水线
+    [
+                {
+                    "dag_id":1,
+                    "dag_name":"headup",
+                    "dag":["face_detection","face_alignment"]
+                },
+                {
+                    "dag_id":1,
+                    "dag_name":"traffic",
+                    "dag":["car_detection","plate_recognition"]
+                },
+                {
+                    "dag_id":1,
+                    "dag_name":"ixpe",
+                    "dag":["ixpe_preprocess","ixpe_sr_and_pc","ixpe_edge_observe"]
+                }
+
+            ],
+    :return:
+    """
+
+
+@app.get('/get_all_service')
+async def get_all_service():
+    # TODO
+    """
+    获取所有容器（docker仓库里的所有）
+    ["face_detection","face_alignment","car_detection","helmet_detection","ixpe_preprocess","ixpe_sr_and_pc","ixpe_edge_observe"]
+    :return:
+    """
+
+
+@app.post('/update_dag_workflows_api')
+def update_dag_workflows():
+    # TODO
+    """
+    新增流水线
+    {
+        "dag_name":"headup",
+        "dag":["face_detection","face_alignment"]
+    },
+    :return:
+        {'state':success/fail, 'message':'...'}
+    """
+
+
+@app.post('/delete_dag_workflow')
+def delete_dag_workflow():
+    # TODO
+    """
+    删除流水线
+    body:
+    {
+        "dag_id":1
+    }
+    :return:
+    {'state':success/fail, 'message':'...'}
+    """
+
+
+@app.post('/datasource_config')
+def upload_datasource_config_file():
+    # TODO
+    """
+    body: file
+    :return:
+        {'state':success/fail, 'message':'...'}
+    """
+
+
 @app.get("/get_execute_url/{service}")
 async def get_service_info(service):
     """
@@ -723,6 +799,7 @@ async def get_video_info():
                     "describe":"某十字路口"
                     “resolution”: "1080p"
                     "fps":"25fps"
+                    "importance": 4
 
                 },
                 {}
@@ -864,7 +941,14 @@ async def get_source_list():
 
 @app.get('/pipeline_info')
 async def get_pipeline_info():
-    """[stage_name1,stage_name2]"""
+    # TODO
+    """
+    {
+        'priority_num': 10,
+        'stage': [stage_name1,stage_name2]
+    }
+
+    """
     namespace = server.find_latest_task_namespace()
     if namespace == '':
         return []
@@ -878,10 +962,17 @@ async def get_pipeline_info():
 
 @app.get('/result_prompt')
 async def get_result_prompt():
+    # TODO
     """
     结果提示文字
     :return:
-    {'prompt':'...'}
+    {
+        'visualizing_prompt': '...',
+        'result_title_prompt':'...'，
+        'result_text_prompt': '...',
+        'delay_text_prompt': '...',
+        'free_task_menu':['最大值','平均值']
+    }
     """
     namespace = server.find_latest_task_namespace()
     if namespace == '':
@@ -922,23 +1013,34 @@ async def get_task_result():
 
 @app.get('/queue_result')
 async def get_queue_result():
+    # TODO
     """
-    10个
-    {
-        'datasource1':
+
+    [
+        # stage1
         [
-            {
-                taskId: 1,
-                priorityTrace:[
-                    {urgency:x
-                    importance:x
-                    priority:x},
-                    {}
-                ]
-            },
-            {...}
+            # priority queue 1
+            [{
+            source_id: 1,
+            task_id: 1,
+            importance: 1
+            urgency: 1
+            },{},{},{}],
+            [],
+            [],
+            [],
+            []
         ],
-    }
+        # stage2
+        [
+            [],
+            [],
+            [],
+            [],
+            []
+
+        ]
+    ]
     :return:
     """
     ans = {}
@@ -950,10 +1052,12 @@ async def get_queue_result():
 
 @app.post('/start_free_task')
 async def start_free_task(data=Body(...)):
+    # TODO
     """
     body
         {
             'source_label':'...',
+            'free_type': '最大值',
             'duration':20  (seconds)
         }
 
@@ -1009,6 +1113,7 @@ async def stop_free_task(source):
 
 @app.get('/free_task_result/{source}')
 async def get_free_task_result(source):
+    # TODO
     """
 
     :param source:
@@ -1020,14 +1125,13 @@ async def get_free_task_result(source):
         2：有结果
         'task_info':
         [
-            {name:任务数量, value:20},
-            {name:最大, value:20},
-            {name:平均, value:20},
+            {name:任务数量, value:20},(result)
         ],
 
         'delay':[
             时延数据
         ],
+
         'start_time': 'xxx',
         'end_time': 'xxx'
 
@@ -1054,7 +1158,7 @@ async def get_free_task_result(source):
             task_info.append({'name': '任务数量', 'value': len(result_count)})
 
             if server.source_label == 'car':
-                task_info.append({'name': '车流峰值', 'value': max(result_count)})
+                task_info.append({'name': '车流峰值', 'value': int(max(result_count))})
                 task_info.append({'name': '车流平均值', 'value': int(np.mean(result_count))})
             elif server.source_label == 'audio':
                 task_info.append({'name': '音频最多识别类别',
@@ -1062,7 +1166,7 @@ async def get_free_task_result(source):
                 task_info.append({'name': '音频最大识别次数',
                                   'value': max([result_count.count(x) for x in set(result_count)])})
                 task_info.append({'name': '音频平均识别次数',
-                                  'value': np.mean([result_count.count(x) for x in set(result_count)])})
+                                  'value': int(np.mean([result_count.count(x) for x in set(result_count)]))})
             elif server.source_label == 'imu':
                 task_info.append({'name': '轨迹长度最大值', 'value': max(result_count)})
                 task_info.append({'name': '轨迹长度平均值', 'value': int(np.mean(result_count))})
@@ -1078,6 +1182,16 @@ async def get_free_task_result(source):
                 'delay': delay,
                 'task_info': task_info
                 }
+
+
+@app.get('/download_log')
+def download_log():
+    # TODO
+    """
+
+    :return:
+    file
+    """
 
 
 def main():
