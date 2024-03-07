@@ -22,7 +22,10 @@ import yaml
 import logging
 import queue
 import cv2
-import random
+import io
+import wave
+import librosa
+from PIL import Image
 
 import matplotlib.pyplot as plt
 
@@ -529,19 +532,15 @@ class BackendServer:
             success, image = video_cap.read()
             image = self.draw_bboxes(image, content[0])
         elif task_type == 'imu':
-            print(f'content length:{len(content[0])}  result length:{result}')
-            process_data = np.array(content[0])
-            np.save(f'debug/{int(time.time())}.npy', process_data)
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
-            ax.plot3D(process_data[:, 0], process_data[:, 1], process_data[:, 2])
-
-            plt.savefig('imu.png', bbox_inches='tight', pad_inches=0.1)
-            plt.close(fig)
-            image = cv2.imread('imu.png')
+            img_path = self.draw_imu_trajectory(content[0])
+            image = cv2.imread(img_path)
 
         elif task_type == 'audio':
-            img_path = os.path.join('audio_class_img', f'{result}.png')
+            f = wave.open(file, "r")
+            params = f.getparams()
+            nchannels, sampwidth, framerate, nframes = params[:4]
+            data = f.readframes(nframes)
+            img_path = self.draw_audio_spec(data, framerate, nchannels)
             image = cv2.imread(img_path)
         elif task_type == 'edge-eye':
             frame = content['frame']
@@ -565,6 +564,48 @@ class BackendServer:
         for x_min, y_min, x_max, y_max in bbox:
             cv2.rectangle(frame, (int(x_min), int(y_min)), (int(x_max), int(y_max)), (0, 255, 0), 4)
         return frame
+
+    def draw_imu_trajectory(self, input_data):
+        process_data = np.array(input_data)
+        np.save(f'debug/{int(time.time())}.npy', process_data)
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.plot3D(process_data[:, 0], process_data[:, 1], process_data[:, 2])
+
+        plt.savefig('imu.png', bbox_inches='tight', pad_inches=0.1)
+        plt.close(fig)
+        return 'imu.png'
+
+    def draw_audio_spec(self, data, framerate, nchannels):
+        def cal_norm(nparray):
+            # [-1, 1]
+            return 2 * (nparray - np.min(nparray)) / (np.max(nparray) - np.min(nparray)) - 1
+
+        databuffer = np.frombuffer(data, dtype=np.short)
+        if nchannels == 2:
+            databuffer = (databuffer[::2] + databuffer[1::2]) / 2
+
+        window_size = int(0.05 * framerate)
+        overlap = int(window_size * (1 - 0.75))
+        n_fft = 4096
+
+        stft = librosa.stft(databuffer.astype(np.float32), n_fft=n_fft, hop_length=overlap, win_length=window_size)
+
+        # 转换为分贝 (dB) 单位
+        log_spectrogram = librosa.amplitude_to_db(np.abs(stft))
+        # 归一化为 [-1, 1]
+        log_spectrogram = cal_norm(log_spectrogram)
+
+        # 画出频谱图
+        librosa.display.specshow(log_spectrogram, sr=framerate, win_length=window_size, hop_length=overlap,
+                                 x_axis='time', y_axis='linear')
+        # 添加颜色条
+        plt.colorbar(format='%+2.0f', ticks=[-1, 1])
+
+        plt.savefig('audio.png')
+        plt.close()
+
+        return 'audio.png'
 
     def timer(self, duration, source_label):
         self.free_start[source_label] = f'{datetime.datetime.now():%Y-%m-%d %H:%M:%S}'
