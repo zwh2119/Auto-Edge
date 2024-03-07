@@ -29,12 +29,11 @@ import matplotlib.pyplot as plt
 
 class NameCounter:
     counter = 0
-    boundary = 10000
 
     @classmethod
     def get_name_counter(cls):
         cls.counter += 1
-        return cls.counter % cls.boundary + cls.boundary
+        return cls.counter
 
 
 class ResultQueue:
@@ -324,6 +323,25 @@ class BackendServer:
 
         ]
 
+        self.services = [
+            'audio-classification',
+            'audio-sampling',
+            'car-detection',
+            'edge-eye-stage1',
+            'edge-eye-stage2',
+            'edge-eye-stage3',
+            'imu-trajectory-sensing'
+        ]
+
+        self.pipelines = []
+
+        self.legal_pipelines = {
+            'road-detection': ['car-detection'],
+            'audio': ['audio-sampling', 'audio-classification'],
+            'imu': ['imu-trajectory-sensing'],
+            'edge-eye': ['edge-eye-stage1', 'edge-eye-stage2', 'edge-eye-stage3']
+        }
+
         self.audio_class = [
             "空调运转声",
             "汽车喇叭声",
@@ -374,6 +392,26 @@ class BackendServer:
         self.free_duration = {}
         self.free_result = {}
         self.free_result_save = {}
+
+    def check_pipeline(self, pipeline):
+        for legal_pipeline_name in self.legal_pipelines:
+            legal_pipeline = self.legal_pipelines[legal_pipeline_name]
+            if legal_pipeline == pipeline:
+                return True
+        return False
+
+    def get_pipeline_label(self, pipeline):
+        for legal_pipeline_name in self.legal_pipelines:
+            legal_pipeline = self.legal_pipelines[legal_pipeline_name]
+            if legal_pipeline == pipeline:
+                return legal_pipeline_name
+        return None
+
+    def find_pipeline_by_id(self, dag_id):
+        for pipeline in server.pipelines:
+            if pipeline['dag_id'] == dag_id:
+                return pipeline['dag']
+        return None
 
     def get_source_id(self):
 
@@ -485,7 +523,7 @@ class BackendServer:
 
     def get_base64_data(self, file, task_type, result, content):
         image = None
-        # TODO: car/edge-eye -> draw bbox /  imu -> from content
+
         if task_type == 'car':
             video_cap = cv2.VideoCapture(file)
             success, image = video_cap.read()
@@ -572,15 +610,14 @@ app.add_middleware(
 
 @app.get('/task')
 async def get_all_task():
-    # TODO: 改成显示已有流水线 {dag_id:dag_name}
     """
-
     :return:
+    显示已有流水线 {dag_id:dag_name}
     """
-    tasks = []
-    for task in server.tasks:
-        tasks.append({task['name']: task['display']})
-    return tasks
+    cur_pipelines = []
+    for pipeline in server.pipelines:
+        cur_pipelines.append({pipeline['dag_id']: pipeline['dag_name']})
+    return cur_pipelines
 
 
 @app.get('/get_task_stage/{task}')
@@ -610,7 +647,7 @@ async def install_service(data=Body(...)):
     """
     body
     {
-        "task_name": "face",
+        "task_name": (id),
         "image_list": ["", ""]
     }
     :return:
@@ -619,8 +656,14 @@ async def install_service(data=Body(...)):
     """
     data = json.loads(str(data, encoding='utf-8'))
 
-    task_name = data['task_name']
+    dag_id = data['task_name']
     images = data['image_list']
+
+    pipeline = server.find_pipeline_by_id(dag_id)
+    if pipeline is None:
+        return {'state': 'fail', 'msg': '服务下装失败：流水线不存在'}
+
+    task_name = server.get_pipeline_label(pipeline)
 
     cur_task = None
 
@@ -676,7 +719,6 @@ async def get_service_list():
 
 @app.get('/get_dag_workflows_api')
 async def get_dag_workflows():
-    # TODO
     """
     获取已有流水线
     [
@@ -700,34 +742,49 @@ async def get_dag_workflows():
     :return:
     """
 
+    return server.pipelines
+
 
 @app.get('/get_all_service')
 async def get_all_service():
-    # TODO
     """
     获取所有容器（docker仓库里的所有）
     ["face_detection","face_alignment","car_detection","helmet_detection","ixpe_preprocess","ixpe_sr_and_pc","ixpe_edge_observe"]
     :return:
     """
 
+    return server.services
+
 
 @app.post('/update_dag_workflows_api')
-def update_dag_workflows():
-    # TODO
+def update_dag_workflows(data=Body(...)):
     """
     新增流水线
+    body
     {
         "dag_name":"headup",
         "dag":["face_detection","face_alignment"]
     },
     :return:
-        {'state':success/fail, 'message':'...'}
+        {'state':success/fail, 'msg':'...'}
     """
+    data = json.loads(str(data, encoding='utf-8'))
+    pipeline_name = data['dag_name']
+    pipeline = data['dag']
+
+    if server.check_pipeline(pipeline):
+        server.pipelines.append({
+            'dag_id': NameCounter.get_name_counter(),
+            'dag_name': pipeline_name,
+            'dag': pipeline
+        })
+        return {'state': 'success', 'msg': '新增流水线成功¬'}
+    else:
+        return {'state': 'fail', 'msg': '新增流水线失败：非法流水线定义'}
 
 
 @app.post('/delete_dag_workflow')
-def delete_dag_workflow():
-    # TODO
+def delete_dag_workflow(data=Body(...)):
     """
     删除流水线
     body:
@@ -735,8 +792,16 @@ def delete_dag_workflow():
         "dag_id":1
     }
     :return:
-    {'state':success/fail, 'message':'...'}
+    {'state':success/fail, 'msg':'...'}
     """
+
+    data = json.loads(str(data, encoding='utf-8'))
+    dag_id = int(data['dag_id'])
+    for pipeline in server.pipelines:
+        if pipeline['dag_id'] == dag_id:
+            return {'state': 'success', 'msg': '删除流水线成功'}
+
+    return {'state': 'fail', 'msg': '删除流水线失败：流水线不存在'}
 
 
 @app.post('/datasource_config')
@@ -745,7 +810,7 @@ def upload_datasource_config_file():
     """
     body: file
     :return:
-        {'state':success/fail, 'message':'...'}
+        {'state':success/fail, 'msg':'...'}
     """
 
 
