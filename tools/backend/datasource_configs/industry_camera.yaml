@@ -1,0 +1,27 @@
+{
+  "source_label": "edge-eye",
+  "source_name": "工厂摄像头",
+  "source_type": "视频流",
+  "camera_list": [
+    {
+      'id': 'edge_eye_video_source1',
+      "name": "工厂摄像头1",
+      "url": "rtsp://192.168.1.67/video0",
+      "describe": "工厂1",
+      "resolution": "1080p",
+      "fps": "25fps",
+      "importance": 7
+
+    },
+    {
+      'id': 'edge_eye_video_source2',
+      "name": "工厂摄像头2",
+      "url": "rtsp://192.168.1.83/video1",
+      "describe": "工厂2",
+      "resolution": "1080p",
+      "fps": "25fps",
+      "importance": 2
+    }
+  ]
+
+}

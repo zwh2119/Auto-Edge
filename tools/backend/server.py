@@ -12,7 +12,7 @@ import os
 import time
 
 import uvicorn
-from fastapi import FastAPI, Body, Request
+from fastapi import FastAPI, Body, Request, File, UploadFile
 
 from fastapi.middleware.cors import CORSMiddleware
 import requests
@@ -230,7 +230,7 @@ class BackendServer:
             },
         ]
 
-        self.sources = [
+        self.total_sources = [
             {
                 "source_label": "car",
                 "source_name": "交通监控摄像头",
@@ -242,7 +242,8 @@ class BackendServer:
                         "url": "rtsp://192.168.1.51/video0",
                         "describe": "高速公路监控摄像头",
                         "resolution": "1080p",
-                        "fps": "25fps"
+                        "fps": "25fps",
+                        "importance": 7
 
                     },
                     {
@@ -251,7 +252,8 @@ class BackendServer:
                         "url": "rtsp://192.168.1.55/video1",
                         "describe": "十字路口监控摄像头",
                         "resolution": "1080p",
-                        "fps": "30fps"
+                        "fps": "30fps",
+                        "importance": 2
                     }
                 ]
 
@@ -266,6 +268,7 @@ class BackendServer:
                         "name": "音频流1",
                         "url": "http://192.168.2.22:3381/audio",
                         "describe": "音频来源1",
+                        "importance": 7
 
                     },
                     {
@@ -273,6 +276,7 @@ class BackendServer:
                         "name": "音频流2",
                         "url": "http://192.168.2.22:3382/audio",
                         "describe": "音频来源2",
+                        "importance": 2
                     }
                 ]
 
@@ -287,6 +291,7 @@ class BackendServer:
                         "name": "IMU流1",
                         "url": "http://192.168.2.11:3000/imu",
                         "describe": "IMU场景1",
+                        "importance": 7
 
                     },
                     {
@@ -294,6 +299,7 @@ class BackendServer:
                         "name": "IMU流2",
                         "url": "http://192.168.2.91:3001/imu",
                         "describe": "IMU场景2",
+                        "importance": 2
                     }
                 ]
 
@@ -309,7 +315,8 @@ class BackendServer:
                         "url": "rtsp://192.168.1.67/video0",
                         "describe": "工厂1",
                         "resolution": "1080p",
-                        "fps": "25fps"
+                        "fps": "25fps",
+                        "importance": 7
 
                     },
                     {
@@ -318,13 +325,16 @@ class BackendServer:
                         "url": "rtsp://192.168.1.83/video1",
                         "describe": "工厂2",
                         "resolution": "1080p",
-                        "fps": "25fps"
+                        "fps": "25fps",
+                        "importance": 2
                     }
                 ]
 
             },
 
         ]
+
+        self.sources = []
 
         self.services = [
             'audio-classification',
@@ -486,6 +496,9 @@ class BackendServer:
                         ])
 
             time.sleep(1)
+
+    def check_datasource_config(self, config):
+        pass
 
     def cal_pipeline_delay(self, pipeline):
         delay = 0
@@ -848,13 +861,20 @@ def delete_dag_workflow(data=Body(...)):
 
 
 @app.post('/datasource_config')
-def upload_datasource_config_file():
+async def upload_datasource_config_file(file: UploadFile = File(...)):
     # TODO
     """
     body: file
     :return:
         {'state':success/fail, 'msg':'...'}
     """
+    file_data = await file.read()
+    config = json.load()
+
+    if server.check_datasource_config(config):
+        return {'state': 'success', 'msg': '数据流配置成功'}
+    else:
+        return {'state': 'fail', 'msg': '数据流配置失败，请检查上传配置文件格式'}
 
 
 @app.get("/get_execute_url/{service}")
@@ -920,6 +940,7 @@ async def get_video_info():
 
 @app.post("/query/submit_query")
 def submit_query(data=Body(...)):
+    # TODO: 增加提交importance到调度器
     """
     body
     {

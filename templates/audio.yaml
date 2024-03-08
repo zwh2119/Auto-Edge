@@ -28,6 +28,8 @@ spec:
                 value: cloud.kubeedge
               - name: modal
                 value: "audio"
+              - name: frame_per_task
+                value: "4"
     - file:
         path: "/home/nvidia/zwh/Auto-Edge/files-mid"
       logLevel:
@@ -51,6 +53,8 @@ spec:
                   value: cloud.kubeedge
                 - name: modal
                   value: "audio"
+                - name: frame_per_task
+                  value: "4"
 
 ---
 

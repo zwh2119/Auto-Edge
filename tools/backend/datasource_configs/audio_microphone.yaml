@@ -1,0 +1,23 @@
+{
+  "source_label": "audio",
+  "source_name": "音频数据流",
+  "source_type": "音频流",
+  "camera_list": [
+    {
+      'id': 'audio_source1',
+      "name": "音频流1",
+      "url": "http://192.168.2.22:3381/audio",
+      "describe": "音频来源1",
+      "importance": 7
+
+    },
+    {
+      'id': 'audio_source2',
+      "name": "音频流2",
+      "url": "http://192.168.2.22:3382/audio",
+      "describe": "音频来源2",
+      "importance": 2
+    }
+  ]
+
+}

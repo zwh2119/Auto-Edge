@@ -27,7 +27,7 @@ class AudioGenerator:
         self.generator_id = generator_id
         self.priority = priority
 
-        self.frames_per_task = 1
+        self.frames_per_task = int(Context.get_parameters('frame_per_task'))
 
         self.local_ip = get_nodes_info()[Context.get_parameters('NODE_NAME')]
 
