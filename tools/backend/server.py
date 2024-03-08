@@ -356,16 +356,12 @@ class BackendServer:
         }
 
         self.audio_class = [
-            "空调运转声",
-            "汽车喇叭声",
-            "嘻戏打闹声",
-            "狗叫声",
+            "其他声音"
+            "喇叭声",
             "钻孔声",
-            "引擎怠速声",
-            "枪声",
-            "挖掘机工作声",
+            "引擎声",
+            "重型机械声",
             "警报声",
-            "流行音乐声"
         ]
 
         self.devices = {
@@ -869,7 +865,7 @@ async def upload_datasource_config_file(file: UploadFile = File(...)):
         {'state':success/fail, 'msg':'...'}
     """
     file_data = await file.read()
-    config = json.load()
+    config = json.loads(file_data)
 
     if server.check_datasource_config(config):
         return {'state': 'success', 'msg': '数据流配置成功'}

@@ -11,16 +11,12 @@ from log import LOGGER
 class AudioClassification:
     def __init__(self, cfg):
         self.sound_categories = [
-            "Air Conditioner (空调)",
-            "Car Horn (汽车喇叭)",
-            "Children Playing (儿童游玩)",
-            "Dog Bark (狗叫)",
-            "Drilling (钻孔)",
-            "Engine Idling (引擎怠速)",
-            "Gun Shot (枪声)",
-            "Jackhammer (挖掘机)",
+            "Other (其他声音)"
+            "Car Horn (喇叭声)",
+            "Drilling (钻孔声)",
+            "Engine Idling (引擎声)",
+            "Jackhammer (重型机械声)",
             "Siren (警报声)",
-            "Street Music (街头音乐)"
         ]
 
         self.model_path = cfg['model_path']
@@ -32,12 +28,15 @@ class AudioClassification:
 
     def __call__(self, data, metadata):
         LOGGER.debug('start infer ..')
-        index, consuming_time = self.infer(data, metadata["framerate"] if metadata["resample_rate"] == 0 else metadata["resample_rate"])
+        index, consuming_time = self.infer(data, metadata["framerate"] if metadata["resample_rate"] == 0 else metadata[
+            "resample_rate"])
+        index = index.item()
+        index = [0, 1, 0, 0, 2, 3, 0, 4, 5, 0][index]
 
         output_ctx = {}
         output_ctx['parameters'] = {}
         output_ctx['parameters']['obj_num'] = []
-        output_ctx['parameters']['obj_num'].append(index.item())
+        output_ctx['parameters']['obj_num'].append(index)
 
         return output_ctx
 
