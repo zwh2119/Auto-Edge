@@ -4,7 +4,7 @@
   "source_type": "视频流",
   "camera_list": [
     {
-      'id': 'edge_eye_video_source1',
+      "id": "edge_eye_video_source1",
       "name": "工厂摄像头1",
       "url": "rtsp://192.168.1.67/video0",
       "describe": "工厂1",
@@ -14,7 +14,7 @@
 
     },
     {
-      'id': 'edge_eye_video_source2',
+      "id": "edge_eye_video_source2",
       "name": "工厂摄像头2",
       "url": "rtsp://192.168.1.83/video1",
       "describe": "工厂2",

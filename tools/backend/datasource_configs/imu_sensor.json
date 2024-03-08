@@ -4,7 +4,7 @@
   "source_type": "IMU流",
   "camera_list": [
     {
-      'id': 'imu_source1',
+      "id": "imu_source1",
       "name": "IMU流1",
       "url": "http://192.168.2.11:3000/imu",
       "describe": "IMU场景1",
@@ -12,7 +12,7 @@
 
     },
     {
-      'id': 'imu_source2',
+      "id": "imu_source2",
       "name": "IMU流2",
       "url": "http://192.168.2.91:3001/imu",
       "describe": "IMU场景2",

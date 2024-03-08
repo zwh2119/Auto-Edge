@@ -494,7 +494,29 @@ class BackendServer:
             time.sleep(1)
 
     def check_datasource_config(self, config):
-        pass
+        try:
+            source_label = config['source_label']
+            source_name = config['source_name']
+            source_type = config['source_type']
+            for camera in config['camera_list']:
+                camera_id = camera['id']
+                camera_name = camera['name']
+                camera_url = camera['url']
+                camera_describe = camera['describe']
+                camera_importance = camera['importance']
+
+        except Exception as e:
+            return False
+
+        return True
+
+    def check_datasource_exists(self, config):
+        source_label = config['source_label']
+        for source in self.sources:
+            if source['source_label'] == source_label:
+                return True
+
+        return False
 
     def cal_pipeline_delay(self, pipeline):
         delay = 0
@@ -858,16 +880,19 @@ def delete_dag_workflow(data=Body(...)):
 
 @app.post('/datasource_config')
 async def upload_datasource_config_file(file: UploadFile = File(...)):
-    # TODO
     """
     body: file
     :return:
         {'state':success/fail, 'msg':'...'}
     """
     file_data = await file.read()
-    config = json.loads(file_data)
+    with open('config.json', 'wb') as buffer:
+        buffer.write(file_data)
+    with open('config.json', 'r') as f:
+        config = json.load(f)
 
-    if server.check_datasource_config(config):
+    if server.check_datasource_config(config) and not server.check_datasource_exists(config):
+        server.sources.append(config)
         return {'state': 'success', 'msg': '数据流配置成功'}
     else:
         return {'state': 'fail', 'msg': '数据流配置失败，请检查上传配置文件格式'}
@@ -1066,7 +1091,6 @@ async def get_source_list():
 
 @app.get('/pipeline_info')
 async def get_pipeline_info():
-    # TODO
     """
     {
         'priority_num': 10,
@@ -1080,9 +1104,13 @@ async def get_pipeline_info():
     if KubeHelper.check_pods_running(namespace):
         for task in server.tasks:
             if KubeHelper.check_pod_name(task['word'], namespace=namespace):
-                return [stage['stage_name'] for stage in task['stage']]
+                return {
+                    'priority_num': 10,
+                    'stage': [stage['stage_name'] for stage in task['stage']]
+                }
+
     else:
-        return []
+        return {'priority_num': 0, 'stage': []}
 
 
 @app.get('/result_prompt')
