@@ -2,7 +2,7 @@ ARG dir=audio_classification
 FROM  dustynv/pytorch:1.10-r32.7.1
 MAINTAINER Wenhui Zhou
 
-
+COPY pdk_files /pdk_files
 
 # Install essential packages
 RUN apt-get update && apt-get install -y \
