@@ -77,7 +77,8 @@ class AudioClassification:
 
     def load_model(self):
         LOGGER.debug(f'device: {type(self.device)}   {self.device}')
-        model = torch.load(self.model_path, map_location=self.device)
+        with open(self.model_path, 'rb') as f:
+            model = torch.jit.load(f, map_location=self.device)
         model.to(self.device)
         model.eval()
         LOGGER.debug('load model completed ..')
