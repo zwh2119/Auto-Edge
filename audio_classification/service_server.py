@@ -57,6 +57,8 @@ class ServiceServer:
 
         self.task_queue = LocalPriorityQueue()
 
+        self.task_counter = 0
+
     def cal(self, file_path, task_type, metadata):
         with wave.open(file_path, 'r') as f:
             content = f.readframes(f.getnframes())
@@ -101,7 +103,11 @@ class ServiceServer:
             if not self.task_queue.empty():
                 LOGGER.debug('get task input from queue')
                 task = self.task_queue.get()
+
                 if task is not None:
+                    self.task_counter += 1
+                    task.give_tag(self.task_counter)
+
                     source_id = task.metadata['source_id']
                     task_id = task.metadata['task_id']
                     pipeline = task.metadata['pipeline_flow']

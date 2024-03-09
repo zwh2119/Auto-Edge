@@ -62,6 +62,8 @@ class ServiceServer:
         self.max_queue_size = eval(Context.get_parameters('max_queue_size'))
         self.task_queue = LocalPriorityQueue(max_size=self.max_queue_size)
 
+        self.task_counter = 0
+
     def cal(self, file_path, task_type):
         content = []
         video_cap = cv2.VideoCapture(file_path)
@@ -113,6 +115,9 @@ class ServiceServer:
                 LOGGER.debug('get task input from queue')
                 task = self.task_queue.get()
                 if task is not None:
+                    self.task_counter += 1
+                    task.give_tag(self.task_counter)
+
                     source_id = task.metadata['source_id']
                     task_id = task.metadata['task_id']
                     pipeline = task.metadata['pipeline_flow']

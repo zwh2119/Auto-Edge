@@ -52,6 +52,8 @@ class ServiceServer:
 
         self.task_queue = LocalPriorityQueue()
 
+        self.task_counter = 0
+
     def cal(self, data, task_type, metadata):
         result = self.estimator(data, metadata)
 
@@ -90,8 +92,12 @@ class ServiceServer:
         while True:
             if not self.task_queue.empty():
                 LOGGER.debug('get task input from queue')
+
                 task = self.task_queue.get()
                 if task is not None:
+                    self.task_counter += 1
+                    task.give_tag(self.task_counter)
+
                     source_id = task.metadata['source_id']
                     task_id = task.metadata['task_id']
                     pipeline = task.metadata['pipeline_flow']

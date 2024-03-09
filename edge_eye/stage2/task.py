@@ -6,3 +6,7 @@ class Task:
     def __lt__(self, other):
         index = self.metadata['cur_flow_index']
         return self.metadata['priority'][index]['priority'] > other.metadata['priority'][index]['priority']
+
+    def give_tag(self, tag):
+        index = self.metadata['cur_flow_index']
+        self.metadata['priority'][index]['tag'] = tag
