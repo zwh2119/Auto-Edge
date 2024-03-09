@@ -29,7 +29,7 @@ spec:
               - name: modal
                 value: "audio"
               - name: frame_per_task
-                value: "4"
+                value: "1"
     - file:
         path: "/home/nvidia/zwh/Auto-Edge/files-mid"
       logLevel:
@@ -54,7 +54,7 @@ spec:
                 - name: modal
                   value: "audio"
                 - name: frame_per_task
-                  value: "4"
+                  value: "1"
 
 ---
 

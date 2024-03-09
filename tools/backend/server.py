@@ -356,7 +356,7 @@ class BackendServer:
         }
 
         self.audio_class = [
-            "其他声音"
+            "其他声音",
             "喇叭声",
             "钻孔声",
             "引擎声",
@@ -571,6 +571,7 @@ class BackendServer:
             params = f.getparams()
             nchannels, sampwidth, framerate, nframes = params[:4]
             data = f.readframes(nframes)
+            print('result: ',result)
             img_path = self.draw_audio_spec(data, framerate, nchannels, self.audio_class[result])
             image = cv2.imread(img_path)
         elif task_type == 'edge-eye':
@@ -686,19 +687,24 @@ app.add_middleware(
 async def get_all_task():
     """
     :return:
-    显示已有流水线 {dag_id:dag_name}
+    显示已有流水线
+    {
+        dag_id:id,
+        dag_name：name}
     """
     cur_pipelines = []
     for pipeline in server.pipelines:
-        cur_pipelines.append({pipeline['dag_id']: pipeline['dag_name']})
+        cur_pipelines.append(
+            {'dag_id': pipeline['dag_id'],
+             'dag_name': pipeline['dag_name']})
     return cur_pipelines
 
 
-@app.get('/get_task_stage/{task}')
-async def get_service_stage(task):
+@app.get('/get_task_stage/{dag_id}')
+async def get_service_stage(dag_id):
     """
 
-    :param task:
+    :param dag_id:
     :return:
     [
         {
@@ -709,11 +715,21 @@ async def get_service_stage(task):
         },
     ]
     """
+    # print(f'pipelines:{server.pipelines}')
+    dag_id = int(dag_id)
+    pipeline = server.find_pipeline_by_id(dag_id)
+    if pipeline is None:
+        print(f'id {dag_id} not exists in pipeline')
+        return []
+
+    task_name = server.get_pipeline_label(pipeline)
+
     for server_task in server.tasks:
-        if server_task['name'] == task:
+        if server_task['name'] == task_name:
             return server_task['stage']
 
-    assert None, f'task name {task} error!'
+    print(f'task name {task_name} error!')
+    return []
 
 
 @app.post('/install')
@@ -721,7 +737,7 @@ async def install_service(data=Body(...)):
     """
     body
     {
-        "task_name": (id),
+        "dag_id": (id),
         "image_list": ["", ""]
     }
     :return:
@@ -730,7 +746,7 @@ async def install_service(data=Body(...)):
     """
     data = json.loads(str(data, encoding='utf-8'))
 
-    dag_id = data['task_name']
+    dag_id = int(data['dag_id'])
     images = data['image_list']
 
     pipeline = server.find_pipeline_by_id(dag_id)
@@ -842,7 +858,7 @@ def update_dag_workflows(data=Body(...)):
     :return:
         {'state':success/fail, 'msg':'...'}
     """
-    data = json.loads(str(data, encoding='utf-8'))
+    # data = json.loads(str(data, encoding='utf-8'))
     pipeline_name = data['dag_name']
     pipeline = data['dag']
 
@@ -852,7 +868,7 @@ def update_dag_workflows(data=Body(...)):
             'dag_name': pipeline_name,
             'dag': pipeline
         })
-        return {'state': 'success', 'msg': '新增流水线成功¬'}
+        return {'state': 'success', 'msg': '新增流水线成功'}
     else:
         return {'state': 'fail', 'msg': '新增流水线失败：非法流水线定义'}
 
@@ -871,8 +887,9 @@ def delete_dag_workflow(data=Body(...)):
 
     data = json.loads(str(data, encoding='utf-8'))
     dag_id = int(data['dag_id'])
-    for pipeline in server.pipelines:
+    for index, pipeline in enumerate(server.pipelines):
         if pipeline['dag_id'] == dag_id:
+            del server.pipelines[index]
             return {'state': 'success', 'msg': '删除流水线成功'}
 
     return {'state': 'fail', 'msg': '删除流水线失败：流水线不存在'}
@@ -917,6 +934,8 @@ async def get_service_info(service):
 
     """
     try:
+        if service == 'null':
+            return []
         namespace = server.find_latest_task_namespace()
         info = KubeHelper.get_service_info(service_name=service, namespace=namespace)
         resource_data = http_request(server.resource_url, method='GET')

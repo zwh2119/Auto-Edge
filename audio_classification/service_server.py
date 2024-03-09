@@ -45,7 +45,7 @@ class ServiceServer:
 
         service_args = {
             'model_path': self.model_path,
-            'device': 'cpu'
+            'device': 'cuda:0'
         }
 
         self.estimator = AudioClassification(service_args)
