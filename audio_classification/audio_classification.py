@@ -79,7 +79,10 @@ class AudioClassification:
         LOGGER.debug(f'device: {type(self.device)}   {self.device}')
         with open(self.model_path, 'rb') as f:
             model = torch.jit.load(f, map_location=self.device)
+        LOGGER.debug('load model')
         model.to(self.device)
+        LOGGER.debug('transform model to target device')
         model.eval()
+        LOGGER.debug('evaluation mode of model')
         LOGGER.debug('load model completed ..')
         return model
