@@ -3,15 +3,18 @@ FROM  dustynv/pytorch:1.10-r32.7.1
 MAINTAINER Wenhui Zhou
 
 
+# Install essential packages
 RUN apt-get update && apt-get install -y \
     wget \
     lsb-release \
     software-properties-common \
     gnupg \
-    build-essential  # This will install 'make' and other essential build tools
+    build-essential \
+    libsndfile1
 
-
-RUN apt-get update && apt-get install -y llvm  libsndfile1
+# Explicitly install a compatible version of LLVM for llvmlite
+RUN apt-get install -y llvm-10 llvm-10-dev \
+    && update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-10 60
 
 COPY ./requirements.txt ./
 
