@@ -1,9 +1,7 @@
-numpy
 colorlog
 uvicorn
 fastapi
 starlette
-torch
 python-multipart
 kubernetes==20.11.0a1
 numba
