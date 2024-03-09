@@ -1,5 +1,5 @@
 ARG dir=audio_classification
-FROM pytorch/manylinux-cuda117
+FROM pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime
 MAINTAINER Wenhui Zhou
 
 RUN apt-get update && apt-get install -y \
