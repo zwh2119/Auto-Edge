@@ -387,7 +387,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/audio-classification:mid-v1.0.0
+          - image: onecheck/audio-classification:arm64-mid-v1.0.0
             imagePullPolicy: IfNotPresent
             name: audio-classification
             env:
@@ -407,7 +407,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/audio-classification:mid-v1.0.0
+          - image: onecheck/audio-classification:arm64-mid-v1.0.0
             imagePullPolicy: IfNotPresent
             name: audio-classification
             env:

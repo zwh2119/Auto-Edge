@@ -59,7 +59,7 @@ declare -A PLATFORMS=(
 # Images requiring special treatment, their platforms, and Dockerfiles
 declare -A SPECIAL_BUILD=(
     [car-detection]="linux/amd64:car_detection/Dockerfile,linux/arm64:car_detection/arm64.Dockerfile"
-    [audio-classification]="linux/amd64:audio-classification/Dockerfile,linux/arm64:audio-classification/arm64.Dockerfile"
+    [audio-classification]="linux/amd64:audio_classification/Dockerfile,linux/arm64:audio_classification/arm64.Dockerfile"
 )
 
 # Initialize variables
