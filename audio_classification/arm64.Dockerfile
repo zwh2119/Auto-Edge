@@ -19,7 +19,7 @@ RUN apt-get install -y llvm-10 llvm-10-dev \
 COPY ./requirements.txt ./
 
 RUN pip3 install --upgrade pip  \
-    && pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+    && pip3 install --ignore-installed PyYAML -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 
 WORKDIR /app
