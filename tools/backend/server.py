@@ -117,7 +117,11 @@ class BackendServer:
                 'yaml': 'video_car_detection.yaml',
                 'namespace': 'auto-edge-car',
                 'word': 'car',
-                'prompt': '车流数量',
+                'visualizing_prompt': '...',
+                'result_title_prompt': '...',
+                'result_text_prompt': '...',
+                'delay_text_prompt': '...',
+                'free_task_menu': ['最大值', '平均值'],
                 'stage': [
                     {
                         "stage_name": "car-detection",
@@ -138,7 +142,11 @@ class BackendServer:
                 'yaml': 'audio.yaml',
                 'namespace': 'auto-edge-audio',
                 'word': 'audio',
-                'prompt': '音频类别',
+                'visualizing_prompt': '...',
+                'result_title_prompt': '...',
+                'result_text_prompt': '...',
+                'delay_text_prompt': '...',
+                'free_task_menu': ['最大值', '平均值'],
                 'stage': [
                     {
                         "stage_name": "audio-sampling",
@@ -170,7 +178,11 @@ class BackendServer:
                 'yaml': 'imu.yaml',
                 'namespace': 'auto-edge-imu',
                 'word': 'imu',
-                'prompt': 'IMU轨迹长度',
+                'visualizing_prompt': '...',
+                'result_title_prompt': '...',
+                'result_text_prompt': '...',
+                'delay_text_prompt': '...',
+                'free_task_menu': ['最大值', '平均值'],
                 'stage': [
                     {
                         "stage_name": "imu-trajectory-sensing",
@@ -191,7 +203,11 @@ class BackendServer:
                 'yaml': 'edge-eye.yaml',
                 'namespace': 'auto-edge-edge-eye',
                 'word': 'eye',
-                'prompt': '材料中心点位置',
+                'visualizing_prompt': '...',
+                'result_title_prompt': '...',
+                'result_text_prompt': '...',
+                'delay_text_prompt': '...',
+                'free_task_menu': ['最大值', '平均值'],
                 'stage': [
                     {
                         "stage_name": "edge-eye-stage1",
@@ -571,7 +587,7 @@ class BackendServer:
             params = f.getparams()
             nchannels, sampwidth, framerate, nframes = params[:4]
             data = f.readframes(nframes)
-            print('result: ',result)
+            print('result: ', result)
             img_path = self.draw_audio_spec(data, framerate, nchannels, self.audio_class[result])
             image = cv2.imread(img_path)
         elif task_type == 'edge-eye':
@@ -1140,7 +1156,7 @@ async def get_result_prompt():
     :return:
     {
         'visualizing_prompt': '...',
-        'result_title_prompt':'...'，
+        'result_title_prompt':'...',
         'result_text_prompt': '...',
         'delay_text_prompt': '...',
         'free_task_menu':['最大值','平均值']
