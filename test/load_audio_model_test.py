@@ -1,15 +1,12 @@
 import torch
+from torchvision.models import resnet34
 
 def load_model_test():
     device = torch.device('cuda:0')
-    model_path = '/home/nvidia/zwh/Auto-Edge/model_lib_mid/model.pth'
+    model_path = 'model_state_dict.pth'
     print(f'device: {type(device)}   {device}')
-    try:
-        with open(model_path, 'rb') as f:
-            model = torch.jit.load(f, map_location=device)
-    except Exception as e:
-        with open(model_path, 'rb') as f:
-            model = torch.jit.load(f, map_location=torch.device('cpu'))
+    model = resnet34(num_classes=10)
+    model.load_state_dict(torch.load(model_path))
     print('load model')
     model.to(device)
     print('transform model to target device')

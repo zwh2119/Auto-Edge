@@ -406,7 +406,8 @@ class BackendServer:
         self.save_logs_path = ''
 
         self.task_results = {}
-        self.queue_results = {}
+        self.queue_results = None
+        self.priority_queue_state = None
 
         self.is_get_result = False
 
@@ -494,7 +495,8 @@ class BackendServer:
                         'delay': delay,
                         'visualize': base64_data
                     }])
-                    self.queue_results[source_id_text].save_results([{
+
+                    self.queue_results.save_results([{
                         'taskId': task_id,
                         'priorityTrace': priority_trace
                     }])
@@ -1026,7 +1028,10 @@ def submit_query(data=Body(...)):
     server.source_label = source_label
     for source_id in server.get_source_id():
         server.task_results[source_id] = ResultQueue(10)
-        server.queue_results[source_id] = ResultQueue(10)
+    server.queue_results = ResultQueue()
+
+    # TODO: initialize priority queue state with n stage
+    server.priority_queue_state = []
 
     server.is_get_result = True
     threading.Thread(target=server.run_get_result).start()
@@ -1231,9 +1236,7 @@ async def get_queue_result():
     ]
     :return:
     """
-    ans = {}
-    for source_id in server.get_source_id():
-        ans[source_id] = server.queue_results[source_id].get_results()
+    server.queue_results.get_results()
 
     return ans
 

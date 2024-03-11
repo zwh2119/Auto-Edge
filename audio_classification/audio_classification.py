@@ -5,6 +5,7 @@ import time
 
 import numpy as np
 import torch
+from torchvision.models import resnet34
 from log import LOGGER
 
 
@@ -18,6 +19,8 @@ class AudioClassification:
             "Jackhammer (重型机械声)",
             "Siren (警报声)",
         ]
+
+        self.num_class = 10
 
         self.model_path = cfg['model_path']
         self.device = torch.device(cfg['device'])
@@ -77,8 +80,8 @@ class AudioClassification:
 
     def load_model(self):
         LOGGER.debug(f'device: {type(self.device)}   {self.device}')
-        with open(self.model_path, 'rb') as f:
-            model = torch.jit.load(f, map_location=self.device)
+        model = resnet34(num_classes=self.num_class)
+        model.load_state_dict(torch.load(self.model_path))
         LOGGER.debug('load model')
         model.to(self.device)
         LOGGER.debug('transform model to target device')
