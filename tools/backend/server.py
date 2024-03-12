@@ -393,6 +393,8 @@ class BackendServer:
 
         self.time_ticket = 0
 
+        self.priority_num = 10
+
         self.templates_path = '/home/hx/zwh/Auto-Edge/templates'
         self.free_task_url = 'http://114.212.81.11:39400/task'
 
@@ -410,7 +412,8 @@ class BackendServer:
 
         self.task_results = {}
         self.queue_results = None
-        self.priority_queue_state = None
+        self.queue_waiting_list = []
+        self.priority_queue_state = []
 
         self.is_get_result = False
 
@@ -432,6 +435,15 @@ class BackendServer:
         self.imu_diss = {}
         self.imu_combined_arr = {}
         self.imu_last_length = {}
+
+    def get_task_priority_framework(self, task):
+        return [[[] for _ in range(self.priority_num)] for _ in task['stage']]
+
+    def clear_priority_queue_state(self):
+        for stage in self.priority_queue_state:
+            for priority_queue in stage:
+                if priority_queue:
+                    priority_queue.clear()
 
     def init_imu(self):
         self.imu_diss = {}
@@ -498,6 +510,7 @@ class BackendServer:
                         continue
 
                     priority_trace = self.get_pipeline_priority(result['priority'])
+                    print(f'priority_trace: {priority_trace}')
                     task_result = result['obj_num']
 
                     task_type = result['task_type']
@@ -530,8 +543,9 @@ class BackendServer:
                     }])
 
                     self.queue_results.save_results([{
-                        'taskId': task_id,
-                        'priorityTrace': priority_trace
+                        'source_id': source_id,
+                        'task_id': task_id,
+                        'priority_trace': priority_trace
                     }])
 
                     if source_id_text in self.free_open and self.free_open[source_id_text] \
@@ -670,7 +684,8 @@ class BackendServer:
         np.save(f'debug/{int(time.time())}.npy', process_data)
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.plot3D(self.imu_combined_arr[source][:, 0], self.imu_combined_arr[source][:, 1], self.imu_combined_arr[source][:, 2])
+        ax.plot3D(self.imu_combined_arr[source][:, 0], self.imu_combined_arr[source][:, 1],
+                  self.imu_combined_arr[source][:, 2])
 
         plt.savefig('imu.png', bbox_inches='tight', pad_inches=0.01)
         plt.close(fig)
@@ -854,6 +869,8 @@ async def install_service(data=Body(...)):
         server.init_imu()
 
     server.newest_task = cur_task['name']
+    server.priority_queue_state = server.get_task_priority_framework(cur_task)
+    server.queue_waiting_list = []
 
     if result:
         return {'state': 'success', 'msg': '服务下装成功'}
@@ -1085,8 +1102,6 @@ def submit_query(data=Body(...)):
         server.task_results[source_id] = ResultQueue(10)
     server.queue_results = ResultQueue()
 
-    server.priority_queue_state = []
-
     server.is_get_result = True
     threading.Thread(target=server.run_get_result).start()
 
@@ -1116,6 +1131,9 @@ async def stop_service():
         logging.exception(e)
         result = False
 
+    server.priority_queue_state = []
+    server.queue_waiting_list = []
+
     if result:
         return {'state': 'success', 'msg': '服务停止成功'}
     else:
@@ -1134,7 +1152,7 @@ async def stop_query():
     server.source_label = ''
     server.is_get_result = False
     server.task_results = {}
-    server.queue_results = {}
+    server.queue_results = None
 
     return {'state': 'success', 'msg': '数据流关闭成功'}
 
@@ -1199,7 +1217,7 @@ async def get_pipeline_info():
         for task in server.tasks:
             if KubeHelper.check_pod_name(task['word'], namespace=namespace):
                 return {
-                    'priority_num': 10,
+                    'priority_num': server.priority_num,
                     'stage': [stage['stage_name'] for stage in task['stage']]
                 }
 
@@ -1275,7 +1293,6 @@ async def get_task_result():
 
 @app.get('/queue_result')
 async def get_queue_result():
-    # TODO
     """
 
     [
@@ -1306,46 +1323,32 @@ async def get_queue_result():
     :return:
     """
     if not server.source_open:
-        return []
-    server.queue_results.get_results()
-    namespace = 'auto-edge'
-    stages = []
-    if KubeHelper.check_pods_running(namespace):
-        for task in server.tasks:
-            if KubeHelper.check_pod_name(task['word'], namespace=namespace):
-                stages = [[] for stage in task['stage']]
+        server.clear_priority_queue_state()
+        return server.priority_queue_state
+
+    cur_time = time.time() - 1
+    server.queue_waiting_list.extend(server.queue_results.get_results())
+
+    server.queue_waiting_list = list(filter(lambda x: x['priority_trace'][-1]['tag'] <= cur_time,
+                                            server.queue_waiting_list))
+
+    server.clear_priority_queue_state()
+
+    for task in server.queue_waiting_list:
+        priority = task['priority_trace']
+        for stage_num, stage_priority in enumerate(priority):
+            if stage_priority['tag'] <= cur_time:
+                server.priority_queue_state[stage_num][stage_priority['priority']].append(
+                    {
+                        'source_id': task['source_id'],
+                        'task_id': task['task_id'],
+                        'importance': stage_priority['importance'],
+                        'urgency': stage_priority['urgency'],
+                        'priority': stage_priority['priority']
+                    }
+                )
                 break
-
-    if not stages:
-        return stages
-
-    for stage in stages:
-        for i in range(10):
-            priority = []
-            if random.randint(0, 1) == 1:
-                priority.append({
-                    'source_id': 0,
-                    'task_id': random.randint(0, 10),
-                    'importance': random.randint(0, 10),
-                    'urgency': random.randint(0, 10)
-                })
-            if random.randint(0, 1) == 1:
-                priority.append({
-                    'source_id': 0,
-                    'task_id': random.randint(0, 10),
-                    'importance': random.randint(0, 10),
-                    'urgency': random.randint(0, 10)
-                })
-            if random.randint(0, 1) == 1:
-                priority.append({
-                    'source_id': 0,
-                    'task_id': random.randint(0, 10),
-                    'importance': random.randint(0, 10),
-                    'urgency': random.randint(0, 10)
-                })
-            stage.append(priority)
-
-    return stages
+    return server.priority_queue_state
 
 
 @app.post('/start_free_task')
@@ -1499,7 +1502,6 @@ async def get_free_task_result(source):
 
 @app.get('/download_log')
 def download_log():
-    # TODO
     """
 
     :return:
