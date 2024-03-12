@@ -1,5 +1,6 @@
 import base64
 import datetime
+import random
 import threading
 
 import eventlet
@@ -1033,7 +1034,6 @@ def submit_query(data=Body(...)):
         server.task_results[source_id] = ResultQueue(10)
     server.queue_results = ResultQueue()
 
-    # TODO: initialize priority queue state with n stage
     server.priority_queue_state = []
 
     server.is_get_result = True
@@ -1256,8 +1256,25 @@ async def get_queue_result():
     :return:
     """
     server.queue_results.get_results()
+    namespace = 'auto-edge'
+    stages = []
+    if KubeHelper.check_pods_running(namespace):
+        for task in server.tasks:
+            if KubeHelper.check_pod_name(task['word'], namespace=namespace):
+                stages = [[] for stage in task['stage']]
+                break
 
-    return ans
+    if not stages:
+        return stages
+
+    for stage in stages:
+        for i in range(10):
+            stage.append([{
+                'source_id': 0,
+                'task_id': random.randint(0,10),
+                'importance': random.randint(0,10),
+                'urgency': random.randint(0,10)
+            }])
 
 
 @app.post('/start_free_task')
