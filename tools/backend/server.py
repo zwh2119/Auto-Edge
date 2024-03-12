@@ -29,6 +29,7 @@ import librosa
 from PIL import Image
 
 import matplotlib.pyplot as plt
+plt.rcParams['font.family'] = 'SimHei'
 
 
 class NameCounter:
@@ -599,7 +600,7 @@ class BackendServer:
             image = self.decode_image(frame)
         else:
             assert None, f'Invalid task type of {task_type}'
-        image = cv2.resize(image, (400, 300))
+        image = cv2.resize(image, (480, 360))
         base64_str = cv2.imencode('.jpg', image)[1].tobytes()
         base64_str = base64.b64encode(base64_str)
         base64_str = bytes('data:image/jpg;base64,', encoding='utf8') + base64_str
@@ -629,7 +630,6 @@ class BackendServer:
         return 'imu.png'
 
     def draw_audio_spec(self, data, framerate, nchannels, result):
-        # TODO: plot result class type on picture
 
         def cal_norm(nparray):
             # [-1, 1]
@@ -655,8 +655,9 @@ class BackendServer:
                                  x_axis='time', y_axis='linear')
         # 添加颜色条
         plt.colorbar(format='%+2.0f', ticks=[-1, 1])
+        plt.title(result, fontsize=25, color='red')
 
-        plt.savefig('audio.png')
+        plt.savefig('audio.png', bbox_inches='tight', pad_inches=0.0)
         plt.close()
 
         return 'audio.png'
@@ -1158,7 +1159,6 @@ async def get_pipeline_info():
 
 @app.get('/result_prompt')
 async def get_result_prompt():
-    # TODO
     """
     结果提示文字
     :return:
@@ -1336,14 +1336,15 @@ async def get_free_state(source):
     {
         'state':0/1/2,
         'duration':20
+        'type': '...'
     }
     """
     if source not in server.free_open or not server.free_open[source]:
         return {'state': 0}
     elif not server.is_free_result[source]:
-        return {'state': 1, 'duration': server.free_duration[source]}
+        return {'state': 1, 'duration': server.free_duration[source], 'type': server.free_request_type[source]}
     else:
-        return {'state': 2, 'duration': server.free_duration[source]}
+        return {'state': 2, 'duration': server.free_duration[source], 'type': server.free_request_type[source]}
 
 
 @app.get('/stop_free_task/{source}')
@@ -1363,7 +1364,6 @@ async def stop_free_task(source):
 
 @app.get('/free_task_result/{source}')
 async def get_free_task_result(source):
-    # TODO
     """
 
     :param source:

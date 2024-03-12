@@ -5,3 +5,4 @@ expr_*
 resource_data
 *.tar.xz
 data_record*
+*.ttf
