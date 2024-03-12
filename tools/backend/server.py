@@ -1407,8 +1407,6 @@ async def get_free_task_result(source):
 
             free_type = server.free_request_type[source]
 
-            task_info.append({'name': '任务数量', 'value': len(result_count)})
-
             if server.source_label == 'car':
                 if free_type == '任务数量':
                     task_info.append({'name': '任务数量', 'value': len(result_count)})
