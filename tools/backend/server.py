@@ -118,11 +118,11 @@ class BackendServer:
                 'yaml': 'video_car_detection.yaml',
                 'namespace': 'auto-edge-car',
                 'word': 'car',
-                'visualizing_prompt': '-...',
-                'result_title_prompt': '-...',
-                'result_text_prompt': '-...',
-                'delay_text_prompt': '-...',
-                'free_task_menu': ['最大值', '平均值'],
+                'visualizing_prompt': ' - 路面监控画面',
+                'result_title_prompt': ' - 实时车流数量',
+                'result_text_prompt': '车流数量：连续8帧实时画面检测结果的平均值',
+                'delay_text_prompt': '任务执行时延累计分布曲线 (窗口大小：20)',
+                'free_task_menu': ['任务数量', '车流峰值', '车流平均值'],
                 'stage': [
                     {
                         "stage_name": "car-detection",
@@ -143,11 +143,11 @@ class BackendServer:
                 'yaml': 'audio.yaml',
                 'namespace': 'auto-edge-audio',
                 'word': 'audio',
-                'visualizing_prompt': '-...',
-                'result_title_prompt': '-...',
-                'result_text_prompt': '-...',
-                'delay_text_prompt': '-...',
-                'free_task_menu': ['最大值', '平均值'],
+                'visualizing_prompt': ' - 音频频谱图',
+                'result_title_prompt': ' - 音频识别类别',
+                'result_text_prompt': '0:其他声音  1:喇叭声  2:钻孔声  3:引擎声  4:重型机械声  5:警报声',
+                'delay_text_prompt': '任务执行时延累计分布曲线 (窗口大小：20)',
+                'free_task_menu': ['任务数量', '音频最多识别类别', '音频最大识别次数', '音频平均识别次数'],
                 'stage': [
                     {
                         "stage_name": "audio-sampling",
@@ -179,11 +179,11 @@ class BackendServer:
                 'yaml': 'imu.yaml',
                 'namespace': 'auto-edge-imu',
                 'word': 'imu',
-                'visualizing_prompt': '-...',
-                'result_title_prompt': '-...',
-                'result_text_prompt': '-...',
-                'delay_text_prompt': '-...',
-                'free_task_menu': ['最大值', '平均值'],
+                'visualizing_prompt': ' - 惯性感知轨迹',
+                'result_title_prompt': ' - 轨迹长度',
+                'result_text_prompt': '轨迹长度：惯性传感器IMU感知轨迹的长度',
+                'delay_text_prompt': '任务执行时延累计分布曲线 (窗口大小：20)',
+                'free_task_menu': ['任务数量', '轨迹长度最大值', '轨迹长度平均值'],
                 'stage': [
                     {
                         "stage_name": "imu-trajectory-sensing",
@@ -204,10 +204,10 @@ class BackendServer:
                 'yaml': 'edge-eye.yaml',
                 'namespace': 'auto-edge-edge-eye',
                 'word': 'eye',
-                'visualizing_prompt': '-...',
-                'result_title_prompt': '-...',
-                'result_text_prompt': '-...',
-                'delay_text_prompt': '-...',
+                'visualizing_prompt': ' - 发泡塑料制造画面',
+                'result_title_prompt': ' - 发泡塑料原材料偏移幅度',
+                'result_text_prompt': '...',
+                'delay_text_prompt': '任务执行时延累计分布曲线 (窗口大小：20)',
                 'free_task_menu': ['最大值', '平均值'],
                 'stage': [
                     {
@@ -599,7 +599,7 @@ class BackendServer:
             image = self.decode_image(frame)
         else:
             assert None, f'Invalid task type of {task_type}'
-        image = cv2.resize(image, (320, 240))
+        image = cv2.resize(image, (400, 300))
         base64_str = cv2.imencode('.jpg', image)[1].tobytes()
         base64_str = base64.b64encode(base64_str)
         base64_str = bytes('data:image/jpg;base64,', encoding='utf8') + base64_str
@@ -1255,6 +1255,8 @@ async def get_queue_result():
     ]
     :return:
     """
+    if not server.source_open:
+        return []
     server.queue_results.get_results()
     namespace = 'auto-edge'
     stages = []
@@ -1269,12 +1271,31 @@ async def get_queue_result():
 
     for stage in stages:
         for i in range(10):
-            stage.append([{
-                'source_id': 0,
-                'task_id': random.randint(0,10),
-                'importance': random.randint(0,10),
-                'urgency': random.randint(0,10)
-            }])
+            priority = []
+            if random.randint(0, 1) == 1:
+                priority.append({
+                    'source_id': 0,
+                    'task_id': random.randint(0, 10),
+                    'importance': random.randint(0, 10),
+                    'urgency': random.randint(0, 10)
+                })
+            if random.randint(0, 1) == 1:
+                priority.append({
+                    'source_id': 0,
+                    'task_id': random.randint(0, 10),
+                    'importance': random.randint(0, 10),
+                    'urgency': random.randint(0, 10)
+                })
+            if random.randint(0, 1) == 1:
+                priority.append({
+                    'source_id': 0,
+                    'task_id': random.randint(0, 10),
+                    'importance': random.randint(0, 10),
+                    'urgency': random.randint(0, 10)
+                })
+            stage.append(priority)
+
+    return stages
 
 
 @app.post('/start_free_task')
@@ -1384,23 +1405,39 @@ async def get_free_task_result(source):
                 delay.append(result['delay'])
                 result_count.append(result['result'])
 
+            free_type = server.free_request_type[source]
+
             task_info.append({'name': '任务数量', 'value': len(result_count)})
 
-            # if server.source_label == 'car':
-            #     task_info.append({'name': '车流峰值', 'value': int(max(result_count))})
-            #     task_info.append({'name': '车流平均值', 'value': int(np.mean(result_count))})
-            # elif server.source_label == 'audio':
-            #     task_info.append({'name': '音频最多识别类别',
-            #                       'value': server.audio_class[max(result_count, key=result_count.count)]})
-            #     task_info.append({'name': '音频最大识别次数',
-            #                       'value': max([result_count.count(x) for x in set(result_count)])})
-            #     task_info.append({'name': '音频平均识别次数',
-            #                       'value': int(np.mean([result_count.count(x) for x in set(result_count)]))})
-            # elif server.source_label == 'imu':
-            #     task_info.append({'name': '轨迹长度最大值', 'value': max(result_count)})
-            #     task_info.append({'name': '轨迹长度平均值', 'value': int(np.mean(result_count))})
-            # elif server.source_label == 'edge-eye':
-            #     pass
+            if server.source_label == 'car':
+                if free_type == '任务数量':
+                    task_info.append({'name': '任务数量', 'value': len(result_count)})
+                if free_type == '车流峰值':
+                    task_info.append({'name': '车流峰值', 'value': int(max(result_count))})
+                if free_type == '车流平均值':
+                    task_info.append({'name': '车流平均值', 'value': int(np.mean(result_count))})
+            elif server.source_label == 'audio':
+                if free_type == '任务数量':
+                    task_info.append({'name': '任务数量', 'value': len(result_count)})
+                if free_type == '音频最多识别类别':
+                    task_info.append({'name': '音频最多识别类别',
+                                      'value': server.audio_class[max(result_count, key=result_count.count)]})
+                if free_type == '音频最大识别次数':
+                    task_info.append({'name': '音频最大识别次数',
+                                      'value': max([result_count.count(x) for x in set(result_count)])})
+                if free_type == '音频平均识别次数':
+                    task_info.append({'name': '音频平均识别次数',
+                                      'value': int(np.mean([result_count.count(x) for x in set(result_count)]))})
+            elif server.source_label == 'imu':
+                if free_type == '任务数量':
+                    task_info.append({'name': '任务数量', 'value': len(result_count)})
+                if free_type == '轨迹长度最大值':
+                    task_info.append({'name': '轨迹长度最大值', 'value': max(result_count)})
+                if free_type == '轨迹长度平均值':
+                    task_info.append({'name': '轨迹长度平均值', 'value': int(np.mean(result_count))})
+            elif server.source_label == 'edge-eye':
+                if free_type == '任务数量':
+                    task_info.append({'name': '任务数量', 'value': len(result_count)})
 
             server.free_result_save[source]['delay'] = delay
             server.free_result_save[source]['task_info'] = task_info
