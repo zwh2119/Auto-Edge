@@ -1,3 +1,5 @@
+import time
+
 from log import LOGGER
 
 import util_ixpe
@@ -17,6 +19,7 @@ class ServiceProcessor3:
         self.first_done_flag = False
 
     def __call__(self, input_ctx, redis_address):
+        start = time.time()
         if 'frame' in input_ctx:
             input_ctx['frame'] = decode_image(input_ctx['frame'])
         if "bar_roi" in input_ctx:
@@ -32,10 +35,22 @@ class ServiceProcessor3:
         if "rabs_point" in input_ctx:
             input_ctx["rabs_point"] = tuple(input_ctx["rabs_point"])
 
+        end_pre = time.time()
+        LOGGER.debug(f'preprocess time: {end_pre-start}s')
+
         output_ctx = self.process_task(input_ctx, redis_address)
+
+        end_process = time.time()
+        LOGGER.debug(f'process time: {end_process-end_pre}s')
 
         if "frame" in output_ctx:
             output_ctx["frame"] = encode_image(output_ctx["frame"])
+
+        end_after = time.time()
+        LOGGER.debug(f'after process time: {end_after-end_process}s')
+
+        end = time.time()
+        LOGGER.debug(f'real service call time: {end-start}s')
 
         return output_ctx
 
@@ -48,7 +63,7 @@ class ServiceProcessor3:
         frame = input_ctx['frame']
 
         if len(input_ctx) == 3:
-            LOGGER.DEBUG("get three parameters from input_ctx")
+            LOGGER.debug("get three parameters from input_ctx")
             bar_roi, abs_point,frame = input_ctx["bar_roi"], input_ctx["abs_point"], input_ctx["frame"]
             self.lps, self.rps = self.pos_calculator.calculatePosInBarROI(
                 bar_roi=bar_roi, abs_point=abs_point)

@@ -1,3 +1,5 @@
+import time
+
 import util_ixpe
 from utils import encode_image, decode_image
 from log import LOGGER
@@ -13,15 +15,33 @@ class ServiceProcessor1:
         self.first_done_flag = False
 
     def __call__(self, input_ctx):
+
+        start = time.time()
+
         frame = input_ctx['frame']
         frame = decode_image(frame)
+
+        end_pre = time.time()
+        LOGGER.debug(f'preprocess time: {end_pre - start}s')
+
         output_ctx = self.process_frame(frame)
+
+        end_process = time.time()
+        LOGGER.debug(f'process time: {end_process - end_pre}s')
+
         if 'frame' in output_ctx:
             output_ctx['frame'] = encode_image(output_ctx['frame'])
         if 'bar_roi' in output_ctx:
             output_ctx['bar_roi'] = encode_image(output_ctx['bar_roi'])
         if 'abs_point' in output_ctx:
             output_ctx['abs_point'] = list(output_ctx['abs_point'])
+
+        end_after = time.time()
+        LOGGER.debug(f'after process time: {end_after - end_process}s')
+
+        end = time.time()
+        LOGGER.debug(f'real service call time: {end - start}s')
+
         return output_ctx
 
     def process_frame(self, frame):

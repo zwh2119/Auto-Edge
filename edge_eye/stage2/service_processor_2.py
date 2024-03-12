@@ -1,3 +1,5 @@
+import time
+
 import util_ixpe
 from client import http_request
 from utils import encode_image, decode_image
@@ -9,6 +11,9 @@ class ServiceProcessor2:
         self.sr_generator = util_ixpe.ESCPN(model_path)
 
     def __call__(self, input_ctx, redis_address):
+
+        start = time.time()
+
         if 'frame' in input_ctx:
             input_ctx['frame'] = decode_image(input_ctx['frame'])
         if 'bar_roi' in input_ctx:
@@ -16,7 +21,13 @@ class ServiceProcessor2:
         if 'abs_point' in input_ctx:
             input_ctx['abs_point'] = tuple(input_ctx['abs_point'])
 
+        end_pre = time.time()
+        LOGGER.debug(f'preprocess time: {end_pre-start}s')
+
         output_ctx = self.process_task(input_ctx, redis_address)
+
+        end_process = time.time()
+        LOGGER.debug(f'process time: {end_process-end_pre}s')
 
         if 'frame' in output_ctx:
             output_ctx['frame'] = encode_image(output_ctx['frame'])
@@ -32,6 +43,13 @@ class ServiceProcessor2:
             output_ctx["labs_point"] = list(output_ctx["labs_point"])
         if "rabs_point" in output_ctx:
             output_ctx["rabs_point"] = list(output_ctx["rabs_point"])
+
+        end_after = time.time()
+        LOGGER.debug(f'after process time: {end_after - end_process}s')
+
+        end = time.time()
+
+        LOGGER.debug(f'real service call time: {end-start}s')
 
         return output_ctx
 
