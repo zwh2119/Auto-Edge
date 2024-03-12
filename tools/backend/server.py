@@ -29,6 +29,7 @@ import librosa
 from PIL import Image
 
 import matplotlib.pyplot as plt
+
 plt.rcParams['font.family'] = 'SimHei'
 
 
@@ -422,6 +423,21 @@ class BackendServer:
         self.free_result_save = {}
         self.free_request_type = {}
 
+        self.log_file = 'log.txt'
+        if os.path.exists(self.log_file):
+            os.remove(self.log_file)
+        with open(self.log_file, 'w'):
+            pass
+
+        self.imu_diss = {}
+        self.imu_combined_arr = {}
+        self.imu_last_length = {}
+
+    def init_imu(self):
+        self.imu_diss = {}
+        self.imu_combined_arr = {}
+        self.imu_last_length = {}
+
     def check_pipeline(self, pipeline):
         for legal_pipeline_name in self.legal_pipelines:
             legal_pipeline = self.legal_pipelines[legal_pipeline_name]
@@ -474,9 +490,10 @@ class BackendServer:
                 for result in results:
                     source_id = result['source']
                     task_id = result['task']
+                    print(f'source:{source_id} task:{task_id}')
                     delay = self.cal_pipeline_delay(result['pipeline'])
 
-                    if delay > 3:
+                    if delay > 2:
                         print(f'task delay of {delay} filtered!')
                         continue
 
@@ -486,10 +503,23 @@ class BackendServer:
                     task_type = result['task_type']
                     content = result['content']
                     file_path = self.get_file_result(source_id, task_id)
+
+                    with open(self.log_file, 'a') as f:
+                        log_string = ''
+                        log_string += f'complete_time:{datetime.datetime.now():%Y-%m-%d %H:%M:%S} '
+                        log_string += f'source_id:{source_id} task_id:{task_id} task_type:{task_type}'
+                        log_string += f'task_delay: {delay:.2f}s'
+                        log_string += '\n'
+                        f.write(log_string)
+
+                    if os.path.getsize(self.log_file) > 1024 * 1024 * 10:
+                        with open(self.log_file, 'w'):
+                            pass
+
                     if task_type == 'edge-eye' and 'frame' not in content:
                         print('edge eye not have frame, skip..')
                         continue
-                    base64_data = self.get_base64_data(file_path, task_type, task_result, content)
+                    base64_data = self.get_base64_data(file_path, task_type, task_result, content, source_id)
                     os.remove(file_path)
                     source_id_text = self.source_id_num_2_id_text(source_id)
                     self.task_results[source_id_text].save_results([{
@@ -576,7 +606,7 @@ class BackendServer:
         source_id_text_list = self.get_source_id()
         return source_id_text_list[source_id]
 
-    def get_base64_data(self, file, task_type, result, content):
+    def get_base64_data(self, file, task_type, result, content, source):
         image = None
 
         if task_type == 'car':
@@ -584,7 +614,7 @@ class BackendServer:
             success, image = video_cap.read()
             image = self.draw_bboxes(image, content[0])
         elif task_type == 'imu':
-            img_path = self.draw_imu_trajectory(content[0])
+            img_path = self.draw_imu_trajectory(content[0], source)
             image = cv2.imread(img_path)
 
         elif task_type == 'audio':
@@ -592,7 +622,7 @@ class BackendServer:
             params = f.getparams()
             nchannels, sampwidth, framerate, nframes = params[:4]
             data = f.readframes(nframes)
-            print('result: ', result)
+            # print('result: ', result)
             img_path = self.draw_audio_spec(data, framerate, nchannels, self.audio_class[result])
             image = cv2.imread(img_path)
         elif task_type == 'edge-eye':
@@ -618,14 +648,31 @@ class BackendServer:
             cv2.rectangle(frame, (int(x_min), int(y_min)), (int(x_max), int(y_max)), (0, 255, 0), 4)
         return frame
 
-    def draw_imu_trajectory(self, input_data):
+    def draw_imu_trajectory(self, input_data, source):
+
+        if source not in self.imu_diss:
+            self.imu_diss[source] = []
+            self.imu_combined_arr[source] = np.zeros((1, 3))
+            self.imu_last_length[source] = []
+
         process_data = np.array(input_data)
+        self.imu_diss[source].append(process_data)
+        array2 = self.imu_diss[source][-1]
+        if len(self.imu_diss[source]) > 1:
+            array2 += self.imu_diss[source][-2][-1, :]
+        self.imu_last_length[source].append(len(array2))
+
+        self.imu_combined_arr[source] = np.concatenate((self.imu_combined_arr[source], array2), axis=0)
+        if len(self.imu_diss[source]) > 5:
+            del self.imu_diss[source][0]
+            self.imu_combined_arr[source] = self.imu_combined_arr[source][self.imu_last_length[source][0]:]
+            del self.imu_last_length[source][0]
         np.save(f'debug/{int(time.time())}.npy', process_data)
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.plot3D(process_data[:, 0], process_data[:, 1], process_data[:, 2])
+        ax.plot3D(self.imu_combined_arr[source][:, 0], self.imu_combined_arr[source][:, 1], self.imu_combined_arr[source][:, 2])
 
-        plt.savefig('imu.png', bbox_inches='tight', pad_inches=0.1)
+        plt.savefig('imu.png', bbox_inches='tight', pad_inches=0.01)
         plt.close(fig)
         return 'imu.png'
 
@@ -802,6 +849,9 @@ async def install_service(data=Body(...)):
     except eventlet.timeout.Timeout as e:
         logging.exception(e)
         result = False
+
+    if task_name == 'imu':
+        server.init_imu()
 
     server.newest_task = cur_task['name']
 
@@ -1300,7 +1350,6 @@ async def get_queue_result():
 
 @app.post('/start_free_task')
 async def start_free_task(data=Body(...)):
-    # TODO
     """
     body
         {
@@ -1457,7 +1506,10 @@ def download_log():
     file
     """
 
-    file_name = 'server_old.py'
+    if not os.path.exists(server.log_file):
+        with open(server.log_file, 'w'):
+            pass
+    file_name = server.log_file
     return FileResponse(
         file_name,
         filename=f'Auto-Edge_log_{int(time.time())}.txt'

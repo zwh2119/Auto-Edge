@@ -104,7 +104,7 @@ class ServiceServer:
                 task = self.task_queue.get()
                 if task is not None:
                     self.task_counter += 1
-                    task.give_tag(self.task_counter)
+                    task.give_tag(time.time())
 
                     source_id = task.metadata['source_id']
                     task_id = task.metadata['task_id']

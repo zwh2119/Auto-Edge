@@ -66,7 +66,6 @@ class IMUGenerator:
             for bi in range(num_bin):
                 start_idx = int(start_id[bi])
                 end_idx = int(end_id[bi]) + 1
-                # data = csv_data.iloc[start_idx:end_idx, [1, 6, 7, 8, 19, 20, 21]].values
                 datatime = timestamp[start_idx:end_idx, :]
                 datagyro = angular_velocity[start_idx:end_idx, :]
                 dataacc = linear_acceleration[start_idx:end_idx, :]
