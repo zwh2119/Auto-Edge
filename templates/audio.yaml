@@ -16,7 +16,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/generator:mid-v1.0.0
+          - image: onecheck/generator:mid-v2.0.0
             imagePullPolicy: IfNotPresent
             name: generator
             env:
@@ -41,7 +41,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-            - image: onecheck/generator:mid-v1.0.0
+            - image: onecheck/generator:mid-v2.0.0
               imagePullPolicy: IfNotPresent
               name: generator
               env:
@@ -74,7 +74,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/controller:mid-v1.0.0
+          - image: onecheck/controller:mid-v2.0.0
             imagePullPolicy: IfNotPresent
             name: controller
             env:
@@ -100,7 +100,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/controller:mid-v1.0.0
+          - image: onecheck/controller:mid-v2.0.0
             imagePullPolicy: IfNotPresent
             name: controller
             env:
@@ -125,7 +125,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/controller:mid-v1.0.0
+          - image: onecheck/controller:mid-v2.0.0
             name:  controller
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
@@ -159,7 +159,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/distributor:mid-v1.0.0
+          - image: onecheck/distributor:mid-v2.0.0
             name:  distributor
             imagePullPolicy: IfNotPresent
             env: # user defined environments
@@ -192,7 +192,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/scheduler:mid-v1.0.0
+          - image: onecheck/scheduler:mid-v2.0.0
             name:  scheduler
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
@@ -226,7 +226,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/monitor:mid-v1.0.0
+          - image: onecheck/monitor:mid-v2.0.0
             imagePullPolicy: IfNotPresent
             name: monitor
             env:
@@ -251,7 +251,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/monitor:mid-v1.0.0
+          - image: onecheck/monitor:mid-v2.0.0
             imagePullPolicy: IfNotPresent
             name: monitor
             env:
@@ -275,7 +275,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/monitor:mid-v1.0.0
+          - image: onecheck/monitor:mid-v2.0.0
             name:  monitor
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
@@ -315,7 +315,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/audio-sampling:mid-v1.0.0
+          - image: onecheck/audio-sampling:mid-v2.0.0
             imagePullPolicy: IfNotPresent
             name: audio-sampling
             env:
@@ -335,7 +335,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/audio-sampling:mid-v1.0.0
+          - image: onecheck/audio-sampling:mid-v2.0.0
             imagePullPolicy: IfNotPresent
             name: audio-sampling
             env:
@@ -354,7 +354,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/audio-sampling:mid-v1.0.0
+          - image: onecheck/audio-sampling:mid-v2.0.0
             name:  audio-sampling
             imagePullPolicy: IfNotPresent
             env:
@@ -387,7 +387,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/audio-classification:arm64-mid-v1.0.0
+          - image: onecheck/audio-classification:arm64-mid-v2.0.0
             imagePullPolicy: IfNotPresent
             name: audio-classification
             env:
@@ -407,7 +407,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/audio-classification:arm64-mid-v1.0.0
+          - image: onecheck/audio-classification:arm64-mid-v2.0.0
             imagePullPolicy: IfNotPresent
             name: audio-classification
             env:
@@ -426,7 +426,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/audio-classification:mid-v1.0.0
+          - image: onecheck/audio-classification:mid-v2.0.0
             name:  audio-classification
             imagePullPolicy: IfNotPresent
             env:

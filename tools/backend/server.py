@@ -13,7 +13,7 @@ import time
 
 import uvicorn
 from fastapi import FastAPI, Body, Request, File, UploadFile
-
+from starlette.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 
@@ -117,10 +117,10 @@ class BackendServer:
                 'yaml': 'video_car_detection.yaml',
                 'namespace': 'auto-edge-car',
                 'word': 'car',
-                'visualizing_prompt': '...',
-                'result_title_prompt': '...',
-                'result_text_prompt': '...',
-                'delay_text_prompt': '...',
+                'visualizing_prompt': '-...',
+                'result_title_prompt': '-...',
+                'result_text_prompt': '-...',
+                'delay_text_prompt': '-...',
                 'free_task_menu': ['最大值', '平均值'],
                 'stage': [
                     {
@@ -142,10 +142,10 @@ class BackendServer:
                 'yaml': 'audio.yaml',
                 'namespace': 'auto-edge-audio',
                 'word': 'audio',
-                'visualizing_prompt': '...',
-                'result_title_prompt': '...',
-                'result_text_prompt': '...',
-                'delay_text_prompt': '...',
+                'visualizing_prompt': '-...',
+                'result_title_prompt': '-...',
+                'result_text_prompt': '-...',
+                'delay_text_prompt': '-...',
                 'free_task_menu': ['最大值', '平均值'],
                 'stage': [
                     {
@@ -178,10 +178,10 @@ class BackendServer:
                 'yaml': 'imu.yaml',
                 'namespace': 'auto-edge-imu',
                 'word': 'imu',
-                'visualizing_prompt': '...',
-                'result_title_prompt': '...',
-                'result_text_prompt': '...',
-                'delay_text_prompt': '...',
+                'visualizing_prompt': '-...',
+                'result_title_prompt': '-...',
+                'result_text_prompt': '-...',
+                'delay_text_prompt': '-...',
                 'free_task_menu': ['最大值', '平均值'],
                 'stage': [
                     {
@@ -203,10 +203,10 @@ class BackendServer:
                 'yaml': 'edge-eye.yaml',
                 'namespace': 'auto-edge-edge-eye',
                 'word': 'eye',
-                'visualizing_prompt': '...',
-                'result_title_prompt': '...',
-                'result_text_prompt': '...',
-                'delay_text_prompt': '...',
+                'visualizing_prompt': '-...',
+                'result_title_prompt': '-...',
+                'result_text_prompt': '-...',
+                'delay_text_prompt': '-...',
                 'free_task_menu': ['最大值', '平均值'],
                 'stage': [
                     {
@@ -418,6 +418,7 @@ class BackendServer:
         self.free_duration = {}
         self.free_result = {}
         self.free_result_save = {}
+        self.free_request_type = {}
 
     def check_pipeline(self, pipeline):
         for legal_pipeline_name in self.legal_pipelines:
@@ -681,6 +682,8 @@ class BackendServer:
             del self.free_result[source_label]
         if source_label in self.free_result_save:
             del self.free_result_save[source_label]
+        if source_label in self.free_request_type:
+            del self.free_request_type[source_label]
 
     def run_manage_namespace(self):
         while True:
@@ -1169,13 +1172,29 @@ async def get_result_prompt():
     """
     namespace = server.find_latest_task_namespace()
     if namespace == '':
-        return {'prompt': ''}
+        return {'visualizing_prompt': '',
+                'result_title_prompt': '',
+                'result_text_prompt': '',
+                'delay_text_prompt': '',
+                'free_task_menu': []
+                }
     if KubeHelper.check_pods_running(namespace):
         for task in server.tasks:
             if KubeHelper.check_pod_name(task['word'], namespace=namespace):
-                return {'prompt': task['prompt']}
+                return {
+                    'visualizing_prompt': task['visualizing_prompt'],
+                    'result_title_prompt': task['result_title_prompt'],
+                    'result_text_prompt': task['result_text_prompt'],
+                    'delay_text_prompt': task['delay_text_prompt'],
+                    'free_task_menu': task['free_task_menu']
+                }
     else:
-        return {'prompt': ''}
+        return {'visualizing_prompt': '',
+                'result_title_prompt': '',
+                'result_text_prompt': '',
+                'delay_text_prompt': '',
+                'free_task_menu': []
+                }
 
 
 @app.get('/task_result')
@@ -1257,11 +1276,13 @@ async def start_free_task(data=Body(...)):
     """
     source_label = data['source_label']
     duration = data['duration']
+    free_type = data['free_type']
     if source_label in server.free_open:
         return {'state': 'fail', 'msg': '启动自由任务失败，该数据源有自由任务正在执行'}
     server.free_open[source_label] = True
     server.is_free_result[source_label] = False
     server.free_duration[source_label] = duration
+    server.free_request_type[source_label] = free_type
     server.free_result[source_label] = ResultQueue()
     server.free_result_save[source_label] = {}
     threading.Thread(target=server.timer, args=(duration, source_label)).start()
@@ -1348,21 +1369,21 @@ async def get_free_task_result(source):
 
             task_info.append({'name': '任务数量', 'value': len(result_count)})
 
-            if server.source_label == 'car':
-                task_info.append({'name': '车流峰值', 'value': int(max(result_count))})
-                task_info.append({'name': '车流平均值', 'value': int(np.mean(result_count))})
-            elif server.source_label == 'audio':
-                task_info.append({'name': '音频最多识别类别',
-                                  'value': server.audio_class[max(result_count, key=result_count.count)]})
-                task_info.append({'name': '音频最大识别次数',
-                                  'value': max([result_count.count(x) for x in set(result_count)])})
-                task_info.append({'name': '音频平均识别次数',
-                                  'value': int(np.mean([result_count.count(x) for x in set(result_count)]))})
-            elif server.source_label == 'imu':
-                task_info.append({'name': '轨迹长度最大值', 'value': max(result_count)})
-                task_info.append({'name': '轨迹长度平均值', 'value': int(np.mean(result_count))})
-            elif server.source_label == 'edge-eye':
-                pass
+            # if server.source_label == 'car':
+            #     task_info.append({'name': '车流峰值', 'value': int(max(result_count))})
+            #     task_info.append({'name': '车流平均值', 'value': int(np.mean(result_count))})
+            # elif server.source_label == 'audio':
+            #     task_info.append({'name': '音频最多识别类别',
+            #                       'value': server.audio_class[max(result_count, key=result_count.count)]})
+            #     task_info.append({'name': '音频最大识别次数',
+            #                       'value': max([result_count.count(x) for x in set(result_count)])})
+            #     task_info.append({'name': '音频平均识别次数',
+            #                       'value': int(np.mean([result_count.count(x) for x in set(result_count)]))})
+            # elif server.source_label == 'imu':
+            #     task_info.append({'name': '轨迹长度最大值', 'value': max(result_count)})
+            #     task_info.append({'name': '轨迹长度平均值', 'value': int(np.mean(result_count))})
+            # elif server.source_label == 'edge-eye':
+            #     pass
 
             server.free_result_save[source]['delay'] = delay
             server.free_result_save[source]['task_info'] = task_info
@@ -1383,6 +1404,12 @@ def download_log():
     :return:
     file
     """
+
+    file_name = 'server_old.py'
+    return FileResponse(
+        file_name,
+        filename=f'Auto-Edge_log_{int(time.time())}.txt'
+    )
 
 
 def main():
