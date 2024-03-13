@@ -651,7 +651,7 @@ class BackendServer:
             cv2.line(image, (rps,300), (rps, 500), (0, 0, 255), 4, 8)
         else:
             assert None, f'Invalid task type of {task_type}'
-        image = cv2.resize(image, (480, 360))
+        # image = cv2.resize(image, (480, 360))
         base64_str = cv2.imencode('.jpg', image)[1].tobytes()
         base64_str = base64.b64encode(base64_str)
         base64_str = bytes('data:image/jpg;base64,', encoding='utf8') + base64_str
@@ -1345,7 +1345,7 @@ async def get_queue_result():
         server.clear_priority_queue_state()
         return server.priority_queue_state
 
-    cur_time = time.time() - 5
+    cur_time = time.time() - 2
     # print(f'cur_time:{cur_time}')
 
     server.queue_waiting_list.extend(server.queue_results.get_results())

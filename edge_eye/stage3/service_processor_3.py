@@ -38,7 +38,11 @@ class ServiceProcessor3:
         end_pre = time.time()
         LOGGER.debug(f'preprocess time: {end_pre-start}s')
 
-        output_ctx = self.process_task(input_ctx, redis_address)
+        try:
+
+            output_ctx = self.process_task(input_ctx, redis_address)
+        except Exception as e:
+            output_ctx = input_ctx
 
         end_process = time.time()
         LOGGER.debug(f'process time: {end_process-end_pre}s')
