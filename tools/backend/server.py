@@ -506,9 +506,9 @@ class BackendServer:
                     print(f'source:{source_id} task:{task_id}')
                     delay = self.cal_pipeline_delay(result['pipeline'])
 
-                    # if delay > 2:
-                    #     print(f'task delay of {delay} filtered!')
-                    #     continue
+                    if delay > 3:
+                        print(f'task delay of {delay} filtered!')
+                        continue
 
                     priority_trace = self.get_pipeline_priority(result['priority'])
                     # print(f'priority_trace: {priority_trace}')
@@ -1345,11 +1345,11 @@ async def get_queue_result():
         server.clear_priority_queue_state()
         return server.priority_queue_state
 
-    cur_time = time.time() - 2
-    # print(f'cur_time:{cur_time}')
+    cur_time = time.time() - 5
+    print(f'cur_time:{cur_time}')
 
     server.queue_waiting_list.extend(server.queue_results.get_results())
-    # print(f'queue_waiting: {server.queue_waiting_list}')
+    print(f'queue_waiting: {server.queue_waiting_list}')
 
     server.queue_waiting_list = list(filter(lambda x: x['priority_trace'][-1]['tag'] >= cur_time,
                                             server.queue_waiting_list))

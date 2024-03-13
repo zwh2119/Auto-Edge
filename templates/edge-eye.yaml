@@ -528,6 +528,4 @@ spec:
             ports:
               - containerPort: 9008
                 hostPort: 39008
----
-
 
