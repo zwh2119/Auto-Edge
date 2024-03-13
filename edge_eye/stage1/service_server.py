@@ -68,9 +68,14 @@ class ServiceServer:
             buffer.write(file_data)
 
         self.task_queue.put(Task(data, tmp_path))
+        LOGGER.debug(f'source {source_id} task{task_id} add in queue in time {time.time()}')
+
 
     async def deal_request(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
         file_data = await file.read()
+        source_id = data['source_id']
+        task_id = data['task_id']
+        LOGGER.debug(f'source {source_id} task{task_id} add in background tasks in time {time.time()}')
         backtask.add_task(self.deal_service, data, file_data)
         return {'msg': 'data send success!'}
 
@@ -103,6 +108,8 @@ class ServiceServer:
                     scenario = task.metadata['scenario_data']
                     content = task.metadata['content_data']
                     task_type = task.metadata['task_type']
+
+                    LOGGER.debug(f'source {source_id} task{task_id} get from queue in time {time.time()}')
 
                     result = self.cal(content)
 
