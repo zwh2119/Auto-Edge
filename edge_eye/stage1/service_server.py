@@ -59,7 +59,6 @@ class ServiceServer:
 
     def deal_service(self, data, file_data):
         LOGGER.debug('receive task from controller')
-        data = json.loads(data)
         source_id = data['source_id']
         task_id = data['task_id']
 
@@ -73,6 +72,8 @@ class ServiceServer:
 
     async def deal_request(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
         file_data = await file.read()
+
+        data = json.loads(data)
         source_id = data['source_id']
         task_id = data['task_id']
         LOGGER.debug(f'source {source_id} task{task_id} add in background tasks in time {time.time()}')
