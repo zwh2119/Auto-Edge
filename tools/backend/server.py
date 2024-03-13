@@ -92,7 +92,8 @@ def http_request(url,
             print(f'Redirect URL: {response.url}')
         print(f'Get invalid status code {response.status_code} in request {url}')
     except Exception as e:
-        logging.exception(e)
+        # logging.exception(e)
+        pass
 
 
 def read_yaml(yaml_file):
@@ -207,10 +208,10 @@ class BackendServer:
                 'namespace': 'auto-edge-edge-eye',
                 'word': 'eye',
                 'visualizing_prompt': ' - 发泡塑料制造画面',
-                'result_title_prompt': ' - 发泡塑料原材料偏移幅度',
-                'result_text_prompt': '...',
+                'result_title_prompt': ' - 发泡塑料原材料中心位置',
+                'result_text_prompt': '中心位置：发泡塑料材料检测左边缘与右边缘均值',
                 'delay_text_prompt': '任务执行时延累计分布曲线 (窗口大小：20)',
-                'free_task_menu': ['最大值', '平均值'],
+                'free_task_menu': ['任务数量', '发泡塑料材料中心点平均值'],
                 'stage': [
                     {
                         "stage_name": "edge-eye-stage1",
@@ -505,12 +506,12 @@ class BackendServer:
                     print(f'source:{source_id} task:{task_id}')
                     delay = self.cal_pipeline_delay(result['pipeline'])
 
-                    if delay > 2:
-                        print(f'task delay of {delay} filtered!')
-                        continue
+                    # if delay > 2:
+                    #     print(f'task delay of {delay} filtered!')
+                    #     continue
 
                     priority_trace = self.get_pipeline_priority(result['priority'])
-                    print(f'priority_trace: {priority_trace}')
+                    # print(f'priority_trace: {priority_trace}')
                     task_result = result['obj_num']
 
                     task_type = result['task_type']
@@ -612,7 +613,8 @@ class BackendServer:
             trace.append({
                 'urgency': stage['urgency'],
                 'importance': stage['importance'],
-                'priority': stage['priority']
+                'priority': stage['priority'],
+                'tag': stage['tag']
             })
         return trace
 
@@ -642,6 +644,11 @@ class BackendServer:
         elif task_type == 'edge-eye':
             frame = content['frame']
             image = self.decode_image(frame)
+            lps = content['lps']
+            rps = content['rps']
+            cv2.putText(image, f'lps:{lps}  rps:{rps}', (50, 50), cv2.FONT_HERSHEY_COMPLEX, 2.0, (208,2,27), 5)
+            cv2.line(image, (lps,300), (lps,500), (0,0,255), 4, 8)
+            cv2.line(image, (rps,300), (rps, 500), (0, 0, 255), 4, 8)
         else:
             assert None, f'Invalid task type of {task_type}'
         image = cv2.resize(image, (480, 360))
@@ -756,6 +763,17 @@ class BackendServer:
                 if not KubeHelper.check_pods_exist(namespace):
                     KubeHelper.delete_namespace(namespace)
             time.sleep(5)
+
+    def get_current_task(self):
+        namespace = server.find_latest_task_namespace()
+        if namespace == '':
+            return None
+        if KubeHelper.check_pods_running(namespace):
+            for task in server.tasks:
+                if KubeHelper.check_pod_name(task['word'], namespace=namespace):
+                    return task
+        else:
+            return None
 
 
 server = BackendServer()
@@ -1322,22 +1340,30 @@ async def get_queue_result():
     ]
     :return:
     """
-    if not server.source_open:
+    cur_task = server.get_current_task()
+    if not server.source_open or not cur_task:
         server.clear_priority_queue_state()
         return server.priority_queue_state
 
-    cur_time = time.time() - 1
-    server.queue_waiting_list.extend(server.queue_results.get_results())
+    cur_time = time.time() - 5
+    # print(f'cur_time:{cur_time}')
 
-    server.queue_waiting_list = list(filter(lambda x: x['priority_trace'][-1]['tag'] <= cur_time,
+    server.queue_waiting_list.extend(server.queue_results.get_results())
+    # print(f'queue_waiting: {server.queue_waiting_list}')
+
+    server.queue_waiting_list = list(filter(lambda x: x['priority_trace'][-1]['tag'] >= cur_time,
                                             server.queue_waiting_list))
 
-    server.clear_priority_queue_state()
+    server.priority_queue_state = server.get_task_priority_framework(task=cur_task)
 
     for task in server.queue_waiting_list:
         priority = task['priority_trace']
         for stage_num, stage_priority in enumerate(priority):
-            if stage_priority['tag'] <= cur_time:
+            if stage_priority['tag'] >= cur_time:
+                # print(f'priority_queue_state:{server.priority_queue_state}')
+                # print(f'stage_num: {stage_num}')
+                # print(f'priority: {stage_priority["priority"]}')
+                # noinspection PyTypeChecker
                 server.priority_queue_state[stage_num][stage_priority['priority']].append(
                     {
                         'source_id': task['source_id'],
@@ -1348,6 +1374,7 @@ async def get_queue_result():
                     }
                 )
                 break
+    print(f'priority_queue:{server.priority_queue_state}')
     return server.priority_queue_state
 
 
@@ -1488,6 +1515,8 @@ async def get_free_task_result(source):
             elif server.source_label == 'edge-eye':
                 if free_type == '任务数量':
                     task_info.append({'name': '任务数量', 'value': len(result_count)})
+                if free_type == '发泡塑料材料中心点平均值':
+                    task_info.append({'name':'发泡塑料材料中心点平均值','value':int(np.mean(result_count))})
 
             server.free_result_save[source]['delay'] = delay
             server.free_result_save[source]['task_info'] = task_info

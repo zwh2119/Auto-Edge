@@ -99,6 +99,7 @@ class EdgeEyeGenerator:
 
             response = http_request(url=self.schedule_address, method='GET', json={'source_id': self.generator_id,
                                                                                    'pipeline': pipeline})
+            time.sleep(1)
 
             if response is not None:
                 tuned_parameters = response['plan']
