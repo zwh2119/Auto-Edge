@@ -357,13 +357,20 @@ class BackendServer:
         self.sources = []
 
         self.services = [
-            'audio-classification',
-            'audio-sampling',
-            'car-detection',
-            'edge-eye-stage1',
-            'edge-eye-stage2',
-            'edge-eye-stage3',
-            'imu-trajectory-sensing'
+            {'service_name': 'audio-classification',
+             'description': '音频分类'},
+            {'service_name': 'audio-sampling',
+             'description': '音频采样'},
+            {'service_name': 'car-detection',
+             'description': '车流检测'},
+            {'service_name': 'edge-eye-stage1',
+             'description': '参考点区域检测'},
+            {'service_name': 'edge-eye-stage2',
+             'description': '区域超分辨率'},
+            {'service_name': 'edge-eye-stage3',
+             'description': '材料边缘检测'},
+            {'service_name': 'imu-trajectory-sensing',
+             'description': '惯性轨迹感知'},
         ]
 
         self.pipelines = []
@@ -389,6 +396,8 @@ class BackendServer:
             'http://192.168.1.2:39200/submit_task': 'edge1',
             'http://192.168.1.4:39200/submit_task': 'edge2',
         }
+
+        self.device_list = {'cloud', 'edge1', 'edge2'}
 
         self.latest_namespace = 'auto-edge'
 
@@ -510,7 +519,7 @@ class BackendServer:
                         print(f'task delay of {delay} filtered!')
                         continue
 
-                    priority_trace = self.get_pipeline_priority(result['priority'])
+                    priority_trace = self.get_pipeline_priority(result['priority'], result['pipeline'])
                     # print(f'priority_trace: {priority_trace}')
                     task_result = result['obj_num']
 
@@ -607,14 +616,15 @@ class BackendServer:
                 file_out.write(chunk)
         return file_name
 
-    def get_pipeline_priority(self, priority):
+    def get_pipeline_priority(self, priority, pipeline):
         trace = []
-        for stage in priority:
+        for priority_stage, pipeline_stage in zip(priority, pipeline[:-1]):
             trace.append({
-                'urgency': stage['urgency'],
-                'importance': stage['importance'],
-                'priority': stage['priority'],
-                'tag': stage['tag']
+                'urgency': priority_stage['urgency'],
+                'importance': priority_stage['importance'],
+                'priority': priority_stage['priority'],
+                'tag': priority_stage['tag'],
+                'node': self.devices[pipeline_stage['execute_address']]
             })
         return trace
 
@@ -646,9 +656,9 @@ class BackendServer:
             image = self.decode_image(frame)
             lps = content['lps']
             rps = content['rps']
-            cv2.putText(image, f'lps:{lps}  rps:{rps}', (50, 50), cv2.FONT_HERSHEY_COMPLEX, 2.0, (208,2,27), 5)
-            cv2.line(image, (lps,300), (lps,500), (0,0,255), 4, 8)
-            cv2.line(image, (rps,300), (rps, 500), (0, 0, 255), 4, 8)
+            cv2.putText(image, f'lps:{lps}  rps:{rps}', (50, 50), cv2.FONT_HERSHEY_COMPLEX, 2.0, (208, 2, 27), 5)
+            cv2.line(image, (lps, 300), (lps, 500), (0, 0, 255), 4, 8)
+            cv2.line(image, (rps, 300), (rps, 500), (0, 0, 255), 4, 8)
         else:
             assert None, f'Invalid task type of {task_type}'
         # image = cv2.resize(image, (480, 360))
@@ -671,30 +681,33 @@ class BackendServer:
 
     def draw_imu_trajectory(self, input_data, source):
 
-        if source not in self.imu_diss:
-            self.imu_diss[source] = []
-            self.imu_combined_arr[source] = np.zeros((1, 3))
-            self.imu_last_length[source] = []
+        # if source not in self.imu_diss:
+        #     self.imu_diss[source] = []
+        #     self.imu_combined_arr[source] = np.zeros((1, 3))
+        #     self.imu_last_length[source] = []
 
         process_data = np.array(input_data)
-        self.imu_diss[source].append(process_data)
-        array2 = self.imu_diss[source][-1]
-        if len(self.imu_diss[source]) > 1:
-            array2 += self.imu_diss[source][-2][-1, :]
-        self.imu_last_length[source].append(len(array2))
+        # self.imu_diss[source].append(process_data)
+        # array2 = self.imu_diss[source][-1]
+        # if len(self.imu_diss[source]) > 1:
+        #     array2 += self.imu_diss[source][-2][-1, :]
+        # self.imu_last_length[source].append(len(array2))
 
-        self.imu_combined_arr[source] = np.concatenate((self.imu_combined_arr[source], array2), axis=0)
-        if len(self.imu_diss[source]) > 5:
-            del self.imu_diss[source][0]
-            self.imu_combined_arr[source] = self.imu_combined_arr[source][self.imu_last_length[source][0]:]
-            del self.imu_last_length[source][0]
-        np.save(f'debug/{int(time.time())}.npy', process_data)
+        # self.imu_combined_arr[source] = np.concatenate((self.imu_combined_arr[source], array2), axis=0)
+        # if len(self.imu_diss[source]) > 5:
+        #     del self.imu_diss[source][0]
+        #     self.imu_combined_arr[source] = self.imu_combined_arr[source][self.imu_last_length[source][0]:]
+        #     del self.imu_last_length[source][0]
+        # np.save(f'debug/{int(time.time())}.npy', process_data)
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.plot3D(self.imu_combined_arr[source][:, 0], self.imu_combined_arr[source][:, 1],
-                  self.imu_combined_arr[source][:, 2])
+        ax.plot3D(process_data[:, 0],
+                  process_data[:, 1],
+                  process_data[:, 2])
+        # ax.plot3D(self.imu_combined_arr[source][:, 0], self.imu_combined_arr[source][:, 1],
+        #           self.imu_combined_arr[source][:, 2])
 
-        plt.savefig('imu.png', bbox_inches='tight', pad_inches=0.01)
+        plt.savefig('imu.png', bbox_inches='tight', pad_inches=0.0)
         plt.close(fig)
         return 'imu.png'
 
@@ -947,7 +960,17 @@ async def get_dag_workflows():
 async def get_all_service():
     """
     获取所有容器（docker仓库里的所有）
-    ["face_detection","face_alignment","car_detection","helmet_detection","ixpe_preprocess","ixpe_sr_and_pc","ixpe_edge_observe"]
+
+    [
+    {
+        "service_name": "face_detection",
+        "description": "人脸检测"
+    },
+    {
+        "service_name": "car_detection"，
+        "description": "车辆检测"
+    }
+]
     :return:
     """
 
@@ -1123,6 +1146,8 @@ def submit_query(data=Body(...)):
     server.is_get_result = True
     threading.Thread(target=server.run_get_result).start()
 
+    time.sleep(5)
+
     return {'state': 'success', 'msg': '数据流打开成功'}
 
 
@@ -1171,6 +1196,8 @@ async def stop_query():
     server.is_get_result = False
     server.task_results = {}
     server.queue_results = None
+
+    time.sleep(3)
 
     return {'state': 'success', 'msg': '数据流关闭成功'}
 
@@ -1225,6 +1252,7 @@ async def get_pipeline_info():
     {
         'priority_num': 10,
         'stage': [stage_name1,stage_name2]
+        'node':['edge1','edge2','...'] (节点名字)
     }
 
     """
@@ -1236,7 +1264,8 @@ async def get_pipeline_info():
             if KubeHelper.check_pod_name(task['word'], namespace=namespace):
                 return {
                     'priority_num': server.priority_num,
-                    'stage': [stage['stage_name'] for stage in task['stage']]
+                    'stage': [stage['stage_name'] for stage in task['stage']],
+                    'node': server.device_list
                 }
 
     else:
@@ -1309,9 +1338,11 @@ async def get_task_result():
     return ans
 
 
-@app.get('/queue_result')
-async def get_queue_result():
+@app.get('/queue_result/{node}')
+async def get_queue_result(node):
     """
+    node:节点名字
+        :return:
 
     [
         # stage1
@@ -1338,8 +1369,12 @@ async def get_queue_result():
 
         ]
     ]
-    :return:
+
     """
+    if node not in server.device_list:
+        server.clear_priority_queue_state()
+        return server.priority_queue_state
+
     cur_task = server.get_current_task()
     if not server.source_open or not cur_task:
         server.clear_priority_queue_state()
@@ -1359,7 +1394,7 @@ async def get_queue_result():
     for task in server.queue_waiting_list:
         priority = task['priority_trace']
         for stage_num, stage_priority in enumerate(priority):
-            if stage_priority['tag'] >= cur_time:
+            if stage_priority['tag'] >= cur_time and stage_priority['node'] == node:
                 # print(f'priority_queue_state:{server.priority_queue_state}')
                 # print(f'stage_num: {stage_num}')
                 # print(f'priority: {stage_priority["priority"]}')
@@ -1516,7 +1551,7 @@ async def get_free_task_result(source):
                 if free_type == '任务数量':
                     task_info.append({'name': '任务数量', 'value': len(result_count)})
                 if free_type == '发泡塑料材料中心点平均值':
-                    task_info.append({'name':'发泡塑料材料中心点平均值','value':int(np.mean(result_count))})
+                    task_info.append({'name': '发泡塑料材料中心点平均值', 'value': int(np.mean(result_count))})
 
             server.free_result_save[source]['delay'] = delay
             server.free_result_save[source]['task_info'] = task_info
