@@ -98,9 +98,6 @@ class ControllerServer:
 
                 pipeline[index]['execute_data']['transmit_time'] = 0
 
-                # start record service time
-                tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
-                assert service_time == -1
 
                 LOGGER.debug(f'before priority request: {data["priority"]}')
                 response = http_request(url=self.scheduler_address, json=data)
@@ -122,6 +119,13 @@ class ControllerServer:
                                                     path='predict')
                 LOGGER.debug(f'post data to service {service_name}')
                 LOGGER.debug(f'tmp_path file exist: {os.path.exists(tmp_path)}')
+
+                # start record service time
+                tmp_data, service_time = record_time(tmp_data, f'service_time_{index}')
+                assert service_time == -1
+
+                LOGGER.debug(f'source {source_id} task {task_id} send to service in time {time.time()}')
+
                 http_request(url=service_address, method='POST',
                              data={'data': json.dumps(data)},
                              files={'file': (data['file_name'], open(tmp_path, 'rb'), 'multipart/form-data')}
