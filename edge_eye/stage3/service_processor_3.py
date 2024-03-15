@@ -36,25 +36,25 @@ class ServiceProcessor3:
             input_ctx["rabs_point"] = tuple(input_ctx["rabs_point"])
 
         end_pre = time.time()
-        LOGGER.debug(f'preprocess time: {end_pre-start}s')
+        LOGGER.debug(f'preprocess time: {end_pre - start}s')
 
         try:
 
             output_ctx = self.process_task(input_ctx, redis_address)
         except Exception as e:
-            output_ctx = input_ctx
+            output_ctx = {}
 
         end_process = time.time()
-        LOGGER.debug(f'process time: {end_process-end_pre}s')
+        LOGGER.debug(f'process time: {end_process - end_pre}s')
 
         if "frame" in output_ctx:
             output_ctx["frame"] = encode_image(output_ctx["frame"])
 
         end_after = time.time()
-        LOGGER.debug(f'after process time: {end_after-end_process}s')
+        LOGGER.debug(f'after process time: {end_after - end_process}s')
 
         end = time.time()
-        LOGGER.debug(f'real service call time: {end-start}s')
+        LOGGER.debug(f'real service call time: {end - start}s')
 
         return output_ctx
 
@@ -68,7 +68,7 @@ class ServiceProcessor3:
 
         if len(input_ctx) == 3:
             LOGGER.debug("get three parameters from input_ctx")
-            bar_roi, abs_point,frame = input_ctx["bar_roi"], input_ctx["abs_point"], input_ctx["frame"]
+            bar_roi, abs_point, frame = input_ctx["bar_roi"], input_ctx["abs_point"], input_ctx["frame"]
             self.lps, self.rps = self.pos_calculator.calculatePosInBarROI(
                 bar_roi=bar_roi, abs_point=abs_point)
 
@@ -93,8 +93,8 @@ class ServiceProcessor3:
                 self.first_done_flag = True
                 LOGGER.debug('start get SR frame from queue')
             # 因为roi size变大 2*h and 2*w 导致不能直接使用计算出来的单位xxx
-            lroi, rroi, labs_point, rabs_point,frame = input_ctx["srl"], input_ctx["srr"], input_ctx[
-                "labs_point"], input_ctx["rabs_point"],input_ctx['frame']
+            lroi, rroi, labs_point, rabs_point, frame = input_ctx["srl"], input_ctx["srr"], input_ctx[
+                "labs_point"], input_ctx["rabs_point"], input_ctx['frame']
             # print(type(lroi))
             # print(type(rroi))
             LOGGER.debug(f'{labs_point=}, {rabs_point=}')
