@@ -1,6 +1,7 @@
 .idea
 *.mp4
 *.pt
+*.ttf
 expr_*
 resource_data
 *.tar.xz
