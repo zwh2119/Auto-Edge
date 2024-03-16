@@ -146,6 +146,7 @@ or you can mount the data record folder in distributor to volume on physical dev
 - 2024.01.29 `AutoEdge` - `mid-v0.3.0`: complete data modal of audio and imu.
 - 2024.01.29 `AutoEdge` - `mid-v0.4.0`: complete task type of edge-eye
 - 2024.01.29 `AutoEdge` - `mid-v1.0.0`: complete first version of middle check
-- 2024.03.2  `AutoEdge` - `mid-v1.1.0`: complete frontend ui and backend server of the system
+- 2024.03.02 `AutoEdge` - `mid-v1.1.0`: complete frontend ui and backend server of the system
+- 2024.03.16 `AutoEdge` - `mid-v1.2.0`: fine-tuned frontend ui
 
 ## Citation
