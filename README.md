@@ -148,5 +148,6 @@ or you can mount the data record folder in distributor to volume on physical dev
 - 2024.01.29 `AutoEdge` - `mid-v1.0.0`: complete first version of middle check
 - 2024.03.02 `AutoEdge` - `mid-v1.1.0`: complete frontend ui and backend server of the system
 - 2024.03.16 `AutoEdge` - `mid-v1.2.0`: fine-tuned frontend ui
+- 2024.03.18 `AutoEdge` - `mid-v2.0.0`: complete the second formal version for middle check
 
 ## Citation

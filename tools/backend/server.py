@@ -602,7 +602,7 @@ class BackendServer:
                 delay += execute['transmit_time']
             if 'service_time' in execute:
                 delay += execute['service_time']
-                print(f'stage{i}->{execute["service_time"]:.2f}s  ', end='')
+                print(f'stage{i}->{execute["service_time"]:.2f}s({self.devices[stage["execute_address"]]})  ', end='')
         print(f'total:->{delay:.2f}s')
         return delay
 
