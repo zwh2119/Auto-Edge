@@ -130,6 +130,11 @@ or you can mount the data record folder in distributor to volume on physical dev
 - `Car Detection`: [detection]
 - `Class Detection`: [face detection, pose estimation] (not completely support now)
 
+## Front-End and Back-End
+frontend: [ui](https://github.com/zwh2119/Auto-Edge-Frontend/tree/docker-fe)
+backend: [backend server](tools/backend/server.py)
+datasource: [datasource server](tools/datasource/datasource_server.py)
+
 ## Development Version
 - 2023.11.25 `AutoEdge` - `v0.1.0`: demo of car detection (without scheduler) test successfully [single edge, single stage].
 - 2023.11.30 `AutoEdge` - `v0.2.0`: demo of car detection (with scheduler) test successfully [single edge, single stage].
