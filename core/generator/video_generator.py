@@ -66,7 +66,6 @@ class VideoGenerator(Generator):
         while True:
             self.request_schedule_policy()
 
-
             frame = self.get_one_frame()
             if self.filter_frame(frame):
                 self.process_frame(frame)

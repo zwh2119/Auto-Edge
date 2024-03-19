@@ -116,7 +116,7 @@ bash tools/delete.sh -f <yaml file name>
 ```
 
 ### Start Auto-Edge system on KubeEdge
-start system with yaml files (eg:  [video_car_detection.yaml](templates/service_yaml/video_car_detection.yaml))
+start system with yaml files (eg:  [video_car_detection.yaml](templates/service_yaml/surveillance_car_detection.yaml))
 ```shell
 # yaml files can be found in `templates` folder
 kubectl apply -f <file-name>

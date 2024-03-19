@@ -35,8 +35,7 @@ class Generator:
         response = http_request(url=self.schedule_address,
                                 method=NetworkAPIMethod.SCHEDULER_SCHEDULE,
                                 data={'data': json.dumps(params)})
-        if response is not None:
-            self.after_schedule_operation(self, response)
+        self.after_schedule_operation(self, response)
 
     def submit_task_to_controller(self):
 
@@ -51,7 +50,7 @@ class Generator:
                                 data={'data':Task.serialize(self.current_task)},
                                 files={'file': (f'tmp_{self.generator_id}.mp4',
                                                 open(compressed_video_pth, 'rb'),
-                                                'video/mp4')}
+                                                'multipart/form-data')}
                                 )
 
     def run(self):

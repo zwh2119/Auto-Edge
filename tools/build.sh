@@ -22,7 +22,7 @@ EOF
 
 # Default Dockerfiles and their platforms
 declare -A DOCKERFILES=(
-    [generator]="generator/Dockerfile"
+    [generator]="templates/dockerfile/generator.Dockerfile"
     [distributor]="distributor/Dockerfile"
     [controller]="controller/Dockerfile"
     [monitor]="monitor/Dockerfile"
