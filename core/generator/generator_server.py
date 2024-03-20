@@ -12,7 +12,8 @@ class GeneratorServer:
     def __init__(self):
         self.generator_list = []
 
-    def read_config(self):
+    @staticmethod
+    def read_config():
         try:
             file_path = Context.get_file_path(FileNameConstant.GENERATOR_CONFIG)
             data = YamlOps.read_yaml(file_path)

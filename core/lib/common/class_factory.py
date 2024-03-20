@@ -17,6 +17,8 @@ class ClassType:
     GEN_FILTER = 'generator_frame_filter'
     GEN_PROCESS = 'generator_frame_process'
 
+    SCHEDULE_POLICY = 'schedule_policy'
+
 
 class ClassFactory(object):
     """

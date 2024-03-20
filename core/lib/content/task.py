@@ -8,6 +8,7 @@ class Task:
                  pipeline: list = None,
                  flow_index: int = 0,
                  metadata: dict = None,
+                 raw_metadata: dict = None,
                  content: object = None,
                  scenario: dict = None,
                  temp: dict = None,
@@ -16,6 +17,8 @@ class Task:
         self.__task_id = task_id
 
         self.__metadata = metadata
+
+        self.__raw_metadata = raw_metadata
 
         self.__pipeline_flow = pipeline
 
@@ -61,6 +64,12 @@ class Task:
 
     def set_metadata(self, data: dict):
         self.__metadata = data
+
+    def get_raw_metadata(self):
+        return self.__raw_metadata
+
+    def set_raw_metadata(self, data: dict):
+        self.__raw_metadata = data
 
     def get_content(self):
         return self.__content_data
@@ -135,10 +144,15 @@ class Task:
         for service in pipeline:
             pipeline_serialize.append(Service.serialize(service))
         return {
-            'source_id': task.get_source_id(), 'task_id': task.get_task_id(),
-            'pipeline': pipeline_serialize, 'cur_flow_index': task.get_flow_index(),
-            'meta_data': task.get_metadata(), 'content_data': task.get_content(),
-            'scenario_data': task.get_scenario_data(), 'tmp_data': task.get_tmp_data(),
+            'source_id': task.get_source_id(),
+            'task_id': task.get_task_id(),
+            'pipeline': pipeline_serialize,
+            'cur_flow_index': task.get_flow_index(),
+            'meta_data': task.get_metadata(),
+            'raw_meta_data': task.get_raw_metadata(),
+            'content_data': task.get_content(),
+            'scenario_data': task.get_scenario_data(),
+            'tmp_data': task.get_tmp_data(),
             'file_path': task.get_file_path()
         }
 
@@ -148,9 +162,14 @@ class Task:
         for s in data['pipeline']:
             service = Service.deserialize(s)
             pipeline.append(service)
-        return Task(data['source_id'], data['task_id'],
-                    pipeline=pipeline, flow_index=data['cur_flow_index'],
-                    metadata=data['meta_data'], content=data['content_data'],
-                    scenario=data['scenario_data'], temp=data['tmp_data'],
+        return Task(data['source_id'],
+                    data['task_id'],
+                    pipeline=pipeline,
+                    flow_index=data['cur_flow_index'],
+                    metadata=data['meta_data'],
+                    raw_metadata=data['raw_meta_data'],
+                    content=data['content_data'],
+                    scenario=data['scenario_data'],
+                    temp=data['tmp_data'],
                     file_path=data['file_path']
                     )

@@ -26,6 +26,16 @@ spec:
                 value: "39200"
               - name: scheduler_name
                 value: cloud.kubeedge
+              - name: GEN_FILTER_NAME
+                value: simple
+              - name: GEN_PROCESS_NAME
+                value: simple
+              - name: GEN_COMPRESS_NAME
+                value: simple
+              - name: GEN_BSO_NAME
+                value: simple
+              - name: GEN_ASO_NAME
+                value: simple
     - file:
         path: "/home/nvidia/zwh/Auto-Edge/files"
       logLevel:
@@ -47,6 +57,17 @@ spec:
                   value: "39200"
                 - name: scheduler_name
                   value: cloud.kubeedge
+                - name: GEN_FILTER_NAME
+                  value: simple
+                - name: GEN_PROCESS_NAME
+                  value: simple
+                - name: GEN_COMPRESS_NAME
+                  value: simple
+                - name: GEN_BSO_NAME
+                  value: simple
+                - name: GEN_ASO_NAME
+                  value: simple
+
 ---
 
 apiVersion: sedna.io/v1alpha1

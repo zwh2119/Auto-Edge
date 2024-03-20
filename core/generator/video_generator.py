@@ -57,12 +57,15 @@ class VideoGenerator(Generator):
                                  task_id=self.task_id,
                                  pipeline=self.task_pipeline,
                                  metadata=self.meta_data,
-
                                  )
         super().submit_task_to_controller()
 
     def run(self):
         self.frame_buffer = []
+
+        # initialize default schedule policy
+        self.after_schedule_operation(self, None)
+
         while True:
             self.request_schedule_policy()
 
