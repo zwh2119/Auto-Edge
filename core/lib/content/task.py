@@ -140,6 +140,12 @@ class Task:
         assert 0 <= self.__cur_flow_index < len(self.__pipeline_flow), \
             f'Illegal flow index of "{self.__cur_flow_index}"!'
 
+    def get_current_stage_device(self):
+        assert 0 <= self.__cur_flow_index < len(self.__pipeline_flow), \
+            f'Illegal flow index of "{self.__cur_flow_index}"!'
+
+        return self.__pipeline_flow[self.__cur_flow_index].get_execute_device()
+
     def set_initial_execute_device(self, hostname):
         assert self.__pipeline_flow, 'pipeline is empty!'
         for service in self.__pipeline_flow:

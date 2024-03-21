@@ -41,17 +41,17 @@ class Generator:
     def submit_task_to_controller(self, compressed_file):
         assert self.current_task, 'Task is empty when submit to controller!'
 
-        controller_ip = NodeInfo.hostname2ip(controller_host)
+        controller_ip = NodeInfo.hostname2ip(self.current_task.get_current_stage_device())
         controller_address = get_merge_address(controller_ip,
                                                port=self.controller_port,
                                                path=NetworkAPIPath.CONTROLLER_TASK)
-        response = http_request(url=controller_address,
-                                method=NetworkAPIMethod.CONTROLLER_TASK,
-                                data={'data': Task.serialize(self.current_task)},
-                                files={'file': (self.current_task.get_file_path(),
-                                                open(self.current_task.get_file_path(), 'rb'),
-                                                'multipart/form-data')}
-                                )
+        http_request(url=controller_address,
+                     method=NetworkAPIMethod.CONTROLLER_TASK,
+                     data={'data': Task.serialize(self.current_task)},
+                     files={'file': (self.current_task.get_file_path(),
+                                     open(self.current_task.get_file_path(), 'rb'),
+                                     'multipart/form-data')}
+                     )
 
     def run(self):
         assert None, 'Base Generator should not be invoked directly!'
