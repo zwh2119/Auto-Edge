@@ -33,16 +33,30 @@ class Task:
         self.__file_path = file_path
 
     @staticmethod
-    def extract_pipeline(pipeline: list):
+    def extract_pipeline_from_dict(pipeline: list):
         pipeline_flow = []
         for in_service in pipeline:
             assert 'service_name' in in_service, 'invalid service without "service_name"!'
             service = Service(in_service['service_name'])
+            if 'execute_device' in in_service:
+                service.set_execute_device(in_service['execute_device'])
             pipeline_flow.append(service)
 
         pipeline_flow.append(Service('end'))
 
         return pipeline_flow
+
+    @staticmethod
+    def extract_dict_from_pipeline(pipeline_flow: list):
+        pipeline_list = []
+        for service in pipeline_flow:
+            if service.get_service_name() == 'end':
+                continue
+            pipeline = {'service_name': service.get_service_name(),
+                        'execute_device': service.get_execute_device()}
+            pipeline_list.append(pipeline)
+
+        return pipeline_list
 
     def get_source_id(self):
         return self.__source_id
@@ -57,7 +71,7 @@ class Task:
         self.__pipeline_flow = pipeline
 
     def set_initial_pipeline(self, pipeline):
-        self.__pipeline_flow = Task.extract_pipeline(pipeline)
+        self.__pipeline_flow = Task.extract_pipeline_from_dict(pipeline)
 
     def get_metadata(self):
         return self.__metadata

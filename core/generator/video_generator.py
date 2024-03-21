@@ -35,6 +35,7 @@ class VideoGenerator(Generator):
             if first_no_signal:
                 LOGGER.warning(f'No video signal from source {self.generator_id}!')
                 first_no_signal = False
+            self.frame_buffer = []
             self.data_source_capture = cv2.VideoCapture(self.video_data_source)
             ret, frame = self.data_source_capture.read()
 
