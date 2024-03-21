@@ -46,12 +46,14 @@ class VideoGenerator(Generator):
 
     def filter_frame(self, frame):
         assert type(self.frame_buffer) is list, 'Frame buffer is not list'
+        return self.frame_filter(self, frame)
 
     def process_frame(self, frame):
-        pass
+        return self.frame_process(self, frame)
 
     def compress_frames(self):
         assert type(self.frame_buffer) is list and len(self.frame_buffer) > 0, 'Frame buffer is not list or is empty'
+        return self.frame_compress(self, self.frame_buffer)
 
     def submit_task_to_controller(self):
         self.current_task = Task(source_id=self.source_id,
@@ -72,13 +74,14 @@ class VideoGenerator(Generator):
 
             frame = self.get_one_frame()
             if self.filter_frame(frame):
-                self.process_frame(frame)
+                frame = self.process_frame(frame)
                 self.frame_buffer.append(frame)
+                self.task_id += 1
             if len(self.frame_buffer) >= self.meta_data['buffer_size']:
                 self.compress_frames()
 
                 self.submit_task_to_controller()
 
-            self.task_id += 1
+
 
 
