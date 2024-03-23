@@ -5,4 +5,6 @@
 expr_*
 resource_data
 *.tar.xz
+*.log
+tools/bandwidth_controller.py
 data_record*
