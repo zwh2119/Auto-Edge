@@ -1,3 +1,95 @@
+import os
+import shutil
+
+from core.lib.estimation import TimeEstimator
+from core.lib.network import http_request
+from core.lib.common import LOGGER
+from core.lib.common import Context
+from core.lib.content import Task
+from core.lib.network import get_merge_address
+from core.lib.network import NodeInfo
+from core.lib.network import NetworkAPIPath, NetworkAPIMethod
+
+
 class Controller:
     def __init__(self):
-        pass
+        self.cur_task = None
+
+        self.service_ports_dict = Context.get_parameter('service_port', direct=False)
+        self.controller_port = Context.get_parameter('controller_port')
+        self.distributor_port = Context.get_parameter('distributor_port')
+        self.distributor_ip = NodeInfo.hostname2ip(Context.get_parameter('distributor_name'))
+        self.distribute_address = get_merge_address(self.distributor_ip,
+                                                    port=self.distributor_port,
+                                                    path=NetworkAPIPath.DISTRIBUTOR_DISTRIBUTE)
+
+        self.local_device = NodeInfo.get_local_device()
+
+    def set_current_task(self, task_data: dict):
+        self.cur_task = Task.deserialize(task_data)
+
+    def submit_task_to_other_device(self, device):
+        controller_address = get_merge_address(NodeInfo.hostname2ip(device),
+                                               port=self.controller_port,
+                                               path=NetworkAPIPath.CONTROLLER_TASK)
+        http_request(url=controller_address,
+                     method=NetworkAPIMethod.CONTROLLER_TASK,
+                     data={'data': Task.serialize(self.cur_task)},
+                     files={'file': (self.cur_task.get_file_path(),
+                                     open(self.cur_task.get_file_path(), 'rb'),
+                                     'multipart/form-data')}
+                     )
+
+    def submit_task_to_service(self, service):
+        service_address = get_merge_address(NodeInfo.hostname2ip(self.local_device),
+                                            port=self.service_ports_dict[service],
+                                            path=NetworkAPIPath.PROCESSOR_PROCESS
+                                            )
+        http_request(url=service_address,
+                     method=NetworkAPIMethod.PROCESSOR_PROCESS,
+                     data={'data': Task.serialize(self.cur_task)},
+                     files={'file': (self.cur_task.get_file_path(),
+                                     open(self.cur_task.get_file_path(), 'rb'),
+                                     'multipart/form-data')}
+                     )
+
+    def submit_task(self):
+        service_name, _ = self.cur_task.get_current_service()
+        dst_device = self.cur_task.get_current_stage_device()
+        if service_name == 'end' or dst_device != self.local_device:
+            self.record_transmit_ts(is_end=False)
+            self.submit_task_to_other_device(dst_device)
+        else:
+            self.record_execute_ts(is_end=False)
+            self.submit_task_to_service(service_name)
+
+    def process_return(self):
+        self.cur_task.step_to_next_stage()
+
+    def save_data_file(self, file_data):
+        file_path = self.cur_task.get_file_path()
+        with open(file_path, 'wb') as buffer:
+            buffer.write(file_data)
+
+    def remove_data_file(self):
+        file_path = self.cur_task.get_file_path()
+        if os.path.exists(file_path):
+            shutil.rmtree(file_path)
+
+    def record_transmit_ts(self, is_end: bool):
+        task, duration = TimeEstimator.record_pipeline_ts(self.cur_task, is_end=is_end, sub_tag='transmit')
+        self.cur_task = task
+
+        if is_end:
+            self.cur_task.save_transmit_time(duration)
+            LOGGER.info(f'[Source {task.get_source_id()} / Task {task.get_task_id()}] '
+                        f'record transmit time of stage {task.get_flow_index()}: {duration:.3f}s')
+
+    def record_execute_ts(self, is_end: bool):
+        task, duration = TimeEstimator.record_pipeline_ts(self.cur_task, is_end=is_end, sub_tag='execute')
+        self.cur_task = task
+
+        if is_end:
+            self.cur_task.save_execute_time(duration)
+            LOGGER.info(f'[Source {task.get_source_id()} / Task {task.get_task_id()}] '
+                        f'record execute time of stage {task.get_flow_index()}: {duration:.3f}s')

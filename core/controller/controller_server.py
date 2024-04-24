@@ -5,13 +5,7 @@ from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form
 from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-
-from core.lib.common import Context
-from core.lib.content import Task
-from core.lib.network import get_merge_address
-from core.lib.network import NodeInfo
 from core.lib.network import NetworkAPIPath, NetworkAPIMethod
-from core.lib.network import http_request
 
 from controller import Controller
 
@@ -26,6 +20,11 @@ class ControllerServer:
                      response_class=JSONResponse,
                      methods=[NetworkAPIMethod.CONTROLLER_TASK]
                      ),
+            APIRoute(NetworkAPIPath.CONTROLLER_RETURN,
+                     self.process_return,
+                     response_class=JSONResponse,
+                     methods=[NetworkAPIMethod.CONTROLLER_RETURN]
+                     ),
         ], log_level='trace', timeout=6000)
 
         self.app.add_middleware(
@@ -33,22 +32,34 @@ class ControllerServer:
             allow_methods=["*"], allow_headers=["*"],
         )
 
-        self.service_ports_dict = Context.get_parameter('service_port', direct=False)
-        self.distributor_port = Context.get_parameter('distributor_port')
-        self.distributor_ip = NodeInfo.hostname2ip(Context.get_parameter('distributor_name'))
-        self.distribute_address = get_merge_address(self.distributor_ip,
-                                                    port=self.distributor_port,
-                                                    path=NetworkAPIPath.DISTRIBUTOR_DISTRIBUTE)
-
-        self.local_device = NodeInfo.get_local_device()
-
     async def submit_task(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
         file_data = await file.read()
         data = json.loads(data)
         backtask.add_task(self.submit_task_background, data, file_data)
 
+    async def process_return(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
+        file_data = await file.read()
+        data = json.loads(data)
+        backtask.add_task(self.process_return_background, data, file_data)
+
     def submit_task_background(self, data, file_data):
-        pass
+        self.controller.set_current_task(data)
+        self.controller.save_data_file(file_data)
+
+        self.controller.record_transmit_ts(is_end=True)
+        self.controller.submit_task()
+
+        self.controller.remove_data_file()
+
+    def process_return_background(self, data, file_data):
+        self.controller.set_current_task(data)
+        self.controller.save_data_file(file_data)
+
+        self.controller.record_execute_ts(is_end=True)
+        self.controller.process_return()
+        self.controller.submit_task()
+
+        self.controller.remove_data_file()
 
 
 app = ControllerServer().app

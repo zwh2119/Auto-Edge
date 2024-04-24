@@ -6,6 +6,7 @@ from core.lib.network import get_merge_address
 from core.lib.network import NodeInfo
 from core.lib.network import NetworkAPIPath, NetworkAPIMethod
 from core.lib.network import http_request
+from core.lib.estimation import TimeEstimator
 
 
 class Generator:
@@ -38,6 +39,16 @@ class Generator:
                                 data={'data': json.dumps(params)})
         self.after_schedule_operation(self, response)
 
+    def record_total_start_ts(self):
+        self.current_task, _ = TimeEstimator.record_task_ts(self.current_task,
+                                                            'total_start_time',
+                                                            is_end=False)
+
+    def record_transmit_start_ts(self):
+        self.current_task, _ = TimeEstimator.record_pipeline_ts(self.current_task,
+                                                                is_end=False,
+                                                                sub_tag='transmit')
+
     def submit_task_to_controller(self, compressed_file):
         assert self.current_task, 'Task is empty when submit to controller!'
 
@@ -45,6 +56,7 @@ class Generator:
         controller_address = get_merge_address(controller_ip,
                                                port=self.controller_port,
                                                path=NetworkAPIPath.CONTROLLER_TASK)
+        self.record_transmit_start_ts()
         http_request(url=controller_address,
                      method=NetworkAPIMethod.CONTROLLER_TASK,
                      data={'data': Task.serialize(self.current_task)},

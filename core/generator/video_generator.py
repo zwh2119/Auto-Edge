@@ -64,6 +64,7 @@ class VideoGenerator(Generator):
                                  content=self.task_content,
                                  file_path=compressed_path
                                  )
+        self.record_total_start_ts()
         super().submit_task_to_controller(compressed_path)
 
     def run(self):

@@ -1,5 +1,6 @@
 class NetworkAPIPath:
     CONTROLLER_TASK = 'submit_task'
+    CONTROLLER_RETURN = 'process_return'
     PROCESSOR_PROCESS = 'predict'
     DISTRIBUTOR_DISTRIBUTE = 'distribute'
     DISTRIBUTOR_RESULT = 'result'
@@ -10,6 +11,7 @@ class NetworkAPIPath:
 
 class NetworkAPIMethod:
     CONTROLLER_TASK = 'POST'
+    CONTROLLER_RETURN = 'POST'
     PROCESSOR_PROCESS = 'POST'
     DISTRIBUTOR_DISTRIBUTE = 'POST'
     DISTRIBUTOR_RESULT = 'GET'

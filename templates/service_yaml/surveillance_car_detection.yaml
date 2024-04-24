@@ -94,6 +94,8 @@ spec:
                 value: '{"car_detection": 39001}'
               - name: distributor_port
                 value: "39500"
+              - name: controller_port
+                value: "39200"
               - name: distributor_name
                 value: cloud.kubeedge
             ports:
@@ -116,6 +118,8 @@ spec:
                 value: '{"car_detection": 39001}'
               - name: distributor_port
                 value: "39500"
+              - name: controller_port
+                value: "39200"
               - name: distributor_name
                 value: cloud.kubeedge
             ports:
@@ -137,6 +141,8 @@ spec:
                 value: '{"car_detection": 39001}'
               - name: distributor_port
                 value: "39500"
+              - name: controller_port
+                value: "39200"
               - name: distributor_name
                 value: cloud.kubeedge
             ports:

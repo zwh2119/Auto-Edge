@@ -1,24 +1,42 @@
 import time
+from core.lib.content import Task
 
 
 class TimeEstimator:
 
     @staticmethod
-    def record_pipeline_ts(data: dict, flow_index: int, is_end: bool, transmit: bool = True) -> (bool, dict, float):
+    def record_pipeline_ts(task: Task, is_end: bool, sub_tag: str = 'transmit') -> (Task, float):
         """
         record pipeline timestamp in system
-        :param data: time dictionary
-        :param flow_index: index in pipeline flow
+        :param task: pipeline task
         :param is_end: if recording the end of current timestamp
-        :param transmit: is transmit time record (transmit time or service time)
-        :return: is_end: is the end of time estimation
-                 data: time dictionary
+        :param sub_tag: sub tag of ts record name (eg:transmit_time_1)
+        :return: task: pipeline task with recorded time
                  duration: time estimation result
 
         """
-        return TimeEstimator.record_ts(data,
-                                       f'transmit_time_{flow_index}' if transmit else f'service_time_{flow_index}',
-                                       is_end=is_end)
+        data, duration = TimeEstimator.record_ts(task.get_tmp_data(),
+                                                 f'{sub_tag}_time_{task.get_flow_index()}',
+                                                 is_end=is_end)
+        task.set_tmp_data(data)
+        return task, duration
+
+    @staticmethod
+    def record_task_ts(task: Task, tag: str, is_end: bool = False) -> (Task, float):
+        """
+
+        :param task: pipeline task
+        :param tag: name of time ticket
+        :param is_end: if recording the end of current timestamp
+        :return: task: pipeline task with recorded time
+                 duration: time estimation result
+        """
+
+        data, duration = TimeEstimator.record_ts(task.get_tmp_data(),
+                                                 tag=tag,
+                                                 is_end=is_end)
+        task.set_tmp_data(data)
+        return task, duration
 
     @staticmethod
     def record_ts(data: dict, tag: str, is_end: bool = False) -> (dict, float):
