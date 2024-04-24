@@ -17,4 +17,4 @@ WORKDIR /app
 COPY  ${code_dir}/* /app/
 
 
-CMD ["gunicorn", "controller_server:app", "-c", "./gunicorn.conf.py"]
+CMD ["gunicorn", "main:app", "-c", "./gunicorn.conf.py"]

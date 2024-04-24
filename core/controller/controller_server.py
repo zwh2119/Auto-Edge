@@ -62,4 +62,4 @@ class ControllerServer:
         self.controller.remove_data_file()
 
 
-app = ControllerServer().app
+
