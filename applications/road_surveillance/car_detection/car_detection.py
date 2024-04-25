@@ -13,32 +13,21 @@ import pycuda.driver as cuda
 import tensorrt as trt
 
 import cv2
-
-
-
+from typing import List
 
 
 class CarDetection:
 
-    def __init__(self, args):
-        # write code to change the args dict to command line args
-        args_list = []
-        for k, v in args.items():
-            args[k] = '--' + k
-            args_list.append(args[k])
-            args_list.append(str(v))
-        args = args_list
+    def __init__(self, weights, plugin_library, device=0):
 
-        self.opt = self.parse_opt(args)
+        ctypes.CDLL(plugin_library)
 
-        ctypes.CDLL(self.opt.plugin_library)
-
-        self.ctx = cuda.Device(self.opt.device).make_context()
+        self.ctx = cuda.Device(device).make_context()
         stream = cuda.Stream()
         TRT_LOGGER = trt.Logger(trt.Logger.INFO)
         runtime = trt.Runtime(TRT_LOGGER)
-        engine_file_path = self.opt.weights
 
+        engine_file_path = weights
         with open(engine_file_path, "rb") as f:
             engine = runtime.deserialize_cuda_engine(f.read())
         context = engine.create_execution_context()
@@ -78,52 +67,36 @@ class CarDetection:
         self.bindings = bindings
         self.batch_size = engine.max_batch_size
 
-        self.warm_up_turns = self.opt.warm_up_turns
+        self.warm_up_turns = 5
+        self.conf_thres = 0.25
+        self.iou_thres = 0.45
+        self.len_one_result = 38
+        self.len_all_result = 38001
 
-        self.conf_thres = self.opt.conf_thres
-        self.iou_thres = self.opt.iou_thres
-        self.len_one_result = self.opt.len_one_result
-        self.len_all_result = self.opt.len_all_result
+        self.categories = np.array(
+            ["person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat",
+             "traffic light",
+             "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse",
+             "sheep",
+             "cow",
+             "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase",
+             "frisbee",
+             "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove", "skateboard",
+             "surfboard",
+             "tennis racket", "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl", "banana",
+             "apple",
+             "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair",
+             "couch",
+             "potted plant", "bed", "dining table", "toilet", "tv", "laptop", "mouse", "remote",
+             "keyboard",
+             "cell phone",
+             "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors",
+             "teddy bear",
+             "hair drier", "toothbrush"])
 
-        self.categories = ["person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat",
-                           "traffic light",
-                           "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse",
-                           "sheep",
-                           "cow",
-                           "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase",
-                           "frisbee",
-                           "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove", "skateboard",
-                           "surfboard",
-                           "tennis racket", "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl", "banana",
-                           "apple",
-                           "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair",
-                           "couch",
-                           "potted plant", "bed", "dining table", "toilet", "tv", "laptop", "mouse", "remote",
-                           "keyboard",
-                           "cell phone",
-                           "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors",
-                           "teddy bear",
-                           "hair drier", "toothbrush"]
-
-        self.target_categories = {"car", "bus", "truck"}
+        self.target_categories = np.asarray(["car", "bus", "truck"])
 
         self.warm_up()  # warmup
-
-    @staticmethod
-    def parse_opt(args=None):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--weights', type=str, help='model path or triton URL')
-        parser.add_argument('--plugin_library', type=str)
-        parser.add_argument('--batch_size', type=int, default=1)
-        parser.add_argument('--device', default=0, type=int, help='cuda device, i.e. 0,1,2')
-        parser.add_argument('--conf_thres', type=float, default=0.25, help='confidence threshold')
-        parser.add_argument('--iou_thres', type=float, default=0.45, help='NMS IoU threshold')
-        parser.add_argument('--len_one_result', type=int, default=38)
-        parser.add_argument('--len_all_result', type=int, default=38001)
-        parser.add_argument('--warm_up_turns', type=int, default=5)
-
-        opt = parser.parse_args(args)
-        return opt
 
     def warm_up(self):
         for i in range(self.warm_up_turns):
@@ -366,39 +339,25 @@ class CarDetection:
         # Here we use the first row of output in that batch_size = 1
         output = host_outputs[0]
 
-        output_ctx = {'result': [], 'parameters': {}, 'probs': []}
-        output_ctx['parameters']['obj_num'] = []
-        output_ctx['parameters']['obj_size'] = []
-
         # Do postprocess
-        for i in range(self.batch_size):
-            result_boxes, result_scores, result_classid = self.post_process(
-                output[i * self.len_all_result: (i + 1) * self.len_all_result], batch_origin_h[i], batch_origin_w[i]
-            )
-            result_boxes = result_boxes.tolist()
-            result_scores = result_scores.tolist()
-            result_classid = result_classid.tolist()
 
-            frame_boxes = []
-            probs = []
-            cnt = 0
-            size = 0
-            for j in range(len(result_boxes)):
-                box = [int(x) for x in result_boxes[j]]
-                box_class = self.categories[int(result_classid[j])]
-                score = result_scores[j]
-                if box_class in self.target_categories:
-                    frame_boxes.append(box)
-                    probs.append(score)
-                    cnt += 1
-                    size += ((box[2] - box[0]) * (box[3] - box[1])) / (self.input_h * self.input_w)
-            output_ctx['result'].append(frame_boxes)
-            output_ctx['probs'].append(probs)
-            output_ctx['parameters']['obj_num'].append(cnt)
-            output_ctx['parameters']['obj_size'].append(size / cnt if cnt != 0 else 0)
-        return output_ctx
+        result_boxes, result_scores, result_classid = self.post_process(
+            output, batch_origin_h[0], batch_origin_w[0]
+        )
 
-    def __call__(self, images):
+        mask = np.isin(self.categories[result_classid], self.target_categories)
 
-        assert type(images) is list
-        return self.infer(images)
+        result_boxes = result_boxes[mask].tolist()
+        result_scores = result_scores[mask].tolist()
+        result_classid = np.full(len(result_boxes), 'car').tolist()
+
+        return result_boxes, result_scores, result_classid
+
+    def __call__(self, images: List[np.ndarray]):
+
+        output = []
+
+        for image in images:
+            output.append(self.infer([image]))
+
+        return output

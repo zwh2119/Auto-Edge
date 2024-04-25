@@ -3,6 +3,7 @@ import time
 import cv2
 import numpy as np
 import torch
+from typing import List
 
 
 def xyxy_to_xywh(boxes_xyxy):
@@ -152,4 +153,7 @@ def tracking(prev_detection_frame, bbox, tracking_frame_list):
 
 class CarTracking:
     def __init__(self):
+        pass
+
+    def __call__(self, images: List[np.ndarray]):
         pass

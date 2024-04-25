@@ -24,7 +24,8 @@ class ProcessorServer:
             allow_methods=["*"], allow_headers=["*"],
         )
 
-        self.processor = Context.get_algorithm('PRO_DETECTOR')
+        processor_type = Context.get_parameter('type')
+        self.processor = Context.get_algorithm(processor_type)
 
     def process_service(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
         file_data = await file.read()

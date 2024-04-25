@@ -1,6 +1,6 @@
 import os
 
-from .class_factory import ClassFactory,ClassType
+from .class_factory import ClassFactory, ClassType
 
 
 class Context:
