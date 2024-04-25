@@ -29,7 +29,8 @@ class Context:
     @classmethod
     def get_algorithm(cls, algorithm, **param):
         algorithm_dict = Context.get_algorithm_info(algorithm, **param)
-
+        if not algorithm_dict:
+            return None
         return ClassFactory.get_cls(
             eval(f'ClassType.{algorithm}'),
             algorithm_dict['method']
@@ -41,7 +42,7 @@ class Context:
         al_params = cls.get_parameter(f'{algorithm}_PARAMETERS', default='{}', direct=False)
 
         if not al_name:
-            return {}
+            return None
 
         al_params.update(**param)
 
