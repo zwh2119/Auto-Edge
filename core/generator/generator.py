@@ -7,6 +7,7 @@ from core.lib.network import NodeInfo
 from core.lib.network import NetworkAPIPath, NetworkAPIMethod
 from core.lib.network import http_request
 from core.lib.estimation import TimeEstimator
+from core.lib.common import LOGGER
 
 
 class Generator:
@@ -52,7 +53,8 @@ class Generator:
     def submit_task_to_controller(self, compressed_file):
         assert self.current_task, 'Task is empty when submit to controller!'
 
-        controller_ip = NodeInfo.hostname2ip(self.current_task.get_current_stage_device())
+        dst_device = self.current_task.get_current_stage_device()
+        controller_ip = NodeInfo.hostname2ip(dst_device)
         controller_address = get_merge_address(controller_ip,
                                                port=self.controller_port,
                                                path=NetworkAPIPath.CONTROLLER_TASK)
@@ -64,6 +66,8 @@ class Generator:
                                      open(self.current_task.get_file_path(), 'rb'),
                                      'multipart/form-data')}
                      )
+        LOGGER.info(f'[To Controller {dst_device}] source: {self.current_task.get_source_id()}  '
+                    f'task: {self.current_task.get_task_id()}')
 
     def run(self):
         assert None, 'Base Generator should not be invoked directly!'

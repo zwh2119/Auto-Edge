@@ -39,6 +39,7 @@ class Controller:
                                      open(self.cur_task.get_file_path(), 'rb'),
                                      'multipart/form-data')}
                      )
+        LOGGER.info(f'[To Device {device}] source: {self.cur_task.get_source_id()}  task: {self.cur_task.get_task_id()}')
 
     def submit_task_to_service(self, service):
         service_address = get_merge_address(NodeInfo.hostname2ip(self.local_device),
@@ -52,6 +53,7 @@ class Controller:
                                      open(self.cur_task.get_file_path(), 'rb'),
                                      'multipart/form-data')}
                      )
+        LOGGER.info(f'[To Service {service}] source: {self.cur_task.get_source_id()}  task: {self.cur_task.get_task_id()}')
 
     def submit_task(self):
         service_name, _ = self.cur_task.get_current_service()
