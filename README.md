@@ -175,7 +175,6 @@ we use the following devices to deploy Auto-Edge system. Other devices can also 
 
 ## Supported Service Pipeline
 - Car Detection: [`car detection`]
-- Class Detection: [`face detection`, `pose estimation`] 
 
 ## Development Version
 - 2023.11.25 `AutoEdge` - `v0.1.0`: demo of car detection (without scheduler) test successfully [single edge, single stage]

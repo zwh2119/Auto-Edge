@@ -27,3 +27,8 @@ class CarDetectionProcessor(DetectorProcessor):
 
         tracking_output = self.tracker(detection_list[0], result_bbox, tracking_list)
 
+        process_output = [(bbox, result_prob, result_class) for bbox in tracking_output]
+        process_output.insert(0, (result_bbox, result_prob, result_class))
+
+        return process_output
+
