@@ -68,8 +68,8 @@ class CarDetection:
         self.batch_size = engine.max_batch_size
 
         self.warm_up_turns = 5
-        self.conf_thres = 0.25
-        self.iou_thres = 0.45
+        self.conf_thres = 0.3
+        self.iou_thres = 0.4
         self.len_one_result = 38
         self.len_all_result = 38001
 
@@ -345,9 +345,9 @@ class CarDetection:
             output, batch_origin_h[0], batch_origin_w[0]
         )
 
-        mask = np.isin(self.categories[result_classid], self.target_categories)
+        mask = np.isin(self.categories[result_classid.astype(int)], self.target_categories)
 
-        result_boxes = result_boxes[mask].tolist()
+        result_boxes = result_boxes.astype(int)[mask].tolist()
         result_scores = result_scores[mask].tolist()
         result_classid = np.full(len(result_boxes), 'car').tolist()
 

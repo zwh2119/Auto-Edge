@@ -7,6 +7,8 @@ from core.lib.common import ClassFactory, ClassType
 from .car_detection import CarDetection
 from .car_tracking import CarTracking
 
+__all__ = ('CarDetectionProcessor',)
+
 
 @ClassFactory.register(ClassType.PRO_DETECTOR, alias='car_detection')
 class CarDetectionProcessor(DetectorProcessor):
@@ -27,8 +29,7 @@ class CarDetectionProcessor(DetectorProcessor):
 
         tracking_output = self.tracker(detection_list[0], result_bbox, tracking_list)
 
-        process_output = [(bbox, result_prob, result_class) for bbox in tracking_output]
-        process_output.insert(0, (result_bbox, result_prob, result_class))
+        process_output = [(bbox, result_prob, result_class, points) for bbox,points in zip(tracking_output[0], tracking_output[1])]
+        process_output.insert(0, (result_bbox, result_prob, result_class, tracking_output[2]))
 
         return process_output
-

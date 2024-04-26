@@ -1,1 +1,3 @@
-from .road_surveillance.car_detection import CarDetectionProcessor
+from . import road_surveillance
+
+

@@ -1,1 +1,1 @@
-from .car_detection_processor import CarDetectionProcessor
+from . import car_detection_processor
