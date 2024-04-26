@@ -27,7 +27,7 @@ class ProcessorServer:
         processor_type = Context.get_parameter('type')
         self.processor = Context.get_algorithm(processor_type)
 
-    def process_service(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
+    async def process_service(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
         file_data = await file.read()
         data = json.loads(data)
         backtask.add_task(self.process_service_background, data, file_data)

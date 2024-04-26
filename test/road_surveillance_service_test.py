@@ -2,14 +2,13 @@ import shutil
 import sys
 import os
 
-sys.path.append('/home/hx/zwh/Auto-Edge-rebuild')
+sys.path.append('/home/hx/zwh/Auto-Edge-rebuild/dependency')
 
 import cv2
 import numpy as np
 
-from core.lib.common import Context
+import core
 from core.lib.common import ClassFactory, ClassType
-import applications
 
 
 def plot_bounding_frame(frame, box, path):

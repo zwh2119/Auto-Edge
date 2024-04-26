@@ -2,7 +2,7 @@
 import numpy as np
 from typing import List
 
-from core.processor.detector_processor import DetectorProcessor
+from core.processor import DetectorProcessor
 from core.lib.common import ClassFactory, ClassType
 from core.lib.estimation import Timer
 

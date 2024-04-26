@@ -1,4 +1,4 @@
-from .generator_server import GeneratorServer
+from core.generator import GeneratorServer
 
 
 def main():
