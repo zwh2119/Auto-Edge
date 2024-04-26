@@ -12,10 +12,17 @@ from core.lib.common import ClassFactory, ClassType
 import applications
 
 
-def plot_bbox(frame, boxes,points, path):
-    # print(points)
+def plot_bounding_frame(frame, box, path):
+    # print(f'box:{box}')
+    x1, y1, x2, y2 = box
+    bounding_frame = frame[int(y1):int(y2), int(x1):int(x2)]
+    cv2.imwrite(path, bounding_frame)
+
+
+def plot_bbox(frame, boxes, points, path):
     for x_min, y_min, x_max, y_max in boxes:
         cv2.rectangle(frame, (int(x_min), int(y_min)), (int(x_max), int(y_max)), (0, 255, 0), 4)
+
     points = np.int0(points)
     for point in points:
         x, y = point.ravel()
@@ -35,7 +42,7 @@ def road_surveillance():
     weights = '/home/hx/zwh/Auto-Edge/batch_test/yolov5s_batch1.engine'
     plugin = '/home/hx/zwh/Auto-Edge/batch_test/libbatch1plugins.so'
     processor = ClassFactory.get_cls(ClassType.PRO_DETECTOR,
-                                     'car_detection')(weights, plugin,device=3)
+                                     'car_detection')(weights, plugin, device=3)
 
     frame_list = []
     cnt = 0
@@ -55,6 +62,7 @@ def road_surveillance():
     if os.path.exists(pic_dir):
         shutil.rmtree(pic_dir)
     os.mkdir(pic_dir)
+    plot_bounding_frame(frame_list[0], output[0][0][0], os.path.join(pic_dir, 'bounding_pic.png'))
     for index, ((bboxes, _, _, points), frame) in enumerate(zip(output, frame_list)):
         plot_bbox(frame, bboxes, points, os.path.join(pic_dir, f'pic{index}.png'))
 

@@ -2,6 +2,26 @@ import time
 from core.lib.content import Task
 
 
+class Timer:
+    def __init__(self, label=""):
+        self.label = label
+
+    def __enter__(self):
+        self.start_time = time.time()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end_time = time.time()
+        self.elapsed_time = self.end_time - self.start_time
+        if self.label:
+            print(f"[{self.label}] Execution time: {self.elapsed_time:.4f}s")
+        else:
+            print(f"Execution time: {self.elapsed_time:.4f}s")
+
+    def get_elapsed_time(self):
+        return self.elapsed_time
+
+
 class TimeEstimator:
 
     @staticmethod

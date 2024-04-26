@@ -3,7 +3,6 @@
 car detection with yolov5 (TensorRT)
 
 """
-import argparse
 import ctypes
 
 import numpy as np
