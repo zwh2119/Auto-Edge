@@ -1,5 +1,8 @@
-ARG code_dir=core/generator
-ARG lib_dir=core/lib
+ARG dependency_dir=dependency
+ARG lib_dir=dependency/core/lib
+ARG base_dir=dependency/core/generator
+ARG code_dir=components/generator
+
 
 FROM gocv/opencv:latest
 
@@ -23,12 +26,12 @@ RUN pip install --upgrade pip setuptools wheel
 
 COPY ${lib_dir}/requirements.txt ./lib_requirements.txt
 RUN pip install -r lib_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-COPY ${code_dir}/requirements.txt ./code_requirements.txt
-RUN pip install -r code_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+COPY ${base_dir}/requirements.txt ./base_requirements.txt
+RUN pip install -r base_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 
-COPY ${lib_dir} /home/core/lib
-ENV PYTHONPATH "/home/core"
+COPY ${dependency_dir} /home/dependency
+ENV PYTHONPATH "/home/dependency"
 
 WORKDIR /app
 COPY  ${code_dir}/* /app/
