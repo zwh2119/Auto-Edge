@@ -1,5 +1,6 @@
 import json
-
+import asyncio
+import uvicorn
 from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form
 
 from fastapi.routing import APIRoute
@@ -7,6 +8,9 @@ from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from core.lib.network import NetworkAPIPath, NetworkAPIMethod
 from core.lib.common import Context
+from core.lib.common import LOGGER, FileOps
+from core.lib.network import NodeInfo, http_request, get_merge_address, NetworkAPIMethod, NetworkAPIPath
+from core.lib.content import Task
 
 
 class ProcessorServer:
@@ -27,16 +31,51 @@ class ProcessorServer:
         processor_type = Context.get_parameter('type')
         self.processor = Context.get_algorithm(processor_type)
 
+        self.task_queue = Context.get_algorithm('PRO_QUEUE')
+
+        self.local_device = NodeInfo.get_local_device()
+        self.processor_port = Context.get_parameter('processor_port')
+        self.controller_port = Context.get_parameter('controller_port')
+        self.controller_address = get_merge_address(NodeInfo.hostname2ip(self.local_device),
+                                                    port=self.controller_port,
+                                                    path=NetworkAPIPath.CONTROLLER_RETURN)
+
     async def process_service(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
         file_data = await file.read()
         data = json.loads(data)
         backtask.add_task(self.process_service_background, data, file_data)
 
     def process_service_background(self, data, file_data):
-        pass
+        cur_task = Task.deserialize(data)
+        FileOps.save_data_file(cur_task, file_data)
+        self.task_queue.put(cur_task)
 
     def start_processor_server(self):
-        pass
+        LOGGER.info(f'start uvicorn server on {self.processor_port} port')
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        # Configure and run the server
+        uvicorn_config = uvicorn.Config(app=self.app, host="0.0.0.0", port=self.processor_port, log_level="debug")
+        server = uvicorn.Server(uvicorn_config)
+        loop.run_until_complete(server.serve())
 
     def loop_process(self):
-        pass
+        LOGGER.info('start processing loop..')
+        while True:
+            if self.task_queue.empty():
+                continue
+            task = self.task_queue.get()
+            if not task:
+                continue
+            task = self.processor(task)
+            self.send_result_back_to_controller(task)
+            FileOps.remove_data_file(task)
+
+    def send_result_back_to_controller(self, task):
+        http_request(url=self.controller_address, method=NetworkAPIMethod.CONTROLLER_RETURN,
+                     data={'data': Task.serialize(task)},
+                     files={'file': (task.get_file_path(),
+                                     open(task.get_file_path, 'rb'),
+                                     'multipart/form-data')})

@@ -23,4 +23,4 @@ WORKDIR /app
 COPY  ${code_dir}/* /app/
 
 
-CMD ["uvicorn", "service_server:app", "--host=0.0.0.0", "--port=9001", "--log-level=debug", "--workers=2", "--limit-concurrency=3"]
+CMD ["python3", "main.py"]

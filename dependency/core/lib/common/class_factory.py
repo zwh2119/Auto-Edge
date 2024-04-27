@@ -21,6 +21,7 @@ class ClassType:
     SCHEDULE_POLICY = 'schedule_policy'
 
     PRO_DETECTOR = 'processor_detector'
+    PRO_QUEUE = 'processor_queue'
 
 
 class ClassFactory(object):

@@ -304,7 +304,7 @@ spec:
 apiVersion: sedna.io/v1alpha1
 kind: JointMultiEdgeService
 metadata:
-  name: car-detection-service
+  name: processor-car-detection
   namespace: auto-edge
 spec:
   edgeWorker:

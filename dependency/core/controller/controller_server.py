@@ -6,8 +6,9 @@ from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from core.lib.network import NetworkAPIPath, NetworkAPIMethod
+from core.lib.common import FileOps
 
-from controller import Controller
+from .controller import Controller
 
 
 class ControllerServer:
@@ -44,22 +45,19 @@ class ControllerServer:
 
     def submit_task_background(self, data, file_data):
         self.controller.set_current_task(data)
-        self.controller.save_data_file(file_data)
+        FileOps.save_data_file(self.controller.cur_task, file_data)
 
         self.controller.record_transmit_ts(is_end=True)
         self.controller.submit_task()
 
-        self.controller.remove_data_file()
+        FileOps.remove_data_file(self.controller.cur_task)
 
     def process_return_background(self, data, file_data):
         self.controller.set_current_task(data)
-        self.controller.save_data_file(file_data)
+        FileOps.save_data_file(self.controller.cur_task, file_data)
 
         self.controller.record_execute_ts(is_end=True)
         self.controller.process_return()
         self.controller.submit_task()
 
-        self.controller.remove_data_file()
-
-
-
+        FileOps.remove_data_file(self.controller.cur_task)

@@ -68,16 +68,6 @@ class Controller:
     def process_return(self):
         self.cur_task.step_to_next_stage()
 
-    def save_data_file(self, file_data):
-        file_path = self.cur_task.get_file_path()
-        with open(file_path, 'wb') as buffer:
-            buffer.write(file_data)
-
-    def remove_data_file(self):
-        file_path = self.cur_task.get_file_path()
-        if os.path.exists(file_path):
-            shutil.rmtree(file_path)
-
     def record_transmit_ts(self, is_end: bool):
         task, duration = TimeEstimator.record_pipeline_ts(self.cur_task, is_end=is_end, sub_tag='transmit')
         self.cur_task = task
