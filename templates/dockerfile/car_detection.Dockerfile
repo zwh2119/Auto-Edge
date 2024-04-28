@@ -1,8 +1,7 @@
 ARG TARGETPLATFORM
-FROM --platform=$BUILDPLATFORM onecheck/tensorrt:trt8_amd64 as base-amd64
-FROM --platform=$BUILDPLATFORM necheck/tensorrt:trt8_aarch64 as base-arm64
-
-FROM base-${TARGETPLATFORM} as final
+FROM --platform=$TARGETPLATFORM \
+    ${TARGETPLATFORM:-linux/amd64}=onecheck/tensorrt:trt8_amd64, \
+    ${TARGETPLATFORM:-linux/arm64}=onecheck/tensorrt:trt8_aarch64
 
 MAINTAINER Wenhui Zhou
 
