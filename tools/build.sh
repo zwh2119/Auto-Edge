@@ -126,10 +126,10 @@ build_image_special() {
     echo "Building image: $temp_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
 
     if [ -z "$cache_option" ]; then
-        docker  build --platform="$platform"  -t "$temp_tag" -f "$dockerfile" "$context_dir" --load
+        docker  buildx build --platform="$platform"  -t "$temp_tag" -f "$dockerfile" "$context_dir" --push
 #        docker push "$temp_tag"
     else
-        docker buildx build  --platform="$platform"  -t "$temp_tag" -f "$dockerfile" "$context_dir" "$cache_option" --load
+        docker buildx build  --platform="$platform"  -t "$temp_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
 #        docker push "$temp_tag"
 
     fi
