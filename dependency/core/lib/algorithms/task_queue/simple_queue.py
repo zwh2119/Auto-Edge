@@ -4,7 +4,6 @@ from queue import Queue
 
 from core.lib.common import ClassFactory, ClassType
 from core.lib.content import Task
-
 from .base_queue import BaseQueue
 
 __all__ = ('SimpleQueue',)

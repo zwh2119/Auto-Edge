@@ -2,7 +2,6 @@ import abc
 import cv2
 
 from core.lib.common import ClassFactory, ClassType
-
 from .base_compress import BaseCompress
 
 __all__ = ('SimpleCompress',)

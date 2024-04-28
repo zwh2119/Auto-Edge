@@ -1,6 +1,5 @@
 import abc
 from core.lib.common import ClassFactory, ClassType
-
 from .base_filter import BaseFilter
 
 __all__ = ('SimpleFilter',)

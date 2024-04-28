@@ -4,7 +4,6 @@ import cv2
 
 from core.lib.common import ClassFactory, ClassType
 from core.lib.common import VideoOps
-
 from .base_process import BaseProcess
 
 __all__ = ('SimpleProcess',)
