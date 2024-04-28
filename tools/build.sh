@@ -24,10 +24,10 @@ EOF
 declare -A DOCKERFILES=(
     [generator]="templates/dockerfile/generator.Dockerfile"
     [distributor]="distributor/Dockerfile"
-    [controller]="controller/Dockerfile"
+    [controller]="templates/dockerfile/controller.Dockerfile"
     [monitor]="monitor/Dockerfile"
     [scheduler]="scheduler/Dockerfile"
-    [car-detection]="car_detection/Dockerfile"
+    [car-detection]="templates/dockerfile/car_detection.Dockerfile"
 )
 
 # Corresponding platforms
@@ -42,12 +42,12 @@ declare -A PLATFORMS=(
 
 # Images requiring special treatment, their platforms, and Dockerfiles
 declare -A SPECIAL_BUILD=(
-    [car-detection]="linux/amd64:car_detection/Dockerfile,linux/arm64:car_detection/arm64.Dockerfile"
+    [car-detection]="linux/amd64:templates/dockerfile/car_detection_amd64.Dockerfile,linux/arm64:templates/dockerfile/car_detection_arm64.Dockerfile"
 )
 
 # Initialize variables
 SELECTED_FILES=""
-TAG="v1.0.0"  # Default tag
+TAG="v2.0.0"  # Default tag
 REPO="onecheck"  # Default repository
 NO_CACHE=false  # Default is to use cache
 
