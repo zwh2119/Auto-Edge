@@ -40,6 +40,11 @@ declare -A PLATFORMS=(
     [car-detection]="linux/amd64,linux/arm64"
 )
 
+# Images requiring special treatment, their platforms, and Dockerfiles
+declare -A SPECIAL_BUILD=(
+    [car-detection]="linux/amd64:templates/dockerfile/car_detection_amd64.Dockerfile,linux/arm64:templates/dockerfile/car_detection_arm64.Dockerfile"
+)
+
 # Initialize variables
 SELECTED_FILES=""
 TAG="v2.0.0"  # Default tag
@@ -110,6 +115,43 @@ build_image() {
     fi
 }
 
+build_image_special() {
+    local image=$1
+    local platform=$2
+    local dockerfile=$3
+    local cache_option=$4  # --no-cache or empty
+    local temp_tag="${REPO}/${image}:${TAG}-${platform##*/}"  # Temporary tag for the build
+    local context_dir="."
+
+    echo "Building image: $temp_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
+
+    if [ -z "$cache_option" ]; then
+        docker  buildx build --platform="$platform"  -t "$temp_tag" -f "$dockerfile" "$context_dir"
+        docker push "$temp_tag"
+    else
+        docker  buildx build  --platform="$platform"  -t "$temp_tag" -f "$dockerfile" "$context_dir" "$cache_option"
+        docker push "$temp_tag"
+
+    fi
+}
+
+create_and_push_manifest() {
+    local image=$1
+    local tag=$2
+    local repo=$3
+    local manifest_tag="${repo}/${image}:${tag}"
+
+    echo "Creating and pushing manifest for: $manifest_tag"
+
+    docker manifest create "$manifest_tag" \
+        "${repo}/${image}:${tag}-amd64" \
+        "${repo}/${image}:${tag}-arm64"
+
+    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-amd64" --os linux --arch amd64
+    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-arm64" --os linux --arch arm64
+
+    docker manifest push "$manifest_tag"
+}
 
 # Determine if --no-cache should be used
 CACHE_OPTION=""
@@ -122,8 +164,20 @@ if [ -n "$SELECTED_FILES" ]; then
     IFS=',' read -ra ADDR <<< "$SELECTED_FILES"
     for image in "${ADDR[@]}"; do
         if [[ -n "${DOCKERFILES[$image]}" && -n "${PLATFORMS[$image]}" ]]; then
-            build_image "$image" "${PLATFORMS[$image]}" "${DOCKERFILES[$image]}" "$CACHE_OPTION"
-
+            # Check if it's a specially treated image
+            if [[ -n "${SPECIAL_BUILD[$image]}" ]]; then
+                IFS=',' read -ra SPECIAL_PLATFORMS <<< "${SPECIAL_BUILD[$image]}"
+                for entry in "${SPECIAL_PLATFORMS[@]}"; do
+                    IFS=':' read -ra DETAILS <<< "$entry"
+                    platform="${DETAILS[0]}"
+                    dockerfile="${DETAILS[1]}"
+                    build_image_special "$image" "$platform" "$dockerfile" "$CACHE_OPTION"
+                done
+                # After building all architectures, create and push manifest
+                create_and_push_manifest "$image" "$TAG" "$REPO"
+            else
+                build_image "$image" "${PLATFORMS[$image]}" "${DOCKERFILES[$image]}" "$CACHE_OPTION"
+            fi
         else
             echo "Unknown image or platform not specified: $image"
         fi
@@ -131,7 +185,19 @@ if [ -n "$SELECTED_FILES" ]; then
 else
     echo "No images specified, building all default images."
     for image in "${!DOCKERFILES[@]}"; do
+        if [[ -n "${SPECIAL_BUILD[$image]}" ]]; then
+            IFS=',' read -ra SPECIAL_PLATFORMS <<< "${SPECIAL_BUILD[$image]}"
+            for entry in "${SPECIAL_PLATFORMS[@]}"; do
+                IFS=':' read -ra DETAILS <<< "$entry"
+                platform="${DETAILS[0]}"
+                dockerfile="${DETAILS[1]}"
+                build_image_special "$image" "$platform" "$dockerfile" "$CACHE_OPTION"
+            done
+            # After building all architectures, create and push manifest
+            create_and_push_manifest "$image" "$TAG" "$REPO"
+        else
             build_image "$image" "${PLATFORMS[$image]}" "${DOCKERFILES[$image]}" "$CACHE_OPTION"
+        fi
     done
 fi
 
