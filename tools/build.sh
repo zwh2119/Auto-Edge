@@ -110,43 +110,6 @@ build_image() {
     fi
 }
 
-build_image_special() {
-    local image=$1
-    local platform=$2
-    local dockerfile=$3
-    local cache_option=$4  # --no-cache or empty
-    local temp_tag="${REPO}/${image}:${TAG}-${platform##*/}"  # Temporary tag for the build
-    local context_dir="."
-
-    echo "Building image: $temp_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
-
-    if [ -z "$cache_option" ]; then
-        docker  buildx build --platform="$platform"  -t "$temp_tag" -f "$dockerfile" "$context_dir" --push
-#        docker push "$temp_tag"
-    else
-        docker  buildx build  --platform="$platform"  -t "$temp_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
-#        docker push "$temp_tag"
-
-    fi
-}
-
-create_and_push_manifest() {
-    local image=$1
-    local tag=$2
-    local repo=$3
-    local manifest_tag="${repo}/${image}:${tag}"
-
-    echo "Creating and pushing manifest for: $manifest_tag"
-
-    docker manifest create "$manifest_tag" \
-        "${repo}/${image}:${tag}-amd64" \
-        "${repo}/${image}:${tag}-arm64"
-
-    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-amd64" --os linux --arch amd64
-    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-arm64" --os linux --arch arm64
-
-    docker manifest push "$manifest_tag"
-}
 
 # Determine if --no-cache should be used
 CACHE_OPTION=""

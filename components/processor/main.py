@@ -1,6 +1,6 @@
 import threading
 
-from processor import ProcessorServer
+from core.processor import ProcessorServer
 
 if __name__ == '__main__':
     server = ProcessorServer()
