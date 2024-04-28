@@ -16,7 +16,7 @@ COPY ${lib_dir}/requirements.txt ./lib_requirements.txt
 RUN pip install -r lib_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 COPY ${base_dir}/requirements.txt ./base_requirements.txt
 RUN pip install -r base_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-COPY ${app_dir}requirements_arm64.txt ./app_requirements.txt
+COPY ${app_dir}/requirements_arm64.txt ./app_requirements.txt
 RUN pip install -r app_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 

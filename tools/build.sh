@@ -102,9 +102,8 @@ build_image() {
     local image=$1
     local platform=$2
     local dockerfile=$3
-    local tag_suffix=$4  # May be empty
-    local cache_option=$5  # --no-cache or empty
-    local image_tag="${REPO}/${image}:${tag_suffix}${TAG}"
+    local cache_option=$4  # --no-cache or empty
+    local image_tag="${REPO}/${image}:${TAG}"
     local context_dir=$(dirname "$dockerfile")  # Get the directory of the Dockerfile
 
     echo "Building image: $image_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
