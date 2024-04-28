@@ -1,12 +1,9 @@
 import abc
 from lib.common import ClassFactory, ClassType
 
+from .base_filter import BaseFilter
+
 __all__ = ('SimpleFilter',)
-
-
-class BaseFilter(metaclass=abc.ABCMeta):
-    def __call__(self, system, frame) -> bool:
-        raise NotImplementedError
 
 
 @ClassFactory.register(ClassType.GEN_FILTER, alias='simple')

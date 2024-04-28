@@ -1,17 +1,15 @@
 import abc
-from lib.common import ClassFactory, ClassType
-from lib.content import Task
 
-__all__ = ('SimpleOperation',)
+from .base_operation import BaseBSOperation
 
+from core.lib.common import ClassFactory, ClassType
+from core.lib.content import Task
 
-class BaseOperation(metaclass=abc.ABCMeta):
-    def __call__(self, system):
-        raise NotImplementedError
+__all__ = ('SimpleBSOperation',)
 
 
 @ClassFactory.register(ClassType.GEN_BSO, alias='simple')
-class SimpleOperation(BaseOperation, abc.ABC):
+class SimpleBSOperation(BaseBSOperation, abc.ABC):
     def __init__(self):
         pass
 

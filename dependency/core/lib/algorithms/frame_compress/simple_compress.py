@@ -3,12 +3,9 @@ import cv2
 
 from lib.common import ClassFactory, ClassType
 
+from .base_compress import BaseCompress
+
 __all__ = ('SimpleCompress',)
-
-
-class BaseCompress(metaclass=abc.ABCMeta):
-    def __call__(self, system, frame_buffer):
-        raise NotImplementedError
 
 
 @ClassFactory.register(ClassType.GEN_COMPRESS, alias='simple')
@@ -31,4 +28,3 @@ class SimpleCompress(BaseCompress, abc.ABC):
     @staticmethod
     def generate_file_path(system):
         return f'video_source_{system.source_id}_task_{system.task_id}.mp4'
-

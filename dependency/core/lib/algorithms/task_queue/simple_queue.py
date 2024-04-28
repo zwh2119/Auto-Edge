@@ -5,21 +5,9 @@ from queue import Queue
 from core.lib.common import ClassFactory, ClassType
 from core.lib.content import Task
 
+from .base_queue import BaseQueue
+
 __all__ = ('SimpleQueue',)
-
-
-class BaseQueue(metaclass=abc.ABCMeta):
-    def get(self):
-        raise NotImplementedError
-
-    def size(self):
-        raise NotImplementedError
-
-    def put(self, task):
-        raise NotImplementedError
-
-    def empty(self):
-        raise NotImplementedError
 
 
 @ClassFactory.register(ClassType.PRO_QUEUE, alias='simple')

@@ -1,17 +1,15 @@
 import abc
-from lib.common import ClassFactory, ClassType
-from lib.content import Task
 
-__all__ = ('SimpleOperation',)
+from .base_operation import BaseASOperation
 
+from core.lib.common import ClassFactory, ClassType
+from core.lib.content import Task
 
-class BaseOperation(metaclass=abc.ABCMeta):
-    def __call__(self, system, scheduler_policy):
-        raise NotImplementedError
+__all__ = ('SimpleASOperation',)
 
 
 @ClassFactory.register(ClassType.GEN_ASO, alias='simple')
-class SimpleOperation(BaseOperation, abc.ABC):
+class SimpleASOperation(BaseASOperation, abc.ABC):
     def __init__(self):
         self.default_metadata = {
             'resolution': '1080p',
