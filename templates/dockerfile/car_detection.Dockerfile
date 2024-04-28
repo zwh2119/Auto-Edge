@@ -56,6 +56,5 @@ COPY  ${code_dir}/* /app/
 
 CMD ["python3", "main.py"]
 
-ARG TARGETPLATFORM
-FROM ${TARGETPLATFORM} as final
+
 
