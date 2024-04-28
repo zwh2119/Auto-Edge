@@ -14,19 +14,24 @@ import tensorrt as trt
 import cv2
 from typing import List
 
+from core.lib.common import Context
+
 
 class CarDetection:
 
     def __init__(self, weights, plugin_library, device=0):
 
-        ctypes.CDLL(plugin_library)
+        self.weights = Context.get_file_path(weights)
+        self.plugin_library = Context.get_file_path(plugin_library)
+
+        ctypes.CDLL(self.plugin_library)
 
         self.ctx = cuda.Device(device).make_context()
         stream = cuda.Stream()
         TRT_LOGGER = trt.Logger(trt.Logger.INFO)
         runtime = trt.Runtime(TRT_LOGGER)
 
-        engine_file_path = weights
+        engine_file_path = self.weights
         with open(engine_file_path, "rb") as f:
             engine = runtime.deserialize_cuda_engine(f.read())
         context = engine.create_execution_context()

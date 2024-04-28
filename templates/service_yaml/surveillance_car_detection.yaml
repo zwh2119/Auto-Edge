@@ -322,6 +322,19 @@ spec:
           - image: onecheck/car-detection:v1.0.0
             imagePullPolicy: IfNotPresent
             name: car-detection
+            env:
+              - name: processor_type
+                value: "PRO_DETECTOR"
+              - name: PRO_DETECTOR_NAME
+                value: "car_detection"
+              - name: PRO_DETECTOR_PARAMETERS
+                value: "{'weights':'yolov5s.engine, 'plugin':'libmyplugins.so'}"
+              - name: controller_port
+                value: "39200"
+              - name: processor_inner_port
+                value: "9001"
+              - name: PRO_QUEUE_NAME
+                value: "simple_queue"
             ports:
               - containerPort: 9001
                 hostPort: 39001
@@ -339,6 +352,19 @@ spec:
           - image: onecheck/car-detection:v1.0.0
             imagePullPolicy: IfNotPresent
             name: car-detection
+            env:
+              - name: processor_type
+                value: "PRO_DETECTOR"
+              - name: PRO_DETECTOR_NAME
+                value: "car_detection"
+              - name: PRO_DETECTOR_PARAMETERS
+                value: "{'weights':'yolov5s.engine, 'plugin':'libmyplugins.so'}"
+              - name: controller_port
+                value: "39200"
+              - name: processor_inner_port
+                value: "9001"
+              - name: PRO_QUEUE_NAME
+                value: "simple_queue"
             ports:
               - containerPort: 9001
                 hostPort: 39001
@@ -354,6 +380,19 @@ spec:
         containers:
           - image: onecheck/car-detection:v1.0.0
             name:  car-detection
+            env:
+              - name: processor_type
+                value: "PRO_DETECTOR"
+              - name: PRO_DETECTOR_NAME
+                value: "car_detection"
+              - name: PRO_DETECTOR_PARAMETERS
+                value: "{'weights':'yolov5s.engine, 'plugin':'libmyplugins.so'}"
+              - name: controller_port
+                value: "39200"
+              - name: processor_inner_port
+                value: "9001"
+              - name: PRO_QUEUE_NAME
+                value: "simple_queue"
             imagePullPolicy: IfNotPresent
             ports:
               - containerPort: 9001

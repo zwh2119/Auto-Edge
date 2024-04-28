@@ -28,13 +28,13 @@ class ProcessorServer:
             allow_methods=["*"], allow_headers=["*"],
         )
 
-        processor_type = Context.get_parameter('type')
+        processor_type = Context.get_parameter('processor_type')
         self.processor = Context.get_algorithm(processor_type)
 
         self.task_queue = Context.get_algorithm('PRO_QUEUE')
 
         self.local_device = NodeInfo.get_local_device()
-        self.processor_port = Context.get_parameter('processor_port')
+        self.processor_port = Context.get_parameter('processor_inner_port')
         self.controller_port = Context.get_parameter('controller_port')
         self.controller_address = get_merge_address(NodeInfo.hostname2ip(self.local_device),
                                                     port=self.controller_port,
