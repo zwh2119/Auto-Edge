@@ -16,7 +16,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/generator:v1.0.0
+          - image: onecheck/generator:v2.0.0
             imagePullPolicy: IfNotPresent
             name: generator
             env:
@@ -47,7 +47,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-            - image: onecheck/generator:v1.0.0
+            - image: onecheck/generator:v2.0.0
               imagePullPolicy: IfNotPresent
               name: generator
               env:
@@ -86,7 +86,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/controller:v1.0.0
+          - image: onecheck/controller:v2.0.0
             imagePullPolicy: IfNotPresent
             name: controller
             env:
@@ -110,7 +110,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/controller:v1.0.0
+          - image: onecheck/controller:v2.0.0
             imagePullPolicy: IfNotPresent
             name: controller
             env:
@@ -133,7 +133,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/controller:v1.0.0
+          - image: onecheck/controller:v2.0.0
             name:  controller
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
@@ -165,7 +165,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/distributor:v1.0.0
+          - image: onecheck/distributor:v2.0.0
             name:  distributor
             imagePullPolicy: IfNotPresent
             env: # user defined environments
@@ -198,7 +198,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/scheduler:v1.0.0
+          - image: onecheck/scheduler:v2.0.0
             name:  scheduler
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
@@ -228,7 +228,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/monitor:v1.0.0
+          - image: onecheck/monitor:v2.0.0
             imagePullPolicy: IfNotPresent
             name: monitor
             env:
@@ -253,7 +253,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/monitor:v1.0.0
+          - image: onecheck/monitor:v2.0.0
             imagePullPolicy: IfNotPresent
             name: monitor
             env:
@@ -277,7 +277,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/monitor:v1.0.0
+          - image: onecheck/monitor:v2.0.0
             name:  monitor
             imagePullPolicy: IfNotPresent
             env:  # user defined environments
@@ -319,7 +319,7 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:v1.0.0
+          - image: onecheck/car-detection:v2.0.0
             imagePullPolicy: IfNotPresent
             name: car-detection
             env:
@@ -349,7 +349,7 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:v1.0.0
+          - image: onecheck/car-detection:v2.0.0
             imagePullPolicy: IfNotPresent
             name: car-detection
             env:
@@ -378,7 +378,7 @@ spec:
         nodeName: cloud.kubeedge
         dnsPolicy: ClusterFirstWithHostNet
         containers:
-          - image: onecheck/car-detection:v1.0.0
+          - image: onecheck/car-detection:v2.0.0
             name:  car-detection
             env:
               - name: processor_type
