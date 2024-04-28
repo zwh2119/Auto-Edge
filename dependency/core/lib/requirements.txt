@@ -1,6 +1,5 @@
 colorlog
 requests
-pyyaml
 kubernetes==20.11.0a1
 python-multipart
 fastapi
