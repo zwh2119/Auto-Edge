@@ -1,12 +1,11 @@
+FROM gocv/opencv:latest
+
+MAINTAINER Wenhui Zhou
+
 ARG dependency_dir=dependency
 ARG lib_dir=dependency/core/lib
 ARG base_dir=dependency/core/generator
 ARG code_dir=components/generator
-
-
-FROM gocv/opencv:latest
-
-MAINTAINER Wenhui Zhou
 
 # Required to build Ubuntu 20.04 without user prompts with DLFW container
 ENV DEBIAN_FRONTEND=noninteractive
@@ -24,9 +23,9 @@ RUN apt-get install -y --no-install-recommends \
 
 RUN pip install --upgrade pip setuptools wheel
 
-COPY ./${lib_dir}/requirements.txt ./lib_requirements.txt
+COPY ${lib_dir}/requirements.txt ./lib_requirements.txt
 RUN pip install -r lib_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-COPY ./${base_dir}/requirements.txt ./base_requirements.txt
+COPY ${base_dir}/requirements.txt ./base_requirements.txt
 RUN pip install -r base_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 

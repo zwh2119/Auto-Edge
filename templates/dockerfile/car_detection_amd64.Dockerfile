@@ -1,12 +1,12 @@
+FROM yuefan2022/tensorrt-ubuntu20.04-cuda11.6
+MAINTAINER Wenhui Zhou
+
 ARG dependency_dir=dependency
 ARG lib_dir=dependency/core/lib
 ARG base_dir=dependency/core/processor
 ARG code_dir=components/processor
 ARG app_dir=dependency/core/applications/road_surveillance/cardetection
 
-
-FROM yuefan2022/tensorrt-ubuntu20.04-cuda11.6
-MAINTAINER Wenhui Zhou
 
 RUN pip3 install --upgrade pip
 COPY ${lib_dir}/requirements.txt ./lib_requirements.txt

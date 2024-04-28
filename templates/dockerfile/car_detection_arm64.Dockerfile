@@ -1,11 +1,12 @@
+FROM  onecheck/tensorrt:trt8_aarch64
+MAINTAINER Wenhui Zhou
+
 ARG dependency_dir=dependency
 ARG lib_dir=dependency/core/lib
 ARG base_dir=dependency/core/processor
 ARG code_dir=components/processor
 ARG app_dir=dependency/core/applications/road_surveillance/cardetection
 
-FROM  onecheck/tensorrt:trt8_aarch64
-MAINTAINER Wenhui Zhou
 
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
