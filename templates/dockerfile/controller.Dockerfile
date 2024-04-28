@@ -8,7 +8,7 @@ ARG code_dir=components/controller
 
 COPY ${lib_dir}/requirements.txt ./lib_requirements.txt
 RUN pip install -r lib_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-COPY ${base_dir}/requirements.txt ./cbase_requirements.txt
+COPY ${base_dir}/requirements.txt ./base_requirements.txt
 RUN pip install -r base_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 

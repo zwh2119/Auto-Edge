@@ -5,7 +5,7 @@ ARG dependency_dir=dependency
 ARG lib_dir=dependency/core/lib
 ARG base_dir=dependency/core/processor
 ARG code_dir=components/processor
-ARG app_dir=dependency/core/applications/road_surveillance/cardetection
+ARG app_dir=dependency/core/applications/road_surveillance/car_detection
 
 
 RUN pip3 install --upgrade pip
