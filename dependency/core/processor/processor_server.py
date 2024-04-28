@@ -6,7 +6,6 @@ from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form
 from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from core.lib.network import NetworkAPIPath, NetworkAPIMethod
 from core.lib.common import Context
 from core.lib.common import LOGGER, FileOps
 from core.lib.network import NodeInfo, http_request, get_merge_address, NetworkAPIMethod, NetworkAPIPath

@@ -1,4 +1,4 @@
-FROM yuefan2022/tensorrt-ubuntu20.04-cuda11.6
+FROM onecheck/tensorrt:trt8_amd64
 MAINTAINER Wenhui Zhou
 
 ARG dependency_dir=dependency

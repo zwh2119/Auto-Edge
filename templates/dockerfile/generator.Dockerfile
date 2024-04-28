@@ -1,4 +1,4 @@
-FROM gocv/opencv:latest
+FROM onecheck/opencv:latest
 
 MAINTAINER Wenhui Zhou
 
