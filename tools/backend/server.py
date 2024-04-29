@@ -1,12 +1,11 @@
 import base64
 import datetime
-import random
 import threading
 
-import eventlet
-import numpy as np
+import signal
+import functools
 
-eventlet.monkey_patch()
+import numpy as np
 
 import json
 import os
@@ -94,6 +93,33 @@ def http_request(url,
     except Exception as e:
         # logging.exception(e)
         pass
+
+
+def timeout(sec):
+    """
+    timeout decorator
+    :param sec: function raise TimeoutError after ? seconds
+    """
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapped_func(*args, **kwargs):
+
+            def _handle_timeout(signum, frame):
+                err_msg = f'Function {func.__name__} timed out after {sec} seconds'
+                raise TimeoutError(err_msg)
+
+            signal.signal(signal.SIGALRM, _handle_timeout)
+            signal.alarm(sec)
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+            return result
+
+        return wrapped_func
+
+    return decorator
 
 
 def read_yaml(yaml_file):
@@ -544,6 +570,10 @@ class BackendServer:
                         continue
                     base64_data = self.get_base64_data(file_path, task_type, task_result, content, source_id)
                     os.remove(file_path)
+
+                    if not self.source_open:
+                        continue
+
                     source_id_text = self.source_id_num_2_id_text(source_id)
                     self.task_results[source_id_text].save_results([{
                         'taskId': task_id,
@@ -860,6 +890,14 @@ async def install_service(data=Body(...)):
     {'msg': 'service start successfully'}
     {'msg': 'Invalid service name!'}
     """
+
+    @timeout(60)
+    def install_loop():
+        result = KubeHelper.apply_custom_resources(yaml_file, namespace)
+        while not KubeHelper.check_pods_running(namespace):
+            time.sleep(1)
+        return result
+
     data = json.loads(str(data, encoding='utf-8'))
 
     dag_id = int(data['dag_id'])
@@ -887,12 +925,8 @@ async def install_service(data=Body(...)):
     namespace = server.create_new_namespace(cur_task['namespace'])
 
     try:
-        with eventlet.Timeout(60, True):
-            result = KubeHelper.apply_custom_resources(yaml_file, namespace)
-            while not KubeHelper.check_pods_running(namespace):
-                time.sleep(1)
-
-    except eventlet.timeout.Timeout as e:
+        result = install_loop()
+    except Exception as e:
         logging.exception(e)
         result = False
 
@@ -1134,9 +1168,9 @@ def submit_query(data=Body(...)):
     urgency_weight = float(data['urgency'])
     importance_weight = float(data['importance'])
 
-    http_request(server.parameters_url, method='POST', json={'user_constraint': delay_constraint,
-                                                             'urgency_weight': urgency_weight,
-                                                             'importance_weight': importance_weight})
+    # http_request(server.parameters_url, method='POST', json={'user_constraint': delay_constraint,
+    #                                                          'urgency_weight': urgency_weight,
+    #                                                          'importance_weight': importance_weight})
     server.source_open = True
     server.source_label = source_label
     for source_id in server.get_source_id():
@@ -1158,18 +1192,16 @@ async def stop_service():
 
     :return:
     """
+    @timeout(120)
+    def stop_loop():
+        result = KubeHelper.delete_resources(namespace)
+        while KubeHelper.check_pods_exist(namespace):
+            time.sleep(1)
+        return result
     namespace = server.find_latest_task_namespace()
     try:
-        with eventlet.Timeout(120, True):
-            result = KubeHelper.delete_resources(namespace)
-            while KubeHelper.check_pods_exist(namespace):
-                time.sleep(1)
-
+        result = stop_loop()
         server.is_get_result = False
-
-    except eventlet.timeout.Timeout as e:
-        logging.exception(e)
-        result = False
     except Exception as e:
         logging.exception(e)
         result = False
