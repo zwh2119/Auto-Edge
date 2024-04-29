@@ -140,14 +140,10 @@ create_and_push_manifest() {
 
     echo "Creating and pushing manifest for: $manifest_tag"
 
-    docker manifest create --amend "$manifest_tag" \
+    docker buildx imagetools create -t "$manifest_tag" \
         "${repo}/${image}:${tag}-amd64" \
         "${repo}/${image}:${tag}-arm64"
 
-    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-amd64" --os linux --arch amd64
-    docker manifest annotate "$manifest_tag" "${repo}/${image}:${tag}-arm64" --os linux --arch arm64
-
-    docker manifest push "$manifest_tag"
 }
 
 # Determine if --no-cache should be used
