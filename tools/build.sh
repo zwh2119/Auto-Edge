@@ -130,7 +130,6 @@ build_image_special() {
     else
          docker  buildx build  --platform="$platform"  -t "$temp_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
     fi
-    docker push "$temp_tag"
 }
 
 create_and_push_manifest() {
