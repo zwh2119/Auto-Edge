@@ -27,4 +27,5 @@ ENV PYTHONPATH "/home/dependency"
 WORKDIR /app
 COPY  ${code_dir}/* /app/
 
-CMD ["python3", "main.py"]
+#CMD ["python3", "main.py"]
+CMD ["/bin/bash"]
