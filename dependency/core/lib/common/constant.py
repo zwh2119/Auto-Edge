@@ -15,3 +15,4 @@ class AutoEdgeConstant(Enum):
 class FileNameConstant(Enum):
     SCHEDULE_CONFIG = 'scheduler_config.yaml'
     GENERATOR_CONFIG = 'generator_config.yaml'
+    DISTRIBUTE_RECORD_DIR = 'record_data'

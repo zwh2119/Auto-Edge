@@ -39,7 +39,8 @@ class Controller:
                                      open(self.cur_task.get_file_path(), 'rb'),
                                      'multipart/form-data')}
                      )
-        LOGGER.info(f'[To Device {device}] source: {self.cur_task.get_source_id()}  task: {self.cur_task.get_task_id()}')
+        LOGGER.info(
+            f'[To Device {device}] source: {self.cur_task.get_source_id()}  task: {self.cur_task.get_task_id()}')
 
     def submit_task_to_service(self, service):
         service_address = get_merge_address(NodeInfo.hostname2ip(self.local_device),
@@ -53,9 +54,15 @@ class Controller:
                                      open(self.cur_task.get_file_path(), 'rb'),
                                      'multipart/form-data')}
                      )
-        LOGGER.info(f'[To Service {service}] source: {self.cur_task.get_source_id()}  task: {self.cur_task.get_task_id()}')
+        LOGGER.info(
+            f'[To Service {service}] source: {self.cur_task.get_source_id()}  task: {self.cur_task.get_task_id()}')
 
     def submit_task(self):
+
+        assert self.cur_task, 'Current Task of Controller is Not set!'
+
+        LOGGER.info('[Submit Task] source: {self.cur_task.get_source_id()}  task: {self.cur_task.get_task_id()}')
+
         service_name, _ = self.cur_task.get_current_service()
         dst_device = self.cur_task.get_current_stage_device()
         if service_name == 'end' or dst_device != self.local_device:
@@ -66,9 +73,15 @@ class Controller:
             self.submit_task_to_service(service_name)
 
     def process_return(self):
+        assert self.cur_task, 'Current Task of Controller is Not set!'
+
+        LOGGER.info(f'[Process Return] source: {self.cur_task.get_source_id()}  task: {self.cur_task.get_task_id()}')
+
         self.cur_task.step_to_next_stage()
 
     def record_transmit_ts(self, is_end: bool):
+        assert self.cur_task, 'Current Task of Controller is Not set!'
+
         task, duration = TimeEstimator.record_pipeline_ts(self.cur_task, is_end=is_end, sub_tag='transmit')
         self.cur_task = task
 
@@ -78,6 +91,8 @@ class Controller:
                         f'record transmit time of stage {task.get_flow_index()}: {duration:.3f}s')
 
     def record_execute_ts(self, is_end: bool):
+        assert self.cur_task, 'Current Task of Controller is Not set!'
+
         task, duration = TimeEstimator.record_pipeline_ts(self.cur_task, is_end=is_end, sub_tag='execute')
         self.cur_task = task
 

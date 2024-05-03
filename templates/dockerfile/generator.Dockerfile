@@ -21,12 +21,13 @@ RUN apt-get install -y --no-install-recommends \
     ln -s /usr/bin/python3 python &&\
     ln -s /usr/bin/pip3 pip;
 
-RUN pip install --upgrade pip setuptools wheel
-
 COPY ${lib_dir}/requirements.txt ./lib_requirements.txt
-RUN pip install -r lib_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 COPY ${base_dir}/requirements.txt ./base_requirements.txt
-RUN pip install -r base_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install -r lib_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple && \
+    pip install -r base_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
 
 
 COPY ${dependency_dir} /home/dependency
