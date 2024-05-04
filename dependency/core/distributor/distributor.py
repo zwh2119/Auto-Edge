@@ -54,3 +54,31 @@ class Distributor:
         self.cur_task.save_transmit_time(duration)
         LOGGER.info(f'[Source {task.get_source_id()} / Task {task.get_task_id()}] '
                     f'record transmit time of stage {task.get_flow_index()}: {duration:.3f}s')
+
+    def query_result(self, time_ticket, size):
+        files = self.find_record_by_time(time_ticket)
+        if size != 0 and len(files) > size:
+            files = files[:size]
+        return {'result': self.extract_record(files),
+                'time_ticket': os.path.getctime(files[0]) if len(files) > 0 else time_ticket,
+                'size': len(files)
+                }
+
+    @staticmethod
+    def find_record_by_time(time_begin):
+        file_list = []
+        dir_path = FileNameConstant.DISTRIBUTE_RECORD_DIR.value
+        for file in os.listdir():
+            file_path = os.path.join(dir_path, file)
+            if file.startswith('record') and os.path.getctime(file_path) > time_begin:
+                file_list.append(file_path)
+        file_list.sort(key=lambda x: os.path.getctime(x))
+        return file_list
+
+    @staticmethod
+    def extract_record(files):
+        content = []
+        for file_path in files:
+            with open(file_path, 'r') as f:
+                content.append(json.load(f))
+        return content

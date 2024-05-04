@@ -1,8 +1,10 @@
 import json
+import os
 
 from fastapi import FastAPI, BackgroundTasks, UploadFile, File, Form
 from fastapi.routing import APIRoute
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, FileResponse
+from starlette.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.lib.network import NetworkAPIPath, NetworkAPIMethod
@@ -49,8 +51,16 @@ class DistributorServer:
         self.distributor.record_transmit_ts()
         self.distributor.distribute_data()
 
-    async def query_result(self):
-        pass
+    async def query_result(self, request: Request):
+        data = await request.json()
+        size = data['size']
+        time_ticket = data['time_ticket']
+        return self.distributor.query_result(time_ticket, size)
 
-    async def download_file(self):
-        pass
+    async def download_file(self, request: Request):
+        data = await request.json()
+        file_path = data['file']
+        return FileResponse(path=file_path,
+                            filename=file_path)
+
+
