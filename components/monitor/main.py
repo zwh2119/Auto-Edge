@@ -2,7 +2,8 @@ from core.monitor import MonitorServer
 
 
 def main():
-    pass
+    server = MonitorServer()
+    server.run()
 
 
 if __name__ == '__main__':
