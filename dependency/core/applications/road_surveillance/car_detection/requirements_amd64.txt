@@ -1,11 +1,7 @@
 typing_extensions==4.8.0
 opencv-python-headless
-colorlog
 numpy
 pycuda
 tensorrt
-uvicorn
-fastapi
-starlette
-python-multipart
+
 
