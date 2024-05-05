@@ -14,3 +14,21 @@ class FileOps:
         file_path = task.get_file_path()
         if os.path.exists(file_path):
             shutil.rmtree(file_path)
+
+    @staticmethod
+    def remove_file(file_path):
+        if not os.path.exists(file_path):
+            return
+
+        if os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+        else:
+            os.remove(file_path)
+
+    @staticmethod
+    def create_directory(dir_path):
+        if not os.path.exists(dir_path):
+            os.mkdir(dir_path)
+        else:
+            assert os.path.isdir(dir_path), f'Path "{dir_path}" is a FILE'
+

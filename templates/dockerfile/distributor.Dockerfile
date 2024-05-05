@@ -10,8 +10,8 @@ COPY ${lib_dir}/requirements.txt ./lib_requirements.txt
 COPY ${base_dir}/requirements.txt ./base_requirements.txt
 
 RUN pip3 install --upgrade pip && \
-    pip install -r lib_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple && \
-    pip install -r base_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+    pip3 install -r lib_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple && \
+    pip3 install -r base_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 COPY ${dependency_dir} /home/dependency
 ENV PYTHONPATH "/home/dependency"

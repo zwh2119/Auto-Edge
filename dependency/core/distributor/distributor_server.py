@@ -51,6 +51,8 @@ class DistributorServer:
         self.distributor.record_transmit_ts()
         self.distributor.distribute_data()
 
+        # FileOps.remove_data_file(self.distributor.cur_task)
+
     async def query_result(self, request: Request):
         data = await request.json()
         size = data['size']
@@ -60,6 +62,9 @@ class DistributorServer:
     async def download_file(self, request: Request):
         data = await request.json()
         file_path = data['file']
+        if os.path.exists(file_path):
+            task = BackgroundTasks()
+            task.add_task(FileOps.remove_file, file_path)
         return FileResponse(path=file_path,
                             filename=file_path)
 

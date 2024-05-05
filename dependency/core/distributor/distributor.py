@@ -3,7 +3,7 @@ import os
 
 from core.lib.content import Task
 from core.lib.estimation import TimeEstimator
-from core.lib.common import LOGGER, FileNameConstant, Context
+from core.lib.common import LOGGER, FileNameConstant, Context, FileOps
 from core.lib.network import http_request, NodeInfo, get_merge_address, NetworkAPIMethod, NetworkAPIPath
 
 
@@ -32,8 +32,7 @@ class Distributor:
         record_file_name = f'record_source_{self.cur_task.get_source_id()}_task_{self.cur_task.get_task_id()}.json'
         record_path = os.path.join(FileNameConstant.DISTRIBUTE_RECORD_DIR.value, record_file_name)
 
-        if not os.path.exists(os.path.dirname(record_path)):
-            os.mkdir(os.path.dirname(record_path))
+        FileOps.create_directory(os.path.dirname(record_path))
 
         with open(record_path, 'w') as f:
             json.dump(Task.serialize(self.cur_task), f)
