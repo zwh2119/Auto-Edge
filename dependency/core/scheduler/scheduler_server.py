@@ -1,10 +1,13 @@
-from fastapi import FastAPI, BackgroundTasks, Form
+import json
+
+from fastapi import FastAPI, Form
 from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
-from starlette.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.lib.network import NetworkAPIMethod, NetworkAPIPath
+
+from .scheduler import Scheduler
 
 
 class SchedulerServer:
@@ -32,11 +35,23 @@ class SchedulerServer:
             allow_methods=["*"], allow_headers=["*"],
         )
 
+        self.scheduler = Scheduler()
+
     async def generate_schedule_plan(self, data: str = Form(...)):
-        pass
+        data = json.loads(data)
 
-    async def update_object_scenario(self):
-        pass
+        self.scheduler.register_schedule_table(data['source_id'])
+        plan = self.scheduler.get_schedule_plan(data)
 
-    async def update_resource_state(self):
-        pass
+        return {'plan': plan}
+
+    async def update_object_scenario(self, data: str = Form(...)):
+        data = json.loads(data)
+
+        self.scheduler.update_scheduler_scenario(data)
+
+    async def update_resource_state(self, data: str = Form(...)):
+        data = json.loads(data)
+
+        self.scheduler.register_resource_table(data['device'])
+        self.scheduler.update_scheduler_resource(data)
