@@ -25,7 +25,7 @@ declare -A DOCKERFILES=(
     [generator]="templates/dockerfile/generator.Dockerfile"
     [distributor]="templates/dockerfile/distributor.Dockerfile"
     [controller]="templates/dockerfile/controller.Dockerfile"
-    [monitor]="monitor/Dockerfile"
+    [monitor]="templates/dockerfile/monitor.Dockerfile"
     [scheduler]="scheduler/Dockerfile"
     [car-detection]="templates/dockerfile/car_detection.Dockerfile"
 )
