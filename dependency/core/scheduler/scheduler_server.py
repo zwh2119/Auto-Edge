@@ -1,4 +1,4 @@
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, Form
 from fastapi.routing import APIRoute
 from starlette.responses import JSONResponse
 from starlette.requests import Request
@@ -32,7 +32,7 @@ class SchedulerServer:
             allow_methods=["*"], allow_headers=["*"],
         )
 
-    async def generate_schedule_plan(self):
+    async def generate_schedule_plan(self, data: str = Form(...)):
         pass
 
     async def update_object_scenario(self):

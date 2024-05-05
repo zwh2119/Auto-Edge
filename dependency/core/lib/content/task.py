@@ -1,3 +1,5 @@
+import json
+
 from .service import Service
 
 
@@ -163,7 +165,7 @@ class Task:
         pipeline = task.get_pipeline()
         for service in pipeline:
             pipeline_serialize.append(Service.serialize(service))
-        return {
+        return json.dumps({
             'source_id': task.get_source_id(),
             'task_id': task.get_task_id(),
             'pipeline': pipeline_serialize,
@@ -174,10 +176,11 @@ class Task:
             'scenario_data': task.get_scenario_data(),
             'tmp_data': task.get_tmp_data(),
             'file_path': task.get_file_path()
-        }
+        })
 
     @staticmethod
-    def deserialize(data: dict):
+    def deserialize(data: str):
+        data = json.loads(data)
         pipeline = []
         for s in data['pipeline']:
             service = Service.deserialize(s)

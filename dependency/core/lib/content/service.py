@@ -1,3 +1,6 @@
+import json
+
+
 class Service:
     def __init__(self, service_name, execute_device='',
                  transmit_time=0, execute_time=0):
@@ -37,15 +40,16 @@ class Service:
 
     @staticmethod
     def serialize(service: 'Service'):
-        return {
+        return json.dumps({
             'service_name': service.get_service_name(),
             'execute_device': service.get_execute_device(),
             'execute_data': {'transmit_time': service.get_transmit_time(),
                              'execute_time': service.get_execute_time()}
-        }
+        })
 
     @staticmethod
-    def deserialize(data):
+    def deserialize(data: str):
+        data = json.loads(data)
         service = Service(data['service_name'], data['execute_device'],
                           execute_time=data['execute_data']['execute_time'],
                           transmit_time=data['execute_data']['transmit_time'])

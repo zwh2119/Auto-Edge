@@ -25,7 +25,7 @@ class Controller:
 
         self.local_device = NodeInfo.get_local_device()
 
-    def set_current_task(self, task_data: dict):
+    def set_current_task(self, task_data: str):
         self.cur_task = Task.deserialize(task_data)
 
     def submit_task_to_other_device(self, device):

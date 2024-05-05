@@ -18,7 +18,8 @@ class SimpleASOperation(BaseASOperation, abc.ABC):
             'batch_size': 8
         }
 
-    def __call__(self, system, scheduler_policy):
+    def __call__(self, system, scheduler_response):
+        scheduler_policy = scheduler_response['plan']
         if scheduler_policy is None:
             system.meta_data.update(self.default_metadata)
             default_execute_device = system.local_device

@@ -35,12 +35,10 @@ class ControllerServer:
 
     async def submit_task(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
         file_data = await file.read()
-        data = json.loads(data)
         backtask.add_task(self.submit_task_background, data, file_data)
 
     async def process_return(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
         file_data = await file.read()
-        data = json.loads(data)
         backtask.add_task(self.process_return_background, data, file_data)
 
     def submit_task_background(self, data, file_data):

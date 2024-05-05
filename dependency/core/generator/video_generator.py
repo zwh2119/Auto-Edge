@@ -1,6 +1,6 @@
 import cv2
 
-from generator import Generator
+from .generator import Generator
 from lib.content import Task
 
 from lib.common import ClassType, ClassFactory

@@ -35,7 +35,7 @@ class Distributor:
         FileOps.create_directory(os.path.dirname(record_path))
 
         with open(record_path, 'w') as f:
-            json.dump(Task.serialize(self.cur_task), f)
+            f.write(Task.serialize(self.cur_task))
 
     def send_scenario_to_scheduler(self):
         LOGGER.info(f'[Send Scenario] source: {self.cur_task.get_source_id()}  task: {self.cur_task.get_task_id()}')
@@ -79,5 +79,5 @@ class Distributor:
         content = []
         for file_path in files:
             with open(file_path, 'r') as f:
-                content.append(json.load(f))
+                content.append(json.loads(f.read()))
         return content
