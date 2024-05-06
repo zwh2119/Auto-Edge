@@ -1,10 +1,10 @@
 import threading
 
-from lib.common import ClassFactory, ClassType
-from lib.common import YamlOps
-from lib.common import FileNameConstant
-from lib.common import Context
-from lib.common import LOGGER
+from core.lib.common import ClassFactory, ClassType
+from core.lib.common import YamlOps
+from core.lib.common import FileNameConstant
+from core.lib.common import Context
+from core.lib.common import LOGGER
 
 
 class GeneratorServer:

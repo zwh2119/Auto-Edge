@@ -1,11 +1,11 @@
 import cv2
 
 from .generator import Generator
-from lib.content import Task
+from core.lib.content import Task
 
-from lib.common import ClassType, ClassFactory
-from lib.common import LOGGER
-from lib.common import Context
+from core.lib.common import ClassType, ClassFactory
+from core.lib.common import LOGGER
+from core.lib.common import Context
 
 
 @ClassFactory.register(ClassType.GENERATOR, alias='video')
