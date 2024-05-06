@@ -328,7 +328,7 @@ spec:
               - name: PRO_DETECTOR_NAME
                 value: "car_detection"
               - name: PRO_DETECTOR_PARAMETERS
-                value: "{'weights':'yolov5s.engine, 'plugin':'libmyplugins.so'}"
+                value: "{'weights':'yolov5s.engine', 'plugin':'libmyplugins.so'}"
               - name: controller_port
                 value: "39200"
               - name: processor_inner_port
@@ -360,7 +360,7 @@ spec:
               - name: PRO_DETECTOR_NAME
                 value: "car_detection"
               - name: PRO_DETECTOR_PARAMETERS
-                value: "{'weights':'yolov5s.engine, 'plugin':'libmyplugins.so'}"
+                value: "{'weights':'yolov5s.engine', 'plugin':'libmyplugins.so'}"
               - name: controller_port
                 value: "39200"
               - name: processor_inner_port
@@ -390,7 +390,7 @@ spec:
               - name: PRO_DETECTOR_NAME
                 value: "car_detection"
               - name: PRO_DETECTOR_PARAMETERS
-                value: "{'weights':'yolov5s.engine, 'plugin':'libmyplugins.so'}"
+                value: "{'weights':'yolov5s.engine', 'plugin':'libmyplugins.so'}"
               - name: controller_port
                 value: "39200"
               - name: processor_inner_port
