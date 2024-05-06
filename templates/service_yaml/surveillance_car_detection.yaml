@@ -6,7 +6,7 @@ metadata:
 spec:
   edgeWorker:
     - file:
-        path: "/home/nvidia/zwh/Auto-Edge/files"
+        path: "/home/nvidia/zwh/Auto-Edge-files/files"
       logLevel:
         level: "DEBUG"
       kubeConfig:
@@ -37,7 +37,7 @@ spec:
               - name: GEN_ASO_NAME
                 value: simple
     - file:
-        path: "/home/nvidia/zwh/Auto-Edge/files"
+        path: "/home/nvidia/zwh/Auto-Edge-files/files"
       logLevel:
         level: "DEBUG"
       kubeConfig:
@@ -190,7 +190,7 @@ metadata:
 spec:
   cloudWorker:
     file:
-      path: "/home/hx/zwh/Auto-Edge/files"
+      path: "/home/hx/zwh/Auto-Edge-files/files"
     kubeConfig:
       path: "/home/hx/.kube"
     template:
@@ -309,7 +309,7 @@ metadata:
 spec:
   edgeWorker:
     - file:
-        path: "/home/nvidia/zwh/Auto-Edge/model_lib"
+        path: "/home/nvidia/zwh/Auto-Edge-files/model_lib"
       kubeConfig:
         path: "/home/nvidia/.kube"
       logLevel:
@@ -341,7 +341,7 @@ spec:
               - containerPort: 9001
                 hostPort: 39001
     - file:
-        path: "/home/nvidia/zwh/Auto-Edge/model_lib"
+        path: "/home/nvidia/zwh/Auto-Edge-files/model_lib"
       kubeConfig:
         path: "/home/nvidia/.kube"
       logLevel:
@@ -374,7 +374,7 @@ spec:
                 hostPort: 39001
   cloudWorker:
     file:
-      path: "/home/hx/zwh/Auto-Edge/model_lib"
+      path: "/home/hx/zwh/Auto-Edge-files/model_lib"
     kubeConfig:
       path: "/home/hx/.kube"
     template:
