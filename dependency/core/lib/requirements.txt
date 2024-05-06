@@ -7,4 +7,3 @@ starlette
 uvicorn
 gunicorn
 joblib
-opencv-python-headless

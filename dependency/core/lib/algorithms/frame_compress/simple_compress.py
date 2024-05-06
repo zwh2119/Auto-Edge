@@ -1,5 +1,4 @@
 import abc
-import cv2
 
 from core.lib.common import ClassFactory, ClassType
 from .base_compress import BaseCompress
@@ -13,6 +12,8 @@ class SimpleCompress(BaseCompress, abc.ABC):
         pass
 
     def __call__(self, system, frame_buffer):
+        import cv2
+
         assert frame_buffer, 'frame buffer is empty!'
         fourcc = cv2.VideoWriter_fourcc(*system.meta_data['encoding'])
         height, width, _ = frame_buffer[0].shape
