@@ -1,4 +1,5 @@
 import json
+import threading
 
 from fastapi import FastAPI, Form
 from fastapi.routing import APIRoute
@@ -36,6 +37,7 @@ class SchedulerServer:
         )
 
         self.scheduler = Scheduler()
+        threading.Thread(target=self.scheduler.run).start()
 
     async def generate_schedule_plan(self, data: str = Form(...)):
         data = json.loads(data)
