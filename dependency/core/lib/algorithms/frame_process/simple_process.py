@@ -1,7 +1,5 @@
 import abc
 
-import cv2
-
 from core.lib.common import ClassFactory, ClassType
 from core.lib.common import VideoOps
 from .base_process import BaseProcess
@@ -15,5 +13,7 @@ class SimpleProcess(BaseProcess, abc.ABC):
         pass
 
     def __call__(self, system, frame):
+        import cv2
+
         resolution = VideoOps.text2resolution(system.meta_data['resolution'])
         return cv2.resize(frame, resolution)
