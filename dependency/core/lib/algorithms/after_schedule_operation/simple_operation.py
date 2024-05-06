@@ -19,12 +19,13 @@ class SimpleASOperation(BaseASOperation, abc.ABC):
         }
 
     def __call__(self, system, scheduler_response):
-        scheduler_policy = scheduler_response['plan']
-        if scheduler_policy is None:
+
+        if scheduler_response is None:
             system.meta_data.update(self.default_metadata)
             default_execute_device = system.local_device
             system.task_pipeline = Task.set_execute_device(system.task_pipeline, default_execute_device)
         else:
+            scheduler_policy = scheduler_response['plan']
             pipeline = scheduler_policy['pipeline']
             system.task_pipeline = Task.extract_pipeline_from_dict(pipeline)
             del scheduler_policy['pipeline']

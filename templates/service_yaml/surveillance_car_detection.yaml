@@ -334,7 +334,7 @@ spec:
               - name: processor_inner_port
                 value: "9001"
               - name: PRO_QUEUE_NAME
-                value: "simple_queue"
+                value: "simple"
               - name: service_name
                 value: "car_detection"
             ports:
@@ -366,7 +366,7 @@ spec:
               - name: processor_inner_port
                 value: "9001"
               - name: PRO_QUEUE_NAME
-                value: "simple_queue"
+                value: "simple"
               - name: service_name
                 value: "car_detection"
             ports:
@@ -396,7 +396,7 @@ spec:
               - name: processor_inner_port
                 value: "9001"
               - name: PRO_QUEUE_NAME
-                value: "simple_queue"
+                value: "simple"
               - name: service_name
                 value: "car_detection"
             imagePullPolicy: IfNotPresent
