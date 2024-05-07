@@ -46,8 +46,6 @@ class Task:
 
         pipeline_flow.append(Service('end'))
 
-        print(f'pipeline flow in Task: {pipeline_flow}')
-
         return pipeline_flow
 
     @staticmethod
@@ -160,6 +158,8 @@ class Task:
         assert pipeline, 'pipeline is empty!'
         for service in pipeline:
             service.set_execute_device(hostname)
+
+        return pipeline
 
     @staticmethod
     def serialize(task: 'Task'):

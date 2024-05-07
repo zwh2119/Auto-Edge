@@ -15,9 +15,7 @@ class Generator:
         self.current_task = None
 
         self.source_id = source_id
-        print(f'task pipeline list:{task_pipeline}')
         self.task_pipeline = Task.extract_pipeline_from_dict(task_pipeline)
-        print(f'pipeline generate:{self.task_pipeline}')
 
         self.raw_meta_data = metadata
         self.meta_data = metadata
