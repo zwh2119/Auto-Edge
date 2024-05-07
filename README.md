@@ -189,5 +189,6 @@ we use the following devices to deploy Auto-Edge system. Other devices can also 
 - 2024.01.11 `AutoEdge` - `v1.0.0`: complete the first formal version of Auto-Edge
 - 2024.02.11 `AutoEdge` - `v1.1.0`: rebuild structure of system code
 - 2024.02.12 `AutoEdge` - `v1.2.0`: add hook functions 
+- 2024.05.07 `AutoEdge` - `v1.3.0`: add backend server and datasource
 
 ## Citation
