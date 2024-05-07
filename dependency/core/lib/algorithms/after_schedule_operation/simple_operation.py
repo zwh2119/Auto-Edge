@@ -23,6 +23,8 @@ class SimpleASOperation(BaseASOperation, abc.ABC):
         if scheduler_response is None:
             system.meta_data.update(self.default_metadata)
             default_execute_device = system.local_device
+            print(f'pipeline in:{system.task_pipeline}')
+
             system.task_pipeline = Task.set_execute_device(system.task_pipeline, default_execute_device)
         else:
             scheduler_policy = scheduler_response['plan']

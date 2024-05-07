@@ -70,8 +70,13 @@ class VideoGenerator(Generator):
     def run(self):
         self.frame_buffer = []
 
+        print(f'pipeline before:{self.task_pipeline}')
+
         # initialize default schedule policy
         self.after_schedule_operation(self, None)
+
+        print(f'pipeline after:{self.task_pipeline}')
+
 
         while True:
             self.request_schedule_policy()
