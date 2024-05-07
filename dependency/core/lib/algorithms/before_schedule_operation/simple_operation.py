@@ -16,6 +16,6 @@ class SimpleBSOperation(BaseBSOperation, abc.ABC):
     def __call__(self, system):
         parameters = {'source_id': system.source_id,
                       'meta_data': system.raw_meta_data,
-                      'pipeline': Task.extract_dict_from_pipeline(system.task_pipelin)}
+                      'pipeline': Task.extract_dict_from_pipeline(system.task_pipeline)}
 
         return parameters
