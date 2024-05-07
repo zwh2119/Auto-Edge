@@ -283,7 +283,6 @@ class BackendServer:
                 camera_name = camera['name']
                 camera_url = camera['url']
                 camera_describe = camera['describe']
-                camera_importance = camera['importance']
 
         except Exception as e:
             return False
