@@ -46,6 +46,8 @@ class Task:
 
         pipeline_flow.append(Service('end'))
 
+        print(f'pipeline flow in Task: {pipeline_flow}')
+
         return pipeline_flow
 
     @staticmethod
