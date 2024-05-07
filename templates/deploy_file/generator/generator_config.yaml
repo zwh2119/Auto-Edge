@@ -6,7 +6,7 @@ data_source:
       resolution: "1080p"
       fps: 25
       encoding: "mp4v"
-    url: "rtsp://192.168.1.4/video0"
+    url: "rtsp://192.168.1.6/video0"
     pipeline:
       - service_name: "car_detection"
   - id: 1
@@ -17,7 +17,7 @@ data_source:
       fps: 30
       encoding: "mp4v"
       buffer_size: 8
-    url: "rtsp://192.168.1.4/video1"
+    url: "rtsp://192.168.1.6/video1"
     pipeline:
       - service_name: "car_detection"
   - id: 2
@@ -28,6 +28,6 @@ data_source:
       fps: 30
       encoding: "mp4v"
       buffer_size: 8
-    url: "rtsp://192.168.1.4/video2"
+    url: "rtsp://192.168.1.6/video2"
     pipeline:
       - service_name: "car_detection"
