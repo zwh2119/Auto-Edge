@@ -33,14 +33,14 @@ class VideoGenerator(Generator):
         # retry when no video signal
         while not ret:
             if first_no_signal:
-                LOGGER.warning(f'No video signal from source {self.generator_id}!')
+                LOGGER.warning(f'No video signal from source {self.source_id}!')
                 first_no_signal = False
             self.frame_buffer = []
             self.data_source_capture = cv2.VideoCapture(self.video_data_source)
             ret, frame = self.data_source_capture.read()
 
         if not first_no_signal:
-            LOGGER.warning(f'Get video stream data from source {self.generator_id}..')
+            LOGGER.warning(f'Get video stream data from source {self.source_id}..')
 
         return frame
 
