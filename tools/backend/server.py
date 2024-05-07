@@ -556,8 +556,8 @@ class BackendServer:
                     with open(self.log_file, 'a') as f:
                         log_string = ''
                         log_string += f'complete_time:{datetime.datetime.now():%Y-%m-%d %H:%M:%S} '
-                        log_string += f'source_id:{source_id} task_id:{task_id} task_type:{task_type}'
-                        log_string += f'task_delay: {delay:.2f}s'
+                        log_string += f'source_id:{source_id} task_id:{task_id} task_type:{task_type} '
+                        log_string += f'task_delay: {delay:.4f}s'
                         log_string += '\n'
                         f.write(log_string)
 
