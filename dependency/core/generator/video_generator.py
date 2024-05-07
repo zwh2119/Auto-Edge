@@ -24,7 +24,7 @@ class VideoGenerator(Generator):
         self.frame_compress = Context.get_algorithm('GEN_COMPRESS')
 
     def get_one_frame(self):
-        if self.data_source_capture:
+        if not self.data_source_capture:
             self.data_source_capture = cv2.VideoCapture(self.video_data_source)
 
         ret, frame = self.data_source_capture.read()
