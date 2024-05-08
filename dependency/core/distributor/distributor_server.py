@@ -42,7 +42,6 @@ class DistributorServer:
 
     async def distribute_data(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
         file_data = await file.read()
-        data = json.loads(data)
         backtask.add_task(self.distribute_data_background, data, file_data)
 
     def distribute_data_background(self, data, file_data):
