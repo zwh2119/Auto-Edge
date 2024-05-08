@@ -35,7 +35,7 @@ class Monitor:
         self.initialize_monitor()
 
     def initialize_monitor(self):
-        self.cpu = self.get_cpu()
+        self.cpu = 0
         self.memory = 0
         self.bandwidth = 0
 
@@ -106,13 +106,13 @@ class Monitor:
 
     def monitor_resource(self):
         threads = [
-            threading.Thread(target=self.get_cpu),
-            threading.Thread(target=self.get_memory),
+            threading.Thread(target=self.monitor_cpu),
+            threading.Thread(target=self.monitor_memory),
 
         ]
         if not self.is_iperf3_server:
             threads.extend(
-                [threading.Thread(target=self.get_bandwidth), ]
+                [threading.Thread(target=self.monitor_bandwidth), ]
             )
 
         for thread in threads:
