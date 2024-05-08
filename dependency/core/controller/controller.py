@@ -76,7 +76,7 @@ class Controller:
         service_name, _ = self.cur_task.get_current_service()
         dst_device = self.cur_task.get_current_stage_device()
         if service_name == 'end':
-            pass
+            self.send_task_to_distributor()
         elif dst_device != self.local_device:
             self.record_transmit_ts(is_end=False)
             self.send_task_to_other_device(dst_device)
