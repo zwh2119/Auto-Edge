@@ -23,6 +23,10 @@ import logging
 import queue
 import cv2
 
+import sys
+
+sys.path.append('/home/hx/zwh/Auto-Edge-rebuild/dependency')
+
 
 class NameCounter:
     counter = 0
