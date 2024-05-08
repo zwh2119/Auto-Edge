@@ -1,13 +1,13 @@
 class NetworkAPIPath:
-    CONTROLLER_TASK = 'submit_task'
-    CONTROLLER_RETURN = 'process_return'
-    PROCESSOR_PROCESS = 'predict'
-    DISTRIBUTOR_DISTRIBUTE = 'distribute'
-    DISTRIBUTOR_RESULT = 'result'
-    DISTRIBUTOR_FILE = 'file'
-    SCHEDULER_SCHEDULE = 'schedule'
-    SCHEDULER_SCENARIO = 'scenario'
-    SCHEDULER_RESOURCE = 'resource'
+    CONTROLLER_TASK = '/submit_task'
+    CONTROLLER_RETURN = '/process_return'
+    PROCESSOR_PROCESS = '/predict'
+    DISTRIBUTOR_DISTRIBUTE = '/distribute'
+    DISTRIBUTOR_RESULT = '/result'
+    DISTRIBUTOR_FILE = '/file'
+    SCHEDULER_SCHEDULE = '/schedule'
+    SCHEDULER_SCENARIO = '/scenario'
+    SCHEDULER_RESOURCE = '/resource'
 
 
 class NetworkAPIMethod:
