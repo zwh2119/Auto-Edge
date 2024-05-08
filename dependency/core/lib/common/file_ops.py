@@ -12,8 +12,7 @@ class FileOps:
     @staticmethod
     def remove_data_file(task):
         file_path = task.get_file_path()
-        if os.path.exists(file_path):
-            shutil.rmtree(file_path)
+        FileOps.remove_file(file_path)
 
     @staticmethod
     def remove_file(file_path):
