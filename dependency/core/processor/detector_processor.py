@@ -6,6 +6,7 @@ from .processor import Processor
 
 from core.lib.estimation import Timer
 from core.lib.content import Task
+from core.lib.common import LOGGER
 
 
 class DetectorProcessor(Processor):
@@ -35,6 +36,8 @@ class DetectorProcessor(Processor):
     def infer(self, images: List[np.ndarray]):
         assert self.detector, 'No detector defined!'
         assert self.tracker, 'No tracker defined!'
+
+        LOGGER.debug(f'[Batch Size] Car detection batch: {len(images)}')
 
         detection_list = images[0:1]
         tracking_list = images[1:]

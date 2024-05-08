@@ -1,5 +1,6 @@
 import time
 from core.lib.content import Task
+from core.lib.common import LOGGER
 
 
 class Timer:
@@ -14,9 +15,9 @@ class Timer:
         self.end_time = time.time()
         self.elapsed_time = self.end_time - self.start_time
         if self.label:
-            print(f"[{self.label}] Execution time: {self.elapsed_time:.4f}s")
+            LOGGER.info(f"[{self.label}] Execution time: {self.elapsed_time:.4f}s")
         else:
-            print(f"Execution time: {self.elapsed_time:.4f}s")
+            LOGGER.info(f"Execution time: {self.elapsed_time:.4f}s")
 
     def get_elapsed_time(self):
         return self.elapsed_time
