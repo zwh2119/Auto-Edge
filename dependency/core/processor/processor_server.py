@@ -55,7 +55,7 @@ class ProcessorServer:
         asyncio.set_event_loop(loop)
 
         # Configure and run the server
-        uvicorn_config = uvicorn.Config(app=self.app, host="0.0.0.0", port=self.processor_port, log_level="debug")
+        uvicorn_config = uvicorn.Config(app=self.app, host="0.0.0.0", port=int(self.processor_port), log_level="debug")
         server = uvicorn.Server(uvicorn_config)
         loop.run_until_complete(server.serve())
 
