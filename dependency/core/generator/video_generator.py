@@ -84,5 +84,6 @@ class VideoGenerator(Generator):
             if len(self.frame_buffer) >= self.meta_data['buffer_size']:
                 self.task_id += 1
                 compressed_file_path = self.compress_frames()
+                self.frame_buffer = []
 
                 self.submit_task_to_controller(compressed_file_path)

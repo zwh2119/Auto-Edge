@@ -61,7 +61,7 @@ class Controller:
 
         assert self.cur_task, 'Current Task of Controller is Not set!'
 
-        LOGGER.info('[Submit Task] source: {self.cur_task.get_source_id()}  task: {self.cur_task.get_task_id()}')
+        LOGGER.info(f'[Submit Task] source: {self.cur_task.get_source_id()}  task: {self.cur_task.get_task_id()}')
 
         service_name, _ = self.cur_task.get_current_service()
         dst_device = self.cur_task.get_current_stage_device()
