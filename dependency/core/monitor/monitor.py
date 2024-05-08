@@ -1,3 +1,4 @@
+import json
 import time
 
 import iperf3
@@ -134,4 +135,4 @@ class Monitor:
 
         http_request(self.scheduler_address,
                      method=NetworkAPIMethod.SCHEDULER_RESOURCE,
-                     data={'data': data})
+                     data={'data': json.dumps(data)})
