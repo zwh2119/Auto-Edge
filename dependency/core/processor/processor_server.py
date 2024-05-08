@@ -47,6 +47,7 @@ class ProcessorServer:
         cur_task = Task.deserialize(data)
         FileOps.save_data_file(cur_task, file_data)
         self.task_queue.put(cur_task)
+        LOGGER.debug(f'[Task Queue] Queue Size (receive request): {self.task_queue.size()}')
 
     def start_processor_server(self):
         LOGGER.info(f'start uvicorn server on {self.processor_port} port')
@@ -67,6 +68,9 @@ class ProcessorServer:
             task = self.task_queue.get()
             if not task:
                 continue
+
+            LOGGER.debug(f'[Task Queue] Queue Size (loop): {self.task_queue.size()}')
+
             task = self.processor(task)
             self.send_result_back_to_controller(task)
             FileOps.remove_data_file(task)
