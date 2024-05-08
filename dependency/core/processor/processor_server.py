@@ -79,5 +79,5 @@ class ProcessorServer:
         http_request(url=self.controller_address, method=NetworkAPIMethod.CONTROLLER_RETURN,
                      data={'data': Task.serialize(task)},
                      files={'file': (task.get_file_path(),
-                                     open(task.get_file_path, 'rb'),
+                                     open(task.get_file_path(), 'rb'),
                                      'multipart/form-data')})
