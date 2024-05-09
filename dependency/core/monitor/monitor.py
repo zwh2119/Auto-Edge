@@ -62,7 +62,6 @@ class Monitor:
         @timeout(2)
         def fetch_bandwidth_by_iperf3():
             result = client.run()
-            del client
             return result
 
         client = iperf3.Client()
@@ -75,13 +74,13 @@ class Monitor:
 
             result_info = fetch_bandwidth_by_iperf3()
 
+            del client
+
             if result_info.error:
                 LOGGER.warning(f'resource monitor iperf3 error: {result_info.error}')
                 bandwidth_result = 0
             else:
                 bandwidth_result = result_info.sent_Mbps
-
-
 
         except Exception as e:
             LOGGER.exception(f'[Iperf3 Error] {e}')
