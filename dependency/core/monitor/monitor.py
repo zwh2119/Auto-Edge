@@ -76,8 +76,11 @@ class Monitor:
 
             if result_info.error:
                 LOGGER.warning(f'resource monitor iperf3 error: {result_info.error}')
+                bandwidth_result = 0
+            else:
+                bandwidth_result = result_info.sent_Mbps
 
-            bandwidth_result = result_info.sent_Mbps
+            client = None
 
         except Exception as e:
             LOGGER.exception(f'[Iperf3 Error] {e}')
