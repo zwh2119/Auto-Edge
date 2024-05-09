@@ -17,7 +17,7 @@ class Distributor:
                                                                              port=self.scheduler_port,
                                                                              path=NetworkAPIPath.SCHEDULER_SCENARIO)
 
-    def set_current_task(self, task_data: dict):
+    def set_current_task(self, task_data):
         self.cur_task = Task.deserialize(task_data)
 
     def distribute_data(self):
@@ -67,6 +67,8 @@ class Distributor:
     def find_record_by_time(time_begin):
         file_list = []
         dir_path = FileNameConstant.DISTRIBUTE_RECORD_DIR.value
+        if not os.path.exists(dir_path):
+            return file_list
         for file in os.listdir(dir_path):
             file_path = os.path.join(dir_path, file)
             if file.startswith('record') and os.path.getctime(file_path) > time_begin:
