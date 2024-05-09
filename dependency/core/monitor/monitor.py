@@ -80,11 +80,8 @@ class Monitor:
             bandwidth_result = result_info.sent_Mbps
 
         except Exception as e:
-            LOGGER.exception(f'[Iperf3 Timeout] {e}')
+            LOGGER.exception(f'[Iperf3 Error] {e}')
             bandwidth_result = 0
-        finally:
-            if hasattr(client, '_stdout_fd') and client._stdout_fd:
-                os.close(client._stdout_fd)
 
         return bandwidth_result
 

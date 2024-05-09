@@ -67,7 +67,7 @@ class Distributor:
     def find_record_by_time(time_begin):
         file_list = []
         dir_path = FileNameConstant.DISTRIBUTE_RECORD_DIR.value
-        for file in os.listdir():
+        for file in os.listdir(dir_path):
             file_path = os.path.join(dir_path, file)
             if file.startswith('record') and os.path.getctime(file_path) > time_begin:
                 file_list.append(file_path)
