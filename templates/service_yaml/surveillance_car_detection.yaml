@@ -286,7 +286,7 @@ spec:
               - name: iperf3_server
                 value: "True"
               - name: iperf3_ports
-                value: "[5201, 5202]"
+                value: "[5201]"
               - name: iperf3_server_name
                 value: cloud.kubeedge
               - name: scheduler_name
