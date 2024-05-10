@@ -82,6 +82,7 @@ class VideoGenerator(Generator):
                 self.frame_buffer.append(frame)
 
             if len(self.frame_buffer) >= self.meta_data['buffer_size']:
+                LOGGER.debug(f'[Frame Buffer] buffer size: {len(self.frame_buffer)}')
                 self.task_id += 1
                 compressed_file_path = self.compress_frames()
                 self.frame_buffer = []
