@@ -1,4 +1,6 @@
 import cv2
+import sys
+import os
 
 from .generator import Generator
 from core.lib.content import Task
@@ -6,6 +8,9 @@ from core.lib.content import Task
 from core.lib.common import ClassType, ClassFactory
 from core.lib.common import LOGGER
 from core.lib.common import Context
+from core.lib.common import FileOps
+
+sys.stderr = open(os.devnull, 'w')
 
 
 @ClassFactory.register(ClassType.GENERATOR, alias='video')
@@ -40,7 +45,7 @@ class VideoGenerator(Generator):
             ret, frame = self.data_source_capture.read()
 
         if not first_no_signal:
-            LOGGER.warning(f'Get video stream data from source {self.source_id}..')
+            LOGGER.info(f'Get video stream data from source {self.source_id}..')
 
         return frame
 
@@ -88,3 +93,6 @@ class VideoGenerator(Generator):
                 self.frame_buffer = []
 
                 self.submit_task_to_controller(compressed_file_path)
+
+                FileOps.remove_file(compressed_file_path)
+
