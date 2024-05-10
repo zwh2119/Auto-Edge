@@ -15,13 +15,17 @@ def reverse_key_value_in_dict(in_dict: dict) -> dict:
     return {v: k for k, v in in_dict.items()}
 
 
-def convert_ndarray_to_list(arr):
-    if isinstance(arr, np.ndarray):
-        return convert_ndarray_to_list(arr.tolist())
-    elif isinstance(arr, list):
-        return [convert_ndarray_to_list(sub_arr) for sub_arr in arr]
+def convert_ndarray_to_list(obj):
+    if isinstance(obj, np.ndarray):
+        return convert_ndarray_to_list(obj.tolist())
+    elif isinstance(obj, list):
+        return [convert_ndarray_to_list(item) for item in obj]
+    elif isinstance(obj, tuple):
+        return tuple(convert_ndarray_to_list(item) for item in obj)
+    elif isinstance(obj, dict):
+        return {convert_ndarray_to_list(key): convert_ndarray_to_list(value) for key, value in obj.items()}
     else:
-        return arr
+        return obj
 
 
 def singleton(cls):
