@@ -6,7 +6,7 @@ from .processor import Processor
 
 from core.lib.estimation import Timer
 from core.lib.content import Task
-from core.lib.common import LOGGER
+from core.lib.common import LOGGER, convert_ndarray_to_list
 
 
 class DetectorProcessor(Processor):
@@ -30,7 +30,7 @@ class DetectorProcessor(Processor):
 
         result = self.infer(image_list)
         task = self.get_scenario(result, task)
-        task.set_content(result)
+        task.set_content(convert_ndarray_to_list(result))
 
         return task
 

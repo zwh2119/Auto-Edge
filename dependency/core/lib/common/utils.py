@@ -1,6 +1,7 @@
 from functools import wraps
 import signal
 import threading
+import numpy as np
 
 
 def reverse_key_value_in_dict(in_dict: dict) -> dict:
@@ -12,6 +13,15 @@ def reverse_key_value_in_dict(in_dict: dict) -> dict:
     """
 
     return {v: k for k, v in in_dict.items()}
+
+
+def convert_ndarray_to_list(arr):
+    if isinstance(arr, np.ndarray):
+        return convert_ndarray_to_list(arr.tolist())
+    elif isinstance(arr, list):
+        return [convert_ndarray_to_list(sub_arr) for sub_arr in arr]
+    else:
+        return arr
 
 
 def singleton(cls):
