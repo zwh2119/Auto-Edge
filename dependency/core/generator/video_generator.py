@@ -1,6 +1,5 @@
 import cv2
-import sys
-import os
+import warnings
 
 from .generator import Generator
 from core.lib.content import Task
@@ -10,7 +9,7 @@ from core.lib.common import LOGGER
 from core.lib.common import Context
 from core.lib.common import FileOps
 
-sys.stderr = open(os.devnull, 'w')
+warnings.filterwarnings("ignore", message="method DESCRIBE failed: 404 NOT FOUND")
 
 
 @ClassFactory.register(ClassType.GENERATOR, alias='video')

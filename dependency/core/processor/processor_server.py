@@ -41,13 +41,16 @@ class ProcessorServer:
 
     async def process_service(self, backtask: BackgroundTasks, file: UploadFile = File(...), data: str = Form(...)):
         file_data = await file.read()
+        cur_task = Task.deserialize(data)
         backtask.add_task(self.process_service_background, data, file_data)
+        LOGGER.debug(f'[Monitor Task] (Process Request) Source: {cur_task.get_source_id()} / Task: {cur_task.get_task_id()} ')
 
     def process_service_background(self, data, file_data):
         cur_task = Task.deserialize(data)
         FileOps.save_data_file(cur_task, file_data)
         self.task_queue.put(cur_task)
         LOGGER.debug(f'[Task Queue] Queue Size (receive request): {self.task_queue.size()}')
+        LOGGER.debug(f'[Monitor Task] (Process Request Background) Source: {cur_task.get_source_id()} / Task: {cur_task.get_task_id()} ')
 
     def start_processor_server(self):
         LOGGER.info(f'start uvicorn server on {self.processor_port} port')
@@ -70,12 +73,15 @@ class ProcessorServer:
                 continue
 
             LOGGER.debug(f'[Task Queue] Queue Size (loop): {self.task_queue.size()}')
+            LOGGER.debug(f'[Monitor Task] (Loop Process) Source: {task.get_source_id()} / Task: {task.get_task_id()} ')
 
             task = self.processor(task)
             self.send_result_back_to_controller(task)
             FileOps.remove_data_file(task)
 
     def send_result_back_to_controller(self, task):
+        LOGGER.debug(f'[Monitor Task] (Send Back) Source: {task.get_source_id()} / Task: {task.get_task_id()} ')
+
         http_request(url=self.controller_address, method=NetworkAPIMethod.CONTROLLER_RETURN,
                      data={'data': Task.serialize(task)},
                      files={'file': (task.get_file_path(),
