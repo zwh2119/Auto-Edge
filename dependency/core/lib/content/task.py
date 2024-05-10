@@ -139,8 +139,9 @@ class Task:
 
         delay_info = ''
         total_time = 0
+        delay_info += f'[Delay Info] Source:{self.get_source_id()}  Task:{self.get_task_id()}\n'
         for service in self.__pipeline_flow:
-            delay_info += f'stage[{service.get_service_name}] -> (device:{service.get_execute_device()})    '   \
+            delay_info += f'stage[{service.get_service_name()}] -> (device:{service.get_execute_device()})    '   \
                           f'execute delay:{service.get_execute_time():.4f}s    ' \
                           f'transmit delay:{service.get_transmit_time():.4f}s\n'
             total_time += service.get_service_total_time()

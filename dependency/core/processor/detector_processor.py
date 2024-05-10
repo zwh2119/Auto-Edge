@@ -30,6 +30,7 @@ class DetectorProcessor(Processor):
 
         result = self.infer(image_list)
         task = self.get_scenario(result, task)
+        task.set_content(result)
 
         return task
 
@@ -62,7 +63,6 @@ class DetectorProcessor(Processor):
             obj_num.append(boxes_num)
             obj_size.append(boxes_size)
 
-        task.add_scenario({'obj_num': obj_num, 'obj_size':obj_size})
+        task.add_scenario({'obj_num': obj_num, 'obj_size': obj_size})
 
         return task
-

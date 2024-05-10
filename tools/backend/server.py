@@ -178,10 +178,10 @@ class BackendServer:
                     delay = task.calculate_total_time()
                     LOGGER.debug(task.get_delay_info())
 
-                    task_result = result['obj_num']
+                    task_result = task.get_scenario_data()['obj_num']
 
                     content = task.get_content()
-                    file_path = self.get_file_result(source_id, task_id)
+                    file_path = self.get_file_result(task.get_file_path())
 
                     with open(self.log_file, 'a') as f:
                         log_string = ''
@@ -236,11 +236,13 @@ class BackendServer:
 
         return False
 
-    def get_file_result(self, source_id, task_id):
-        file_name = f'file_{source_id}_{task_id}'
+    def get_file_result(self, file_name):
+
         response = http_request(self.result_file_url, method='GET', no_decode=True,
-                                json={'source_id': source_id, 'task_id': task_id},
+                                json={'file': file_name},
                                 stream=True)
+        if response is None:
+            return ''
         with open(file_name, 'wb') as file_out:
             for chunk in response.iter_content(chunk_size=8192):
                 file_out.write(chunk)
@@ -250,10 +252,12 @@ class BackendServer:
         source_id_text_list = self.get_source_id()
         return source_id_text_list[source_id]
 
-    def get_base64_data(self, file,  content):
+    def get_base64_data(self, file, content):
+        if not os.path.exists(file):
+            return bytes('', encoding='utf8')
         video_cap = cv2.VideoCapture(file)
         success, image = video_cap.read()
-        image = self.draw_bboxes(image, content[0])
+        image = self.draw_bboxes(image, content[0][0])
 
         base64_str = cv2.imencode('.jpg', image)[1].tobytes()
         base64_str = base64.b64encode(base64_str)
