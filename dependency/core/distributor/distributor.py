@@ -81,5 +81,5 @@ class Distributor:
         content = []
         for file_path in files:
             with open(file_path, 'r') as f:
-                content.append(json.loads(f.read()))
+                content.append(f.read())
         return content

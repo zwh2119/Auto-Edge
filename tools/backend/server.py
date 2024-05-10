@@ -2,9 +2,6 @@ import base64
 import datetime
 import threading
 
-import signal
-import functools
-
 import numpy as np
 
 import json
@@ -26,6 +23,10 @@ import cv2
 import sys
 
 sys.path.append('/home/hx/zwh/Auto-Edge-rebuild/dependency')
+
+from core.lib.content import Task
+from core.lib.common import timeout
+from core.lib.network import http_request
 
 
 class NameCounter:
@@ -53,85 +54,18 @@ class ResultQueue:
 
     def save_results(self, results):
         for result in results:
-            self.__queue.put(result)
+            self.push(result)
             if 0 < self.__length < self.__queue.qsize():
-                self.__queue.get()
+                self.pop()
 
     def get_results(self):
         results = []
         while not self.__queue.empty():
-            results.append(self.__queue.get())
+            results.append(self.pop())
         return results
 
     def clear_results(self):
         self.get_results()
-
-
-def http_request(url,
-                 method=None,
-                 timeout=None,
-                 binary=True,
-                 no_decode=False,
-                 **kwargs) -> requests.Response:
-    _maxTimeout = timeout if timeout else 300
-    _method = 'GET' if not method else method
-
-    try:
-        response = requests.request(method=_method, url=url, **kwargs)
-        if response.status_code == 200:
-            if no_decode:
-                return response
-            else:
-                return response.json() if binary else response.content.decode('utf-8')
-        elif 200 < response.status_code < 400:
-            print(f'Redirect URL: {response.url}')
-        print(f'Get invalid status code {response.status_code} in request {url}')
-    except Exception as e:
-        # logging.exception(e)
-        pass
-
-
-def timeout(sec):
-    """
-    timeout decorator
-    :param sec: function raise TimeoutError after ? seconds
-    """
-
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapped_func(*args, **kwargs):
-
-            def _handle_timeout(signum, frame):
-                err_msg = f'Function {func.__name__} timed out after {sec} seconds'
-                raise TimeoutError(err_msg)
-
-            signal.signal(signal.SIGALRM, _handle_timeout)
-            signal.alarm(sec)
-            try:
-                result = func(*args, **kwargs)
-            finally:
-                signal.alarm(0)
-            return result
-
-        return wrapped_func
-
-    return decorator
-
-
-def read_yaml(yaml_file):
-    '''读取yaml文件'''
-    with open(yaml_file, 'r', encoding="utf-8") as f:
-        values = yaml.load(f, Loader=yaml.Loader)
-    return values
-
-
-def write_yaml(value_dict, yaml_file):
-    '''写yaml文件'''
-    with open(yaml_file, 'a', encoding="utf-8") as f:
-        try:
-            yaml.dump(data=value_dict, stream=f, encoding="utf-8", allow_unicode=True)
-        except Exception as e:
-            print(e)
 
 
 class BackendServer:
@@ -337,7 +271,7 @@ class BackendServer:
             image = self.draw_bboxes(image, content[0])
         else:
             assert None, f'Invalid task type of {task_type}'
-        # image = cv2.resize(image, (480, 360))
+
         base64_str = cv2.imencode('.jpg', image)[1].tobytes()
         base64_str = base64.b64encode(base64_str)
         base64_str = bytes('data:image/jpg;base64,', encoding='utf8') + base64_str
@@ -700,7 +634,7 @@ def submit_query(data=Body(...)):
     server.source_open = True
     server.source_label = source_label
     for source_id in server.get_source_id():
-        server.task_results[source_id] = ResultQueue(10)
+        server.task_results[source_id] = ResultQueue(20)
 
     server.is_get_result = True
     threading.Thread(target=server.run_get_result).start()
