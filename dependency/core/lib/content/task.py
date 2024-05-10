@@ -133,6 +133,20 @@ class Task:
 
         return total_time
 
+    def get_delay_info(self):
+        assert self.__pipeline_flow, 'pipeline of task is empty!'
+        assert self.__cur_flow_index < len(self.__pipeline_flow), 'pipeline is not completed!'
+
+        delay_info = ''
+        total_time = 0
+        for service in self.__pipeline_flow:
+            delay_info += f'stage[{service.get_service_name}] -> (device:{service.get_execute_device()})    '   \
+                          f'execute delay:{service.get_execute_time():.4f}s    ' \
+                          f'transmit delay:{service.get_transmit_time():.4f}s\n'
+            total_time += service.get_service_total_time()
+        delay_info += f'total delay:{total_time:.4f}s'
+        return delay_info
+
     def get_flow_index(self):
         return self.__cur_flow_index
 

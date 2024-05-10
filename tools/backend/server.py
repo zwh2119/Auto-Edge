@@ -25,7 +25,7 @@ import sys
 sys.path.append('/home/hx/zwh/Auto-Edge-rebuild/dependency')
 
 from core.lib.content import Task
-from core.lib.common import timeout
+from core.lib.common import timeout, LOGGER
 from core.lib.network import http_request
 
 
@@ -171,21 +171,22 @@ class BackendServer:
                 time_ticket = response["time_ticket"]
                 results = response['result']
                 for result in results:
-                    source_id = result['source']
-                    task_id = result['task']
-                    print(f'source:{source_id} task:{task_id}')
-                    delay = self.cal_pipeline_delay(result['pipeline'])
+                    task = Task.deserialize(result)
+                    source_id = task.get_source_id()
+                    task_id = task.get_task_id()
+                    LOGGER.debug(f'source:{source_id} task:{task_id}')
+                    delay = task.calculate_total_time()
+                    LOGGER.debug(task.get_delay_info())
 
                     task_result = result['obj_num']
 
-                    task_type = result['task_type']
-                    content = result['content']
+                    content = task.get_content()
                     file_path = self.get_file_result(source_id, task_id)
 
                     with open(self.log_file, 'a') as f:
                         log_string = ''
-                        log_string += f'complete_time:{datetime.datetime.now():%Y-%m-%d %H:%M:%S} '
-                        log_string += f'source_id:{source_id} task_id:{task_id} task_type:{task_type} '
+                        log_string += f'log_time:{datetime.datetime.now():%Y-%m-%d %H:%M:%S} '
+                        log_string += f'source_id:{source_id} task_id:{task_id} '
                         log_string += f'task_delay: {delay:.4f}s'
                         log_string += '\n'
                         f.write(log_string)
@@ -194,7 +195,7 @@ class BackendServer:
                         with open(self.log_file, 'w'):
                             pass
 
-                    base64_data = self.get_base64_data(file_path, task_type, task_result, content, source_id)
+                    base64_data = self.get_base64_data(file_path, content)
                     os.remove(file_path)
 
                     if not self.source_open:
@@ -235,19 +236,6 @@ class BackendServer:
 
         return False
 
-    def cal_pipeline_delay(self, pipeline):
-        delay = 0
-        print('delay:  ', end='')
-        for i, stage in enumerate(pipeline):
-            execute = stage['execute_data']
-            if 'transmit_time' in execute:
-                delay += execute['transmit_time']
-            if 'service_time' in execute:
-                delay += execute['service_time']
-                print(f'stage{i}->{execute["service_time"]:.2f}s({stage["execute_device"]})  ', end='')
-        print(f'total:->{delay:.4f}s')
-        return delay
-
     def get_file_result(self, source_id, task_id):
         file_name = f'file_{source_id}_{task_id}'
         response = http_request(self.result_file_url, method='GET', no_decode=True,
@@ -262,15 +250,10 @@ class BackendServer:
         source_id_text_list = self.get_source_id()
         return source_id_text_list[source_id]
 
-    def get_base64_data(self, file, task_type, result, content, source):
-        image = None
-
-        if task_type == 'car':
-            video_cap = cv2.VideoCapture(file)
-            success, image = video_cap.read()
-            image = self.draw_bboxes(image, content[0])
-        else:
-            assert None, f'Invalid task type of {task_type}'
+    def get_base64_data(self, file,  content):
+        video_cap = cv2.VideoCapture(file)
+        success, image = video_cap.read()
+        image = self.draw_bboxes(image, content[0])
 
         base64_str = cv2.imencode('.jpg', image)[1].tobytes()
         base64_str = base64.b64encode(base64_str)
@@ -355,7 +338,7 @@ async def get_service_stage(dag_id):
         if server_task['name'] == task_name:
             return server_task['stage']
 
-    print(f'task name {task_name} error!')
+    LOGGER.warning(f'task name {task_name} error!')
     return []
 
 
@@ -401,7 +384,7 @@ async def install_service(data=Body(...)):
         return {'state': 'fail', 'msg': '服务不存在'}
 
     yaml_file = os.path.join(server.templates_path, cur_task['yaml'])
-    print(f'yaml_file: {yaml_file}')
+    LOGGER.info(f'yaml_file: {yaml_file}')
 
     try:
         result = install_loop()

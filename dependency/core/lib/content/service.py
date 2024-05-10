@@ -36,7 +36,7 @@ class Service:
         return self.__execute_time
 
     def get_service_total_time(self):
-        return self.__execute_time + self.__execute_time
+        return self.__transmit_time + self.__execute_time
 
     @staticmethod
     def serialize(service: 'Service'):
