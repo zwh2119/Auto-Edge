@@ -58,7 +58,8 @@ class Distributor:
         files = self.find_record_by_time(time_ticket)
         if size != 0 and len(files) > size:
             files = files[:size]
-        LOGGER.debug(f'last file time: {os.path.getctime(files[-1])}')
+        if len(files) > 0:
+            LOGGER.debug(f'last file time: {os.path.getctime(files[-1])}')
         return {'result': self.extract_record(files),
                 'time_ticket': os.path.getctime(files[-1]) if len(files) > 0 else time_ticket,
                 'size': len(files)
