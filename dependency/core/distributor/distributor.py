@@ -58,6 +58,7 @@ class Distributor:
         files = self.find_record_by_time(time_ticket)
         if size != 0 and len(files) > size:
             files = files[:size]
+        LOGGER.debug(f'last file time: {os.path.getctime(files[-1])}')
         return {'result': self.extract_record(files),
                 'time_ticket': os.path.getctime(files[-1]) if len(files) > 0 else time_ticket,
                 'size': len(files)
@@ -72,6 +73,7 @@ class Distributor:
         for file in os.listdir(dir_path):
             file_path = os.path.join(dir_path, file)
             if file.startswith('record') and os.path.getctime(file_path) > time_begin:
+                LOGGER.debug(f'name:{file}  time:{os.path.getctime(file_path)}')
                 file_list.append(file_path)
         file_list.sort(key=lambda x: os.path.getctime(x))
         return file_list
@@ -82,5 +84,5 @@ class Distributor:
         for file_path in files:
             with open(file_path, 'r') as f:
                 content.append(f.read())
-            FileOps.remove_file(file_path)
+            # FileOps.remove_file(file_path)
         return content
