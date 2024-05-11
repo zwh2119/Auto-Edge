@@ -7,8 +7,7 @@ ARG base_dir=dependency/core/processor
 ARG code_dir=components/processor
 ARG app_dir=dependency/core/applications/road_surveillance/car_detection
 
-ENV TimeZone=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TimeZone /etc/localtime && echo $TimeZone > /etc/timezone
+ENV TZ=Asia/Shanghai
 
 COPY ${lib_dir}/requirements.txt ./lib_requirements.txt
 COPY ${base_dir}/requirements.txt ./base_requirements.txt
