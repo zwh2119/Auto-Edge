@@ -1,7 +1,7 @@
 from functools import wraps
 import signal
 import threading
-import numpy as np
+
 
 
 def reverse_key_value_in_dict(in_dict: dict) -> dict:
@@ -16,6 +16,7 @@ def reverse_key_value_in_dict(in_dict: dict) -> dict:
 
 
 def convert_ndarray_to_list(obj):
+    import numpy as np
     if isinstance(obj, np.ndarray):
         return convert_ndarray_to_list(obj.tolist())
     elif isinstance(obj, list):
