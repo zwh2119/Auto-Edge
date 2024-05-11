@@ -82,4 +82,5 @@ class Distributor:
         for file_path in files:
             with open(file_path, 'r') as f:
                 content.append(f.read())
+            FileOps.remove_file(file_path)
         return content

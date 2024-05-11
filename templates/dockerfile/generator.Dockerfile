@@ -10,6 +10,7 @@ ARG code_dir=components/generator
 # Required to build Ubuntu 20.04 without user prompts with DLFW container
 ENV DEBIAN_FRONTEND=noninteractive
 
+ENV TZ=Asia/Shanghai
 
 # Install python3
 RUN apt-get install -y --no-install-recommends \

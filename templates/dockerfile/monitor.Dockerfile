@@ -6,6 +6,8 @@ ARG lib_dir=dependency/core/lib
 ARG base_dir=dependency/core/monitor
 ARG code_dir=components/monitor
 
+ENV TZ=Asia/Shanghai
+
 RUN apt-get update && apt-get install -y iperf3
 
 COPY ${lib_dir}/requirements.txt ./lib_requirements.txt

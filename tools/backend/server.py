@@ -198,6 +198,7 @@ class BackendServer:
             response = http_request(self.result_url, method='GET', json={'time_ticket': time_ticket, 'size': 0})
             if response:
                 time_ticket = response["time_ticket"]
+                LOGGER.debug(f'time ticket: {time_ticket}')
                 results = response['result']
                 for result in results:
                     task = Task.deserialize(result)

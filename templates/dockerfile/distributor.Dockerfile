@@ -6,6 +6,8 @@ ARG lib_dir=dependency/core/lib
 ARG base_dir=dependency/core/distributor
 ARG code_dir=components/distributor
 
+ENV TZ=Asia/Shanghai
+
 COPY ${lib_dir}/requirements.txt ./lib_requirements.txt
 COPY ${base_dir}/requirements.txt ./base_requirements.txt
 
