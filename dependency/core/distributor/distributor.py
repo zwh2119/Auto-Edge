@@ -63,7 +63,7 @@ class Distributor:
             new_time_ticket = os.path.getctime(files[-1])
         else:
             new_time_ticket = time_ticket
-        LOGGER.debug(f'last file time: {os.path.getctime(files[-1])}')
+        LOGGER.debug(f'last file time: {new_time_ticket}')
 
         return {'result': self.extract_record(files),
                 'time_ticket': new_time_ticket,
