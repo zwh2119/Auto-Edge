@@ -32,6 +32,9 @@ class Controller:
         controller_address = get_merge_address(NodeInfo.hostname2ip(device),
                                                port=self.controller_port,
                                                path=NetworkAPIPath.CONTROLLER_TASK)
+
+        self.record_transmit_ts(is_end=False)
+
         http_request(url=controller_address,
                      method=NetworkAPIMethod.CONTROLLER_TASK,
                      data={'data': Task.serialize(self.cur_task)},
@@ -39,6 +42,7 @@ class Controller:
                                      open(self.cur_task.get_file_path(), 'rb'),
                                      'multipart/form-data')}
                      )
+
         LOGGER.info(f'[To Device {device}] source: {self.cur_task.get_source_id()}  '
                     f'task: {self.cur_task.get_task_id()}')
 
@@ -47,6 +51,9 @@ class Controller:
                                             port=self.service_ports_dict[service],
                                             path=NetworkAPIPath.PROCESSOR_PROCESS
                                             )
+
+        self.record_execute_ts(is_end=False)
+
         http_request(url=service_address,
                      method=NetworkAPIMethod.PROCESSOR_PROCESS,
                      data={'data': Task.serialize(self.cur_task)},
@@ -54,10 +61,13 @@ class Controller:
                                      open(self.cur_task.get_file_path(), 'rb'),
                                      'multipart/form-data')}
                      )
+
         LOGGER.info(f'[To Service {service}] source: {self.cur_task.get_source_id()}  '
                     f'task: {self.cur_task.get_task_id()}')
 
     def send_task_to_distributor(self):
+        self.record_transmit_ts(is_end=False)
+
         http_request(url=self.distribute_address,
                      method=NetworkAPIMethod.DISTRIBUTOR_DISTRIBUTE,
                      data={'data': Task.serialize(self.cur_task)},
@@ -65,6 +75,7 @@ class Controller:
                                      open(self.cur_task.get_file_path(), 'rb'),
                                      'multipart/form-data')}
                      )
+
         LOGGER.info(f'[To Distributor] source: {self.cur_task.get_source_id()}  task: {self.cur_task.get_task_id()}')
 
     def submit_task(self):
@@ -75,15 +86,20 @@ class Controller:
 
         service_name, _ = self.cur_task.get_current_service()
         dst_device = self.cur_task.get_current_stage_device()
+
         if service_name == 'end':
-            self.record_transmit_ts(is_end=False)
             self.send_task_to_distributor()
+            action = 'transmit'
         elif dst_device != self.local_device:
-            self.record_transmit_ts(is_end=False)
             self.send_task_to_other_device(dst_device)
+            action = 'transmit'
         else:
-            self.record_execute_ts(is_end=False)
+            action = 'transmit'
             self.send_task_to_service(service_name)
+            action = 'execute'
+
+        return action
+
 
     def process_return(self):
         assert self.cur_task, 'Current Task of Controller is Not set!'

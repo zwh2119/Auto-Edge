@@ -83,7 +83,4 @@ class ProcessorServer:
         LOGGER.debug(f'[Monitor Task] (Send Back) Source: {task.get_source_id()} / Task: {task.get_task_id()} ')
 
         http_request(url=self.controller_address, method=NetworkAPIMethod.CONTROLLER_RETURN,
-                     data={'data': Task.serialize(task)},
-                     files={'file': (task.get_file_path(),
-                                     open(task.get_file_path(), 'rb'),
-                                     'multipart/form-data')})
+                     data={'data': Task.serialize(task)})
