@@ -205,7 +205,7 @@ class BackendServer:
                         task = Task.deserialize(result)
                     except Exception as e:
                         LOGGER.debug(result)
-                        LOGGER.exception(e)
+                        raise e
 
                     source_id = task.get_source_id()
                     task_id = task.get_task_id()
