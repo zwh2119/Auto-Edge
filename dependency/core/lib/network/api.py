@@ -7,7 +7,8 @@ class NetworkAPIPath:
     DISTRIBUTOR_FILE = '/file'
     SCHEDULER_SCHEDULE = '/schedule'
     SCHEDULER_SCENARIO = '/scenario'
-    SCHEDULER_RESOURCE = '/resource'
+    SCHEDULER_POST_RESOURCE = '/resource'
+    SCHEDULER_GET_RESOURCE = '/resource'
 
 
 class NetworkAPIMethod:
@@ -19,6 +20,7 @@ class NetworkAPIMethod:
     DISTRIBUTOR_FILE = 'GET'
     SCHEDULER_SCHEDULE = 'GET'
     SCHEDULER_SCENARIO = 'POST'
-    SCHEDULER_RESOURCE = 'POST'
+    SCHEDULER_POST_RESOURCE = 'POST'
+    SCHEDULER_GET_RESOURCE = 'GET'
 
 

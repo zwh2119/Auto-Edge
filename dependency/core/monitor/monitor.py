@@ -1,6 +1,5 @@
 import json
 import time
-import os
 
 import iperf3
 import psutil
@@ -22,7 +21,7 @@ class Monitor:
         self.scheduler_port = Context.get_parameter('scheduler_port')
         self.scheduler_address = get_merge_address(self.scheduler_ip,
                                                    port=self.scheduler_port,
-                                                   path=NetworkAPIPath.SCHEDULER_RESOURCE)
+                                                   path=NetworkAPIPath.SCHEDULER_POST_RESOURCE)
 
         self.local_device = NodeInfo.get_local_device()
         self.is_iperf3_server = Context.get_parameter('iperf3_server', direct=False)
@@ -138,5 +137,5 @@ class Monitor:
         data = {'device': self.local_device, 'resource': resource_info}
 
         http_request(self.scheduler_address,
-                     method=NetworkAPIMethod.SCHEDULER_RESOURCE,
+                     method=NetworkAPIMethod.SCHEDULER_POST_RESOURCE,
                      data={'data': json.dumps(data)})

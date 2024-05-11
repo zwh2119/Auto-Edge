@@ -39,10 +39,9 @@ class Distributor:
 
     def send_scenario_to_scheduler(self):
         LOGGER.info(f'[Send Scenario] source: {self.cur_task.get_source_id()}  task: {self.cur_task.get_task_id()}')
-        scenario_data = {'source_id': self.cur_task.get_source_id(), 'scenario': self.cur_task.get_scenario_data()}
         http_request(url=self.scheduler_address,
                      method=NetworkAPIMethod.SCHEDULER_SCENARIO,
-                     data={'data': json.dumps(scenario_data)})
+                     data={'data': Task.serialize(self.cur_task)})
 
     def record_transmit_ts(self):
         assert self.cur_task, 'Current Task of Distributor is Not set!'

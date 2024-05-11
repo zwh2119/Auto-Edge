@@ -24,10 +24,15 @@ class SchedulerServer:
                      response_class=JSONResponse,
                      methods=[NetworkAPIMethod.SCHEDULER_SCENARIO]
                      ),
-            APIRoute(NetworkAPIPath.SCHEDULER_RESOURCE,
+            APIRoute(NetworkAPIPath.SCHEDULER_POST_RESOURCE,
                      self.update_resource_state,
                      response_class=JSONResponse,
-                     methods=[NetworkAPIMethod.SCHEDULER_RESOURCE]
+                     methods=[NetworkAPIMethod.SCHEDULER_POST_RESOURCE]
+                     ),
+            APIRoute(NetworkAPIPath.SCHEDULER_GET_RESOURCE,
+                     self.get_resource_state,
+                     response_class=JSONResponse,
+                     methods=[NetworkAPIMethod.SCHEDULER_GET_RESOURCE]
                      ),
         ], log_level='trace', timeout=6000)
 
@@ -57,3 +62,6 @@ class SchedulerServer:
 
         self.scheduler.register_resource_table(data['device'])
         self.scheduler.update_scheduler_resource(data)
+
+    async def get_resource_state(self):
+        return self.scheduler.get_scheduler_resource()

@@ -21,8 +21,8 @@ class Scheduler:
 
     def get_schedule_plan(self, info):
         return {
-            'resolution': '720p',
-            'fps': 15,
+            'resolution': '1080p',
+            'fps': 30,
             'encoding': 'mp4v',
             'batch_size': 8,
             'pipeline': info['pipeline']
@@ -32,10 +32,15 @@ class Scheduler:
         pass
 
     def register_resource_table(self, device):
-        pass
+        if device in self.resource_table:
+            return
+        self.resource_table[device] = {}
 
     def update_scheduler_resource(self, info):
         pass
+
+    def get_scheduler_resource(self):
+        return self.resource_table
 
     def run(self):
         pass
