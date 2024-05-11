@@ -17,7 +17,7 @@ import signal
 import functools
 
 from kube_helper import KubeHelper
-import yaml
+
 import logging
 import queue
 import cv2
