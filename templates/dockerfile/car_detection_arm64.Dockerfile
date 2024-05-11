@@ -10,7 +10,8 @@ ARG app_dir=dependency/core/applications/road_surveillance/car_detection
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-ENV TZ=Asia/Shanghai
+ENV TimeZone=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TimeZone /etc/localtime && echo $TimeZone > /etc/timezone
 
 COPY ${lib_dir}/requirements.txt ./lib_requirements.txt
 COPY ${base_dir}/requirements.txt ./base_requirements.txt
