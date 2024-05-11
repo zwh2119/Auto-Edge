@@ -59,7 +59,7 @@ class Distributor:
         if size != 0 and len(files) > size:
             files = files[:size]
         return {'result': self.extract_record(files),
-                'time_ticket': os.path.getctime(files[0]) if len(files) > 0 else time_ticket,
+                'time_ticket': os.path.getctime(files[-1]) if len(files) > 0 else time_ticket,
                 'size': len(files)
                 }
 

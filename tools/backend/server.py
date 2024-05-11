@@ -203,7 +203,7 @@ class BackendServer:
                     task = Task.deserialize(result)
                     source_id = task.get_source_id()
                     task_id = task.get_task_id()
-                    LOGGER.debug(f'source:{source_id} task:{task_id}')
+                    # LOGGER.debug(f'source:{source_id} task:{task_id}')
                     delay = task.calculate_total_time()
                     LOGGER.debug(task.get_delay_info())
 
