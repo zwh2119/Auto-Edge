@@ -201,7 +201,12 @@ class BackendServer:
                 LOGGER.debug(f'time ticket: {time_ticket}')
                 results = response['result']
                 for result in results:
-                    task = Task.deserialize(result)
+                    try:
+                        task = Task.deserialize(result)
+                    except Exception as e:
+                        LOGGER.debug(result)
+                        LOGGER.exception(e)
+
                     source_id = task.get_source_id()
                     task_id = task.get_task_id()
                     # LOGGER.debug(f'source:{source_id} task:{task_id}')
