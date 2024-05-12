@@ -7,6 +7,7 @@ from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.lib.network import NetworkAPIMethod, NetworkAPIPath
+from core.lib.content import Task
 
 from .scheduler import Scheduler
 
@@ -53,7 +54,7 @@ class SchedulerServer:
         return {'plan': plan}
 
     async def update_object_scenario(self, data: str = Form(...)):
-        data = json.loads(data)
+        task = Task.deserialize(data)
 
         self.scheduler.update_scheduler_scenario(data)
 

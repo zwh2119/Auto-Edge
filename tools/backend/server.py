@@ -9,7 +9,7 @@ import os
 import time
 
 import uvicorn
-from fastapi import FastAPI, Body, Request, File, UploadFile
+from fastapi import FastAPI, Body, File, UploadFile
 from starlette.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 

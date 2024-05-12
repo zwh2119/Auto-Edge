@@ -208,7 +208,9 @@ spec:
                 value: "39200"
               - name: SCH_CONFIG_NAME
                 value: simple
-              - name: SCH_STARTUP
+              - name: SCH_SCENARIO_NAME
+                value: simple
+              - name: SCH_STARTUP_NAME
                 value: fixed
               - name: SCH_AGENT_NAME
                 value: fixed
