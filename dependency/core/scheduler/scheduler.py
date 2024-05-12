@@ -19,21 +19,25 @@ class Scheduler:
     def extract_configuration(self, config_path):
         self.config_extraction(self, config_path)
 
+    def get_startup_policy(self, info):
+        return self.startup_policy(info)
+
+    def extract_scenario(self):
+        pass
+
     def run(self):
-        threading.Thread(self.scheduler_agent.run).start()
+        threading.Thread(self.scheduler_agent.run, args=(self,)).start()
 
     def register_schedule_table(self, source_id):
         if source_id in self.schedule_table:
             return
+        self.schedule_table[source_id] = {}
 
     def get_schedule_plan(self, info):
-        return {
-            'resolution': '1080p',
-            'fps': 30,
-            'encoding': 'mp4v',
-            'batch_size': 8,
-            'pipeline': info['pipeline']
-        }
+        source = info['source_id']
+        if 'plan' not in self.schedule_table[source]:
+            return self.get_startup_policy(info)
+        return self.schedule_table[source]['plan']
 
     def update_scheduler_scenario(self, info):
         pass
@@ -44,7 +48,9 @@ class Scheduler:
         self.resource_table[device] = {}
 
     def update_scheduler_resource(self, info):
-        pass
+        device = info['device']
+        resource = info['resource']
+        self.resource_table[device] = resource
 
     def get_scheduler_resource(self):
         return self.resource_table
