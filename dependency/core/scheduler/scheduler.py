@@ -1,6 +1,6 @@
-import time
+import threading
 
-from core.lib.common import Context, FileNameConstant, YamlOps
+from core.lib.common import Context, FileNameConstant
 
 
 class Scheduler:
@@ -8,12 +8,19 @@ class Scheduler:
         self.schedule_table = {}
         self.resource_table = {}
 
-        config_file_path = Context.get_file_path(FileNameConstant.SCHEDULE_CONFIG.value)
-        configs = YamlOps.read_yaml(config_file_path)
-        self.fps_list = configs['fps']
-        self.resolution_list = configs['resolution']
+        self.config_extraction = Context.get_algorithm('SCH_CONFIG')
+        self.startup_policy = Context.get_algorithm('SCH_STARTUP')
+        self.scheduler_agent = Context.get_algorithm('SCH_AGENT')
 
-        self.schedule_interval = 1
+        self.extract_configuration(Context.get_file_path(FileNameConstant.SCHEDULE_CONFIG.value))
+
+        self.run()
+
+    def extract_configuration(self, config_path):
+        self.config_extraction(self, config_path)
+
+    def run(self):
+        threading.Thread(self.scheduler_agent.run).start()
 
     def register_schedule_table(self, source_id):
         if source_id in self.schedule_table:
@@ -41,6 +48,3 @@ class Scheduler:
 
     def get_scheduler_resource(self):
         return self.resource_table
-
-    def run(self):
-        pass

@@ -18,7 +18,9 @@ class ClassType:
     GEN_FILTER = 'generator_frame_filter'
     GEN_PROCESS = 'generator_frame_process'
 
-    SCHEDULE_POLICY = 'schedule_policy'
+    SCH_AGENT = 'scheduler_agent'
+    SCH_STARTUP = 'scheduler_startup_policy'
+    SCH_CONFIG = 'scheduler_config_extraction'
 
     PRO_DETECTOR = 'processor_detector'
     PRO_QUEUE = 'processor_queue'

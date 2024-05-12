@@ -1,13 +1,13 @@
 import abc
 from core.lib.common import ClassFactory, ClassType
 
-from .base_policy import BasePolicy
+from .base_agent import BaseAgent
 
 __all__ = ('HieraticalEmbodiedIntelligence',)
 
 
-@ClassFactory.register(ClassType.SCHEDULE_POLICY, alias='hieratical_embodied_intelligence')
-class HieraticalEmbodiedIntelligence(BasePolicy, abc.ABC):
+@ClassFactory.register(ClassType.SCH_AGENT, alias='hieratical_embodied_intelligence')
+class HieraticalEmbodiedIntelligence(BaseAgent, abc.ABC):
     def __init__(self):
         pass
 
