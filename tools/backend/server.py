@@ -201,11 +201,13 @@ class BackendServer:
                 LOGGER.debug(f'time ticket: {time_ticket}')
                 results = response['result']
                 for result in results:
+                    if result is None or result == '':
+                        continue
                     try:
                         task = Task.deserialize(result)
                     except Exception as e:
-                        LOGGER.debug(result)
-                        raise e
+                        LOGGER.exception(e)
+                        continue
 
                     source_id = task.get_source_id()
                     task_id = task.get_task_id()
@@ -213,7 +215,7 @@ class BackendServer:
                     delay = task.calculate_total_time()
                     LOGGER.debug(task.get_delay_info())
 
-                    task_result = task.get_scenario_data()['obj_num']
+                    task_result = float(np.mean(task.get_scenario_data()['obj_num']))
 
                     content = task.get_content()
                     file_path = self.get_file_result(task.get_file_path())
