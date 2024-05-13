@@ -75,7 +75,6 @@ class VideoGenerator(Generator):
         self.after_schedule_operation(self, None)
 
         while True:
-            self.request_schedule_policy()
 
             frame = self.get_one_frame()
             if self.filter_frame(frame):
@@ -84,6 +83,9 @@ class VideoGenerator(Generator):
 
             if len(self.frame_buffer) >= self.meta_data['buffer_size']:
                 LOGGER.debug(f'[Frame Buffer] buffer size: {len(self.frame_buffer)}')
+
+                self.request_schedule_policy()
+
                 self.task_id += 1
                 compressed_file_path = self.compress_frames()
                 self.frame_buffer = []
