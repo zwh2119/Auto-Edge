@@ -55,7 +55,7 @@ class SchedulerServer:
     async def update_object_scenario(self, data: str = Form(...)):
         task = Task.deserialize(data)
 
-        self.scheduler.update_scheduler_scenario(data)
+        self.scheduler.update_scheduler_scenario(task)
 
     async def update_resource_state(self, data: str = Form(...)):
         data = json.loads(data)
