@@ -1,0 +1,23 @@
+{
+  "source_label": "road_surveillance",
+  "source_name": "交通监控摄像头",
+  "source_type": "视频流",
+  "camera_list": [
+    {
+      "id": "car_video_source1",
+      "name": "交通摄像头1",
+      "url": "rtsp://192.168.1.6/video0",
+      "describe": "监控摄像头",
+      "resolution": "1080p",
+      "fps": "25fps"
+    },
+    {
+      "id": "car_video_source2",
+      "name": "交通摄像头2",
+      "url": "rtsp://192.168.1.6/video1",
+      "describe": "监控摄像头",
+      "resolution": "1080p",
+      "fps": "30fps"
+    }
+  ]
+}

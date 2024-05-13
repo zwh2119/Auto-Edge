@@ -1,0 +1,11 @@
+
+colorlog
+requests
+kubernetes==20.11.0a1
+python-multipart
+fastapi
+starlette
+uvicorn
+gunicorn
+joblib
+

@@ -1,0 +1,34 @@
+data_source:
+  - id: 0
+    type: "video"
+    description: "car"
+    metadata:
+      resolution: "1080p"
+      fps: 25
+      encoding: "mp4v"
+      buffer_size: 8
+    url: "rtsp://192.168.1.6/video0"
+    pipeline:
+      - service_name: "car_detection"
+  - id: 1
+    type: "video"
+    description: "car"
+    metadata:
+      resolution: "1080p"
+      fps: 30
+      encoding: "mp4v"
+      buffer_size: 8
+    url: "rtsp://192.168.1.6/video1"
+    pipeline:
+      - service_name: "car_detection"
+  - id: 2
+    type: "video"
+    description: "car"
+    metadata:
+      resolution: "1080p"
+      fps: 30
+      encoding: "mp4v"
+      buffer_size: 8
+    url: "rtsp://192.168.1.6/video2"
+    pipeline:
+      - service_name: "car_detection"

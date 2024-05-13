@@ -1,8 +1,0 @@
-fastapi
-starlette
-uvicorn
-gunicorn
-python-multipart
-colorlog
-requests
-kubernetes==20.11.0a1

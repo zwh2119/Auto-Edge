@@ -1,8 +1,0 @@
-video:
-  - id: 1
-    description: "car"
-    resolution: "1080p"
-    fps: 30
-    url: "rtsp://192.168.1.4/video1"
-    pipeline:
-      - service_name: "car_detection"
