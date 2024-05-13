@@ -3,11 +3,11 @@ from core.lib.common import ClassFactory, ClassType
 
 from .base_agent import BaseAgent
 
-__all__ = ('HieraticalEmbodiedIntelligence',)
+__all__ = ('HEIAgent',)
 
 
-@ClassFactory.register(ClassType.SCH_AGENT, alias='hieratical_embodied_intelligence')
-class HieraticalEmbodiedIntelligence(BaseAgent, abc.ABC):
+@ClassFactory.register(ClassType.SCH_AGENT, alias='hei')
+class HEIAgent(BaseAgent, abc.ABC):
 
     def __init__(self):
         pass
