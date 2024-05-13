@@ -43,9 +43,9 @@ class Scheduler:
         agent = self.schedule_table[source_id]
 
         plan = agent.get_schedule_plan(info)
-        LOGGER.debug('No schedule plan, use startup policy')
 
         if plan is None:
+            LOGGER.debug('No schedule plan, use startup policy')
             plan = self.startup_policy(info)
 
         LOGGER.info(f'[Schedule Plan] Source {source_id}: {plan}')
