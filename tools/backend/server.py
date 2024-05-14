@@ -668,7 +668,6 @@ def submit_query(data=Body(...)):
     server.is_get_result = True
     threading.Thread(target=server.run_get_result).start()
 
-    time.sleep(2)
 
     return {'state': 'success', 'msg': '数据流打开成功'}
 
@@ -717,8 +716,6 @@ async def stop_query():
     server.is_get_result = False
     server.task_results = {}
     server.queue_results = None
-
-    time.sleep(2)
 
     return {'state': 'success', 'msg': '数据流关闭成功'}
 
