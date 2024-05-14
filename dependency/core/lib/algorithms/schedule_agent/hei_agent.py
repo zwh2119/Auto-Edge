@@ -10,7 +10,9 @@ __all__ = ('HEIAgent',)
 class HEIAgent(BaseAgent, abc.ABC):
 
     def __init__(self):
-        pass
+        self.resources = []
+        self.scenarios = []
+        self.schedule_plan = None
 
     def get_schedule_plan(self, info):
         pass

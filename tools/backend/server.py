@@ -109,7 +109,7 @@ class BackendServer:
                 'visualizing_prompt': ' - 路面监控画面',
                 'result_title_prompt': ' - 实时车流数量',
                 'result_text_prompt': '车流数量：实时画面检测结果的平均值',
-                'delay_text_prompt': '任务执行时延累计分布曲线 (窗口大小：20)',
+                'delay_text_prompt': '任务执行时延变化曲线 (窗口大小：20)',
 
                 'stage': [
                     {
