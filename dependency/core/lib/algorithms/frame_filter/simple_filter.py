@@ -1,5 +1,6 @@
 import abc
 from core.lib.common import ClassFactory, ClassType
+from core.lib.common import LOGGER
 from .base_filter import BaseFilter
 
 __all__ = ('SimpleFilter',)
@@ -15,6 +16,8 @@ class SimpleFilter(BaseFilter, abc.ABC):
         fps = int(system.meta_data['fps'])
         fps = min(fps, fps_raw)
         fps_mode, skip_frame_interval, remain_frame_interval = self.get_fps_adjust_mode(fps_raw, fps)
+
+        LOGGER.debug(f'[FPS] fps: {fps}')
 
         self.frame_count += 1
         if fps_mode == 'skip' and self.frame_count % skip_frame_interval == 0:
