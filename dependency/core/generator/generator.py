@@ -17,8 +17,8 @@ class Generator:
         self.source_id = source_id
         self.task_pipeline = Task.extract_pipeline_from_dict(task_pipeline)
 
-        self.raw_meta_data = metadata
-        self.meta_data = metadata
+        self.raw_meta_data = metadata.copy()
+        self.meta_data = metadata.copy()
 
         self.task_content = None
 
