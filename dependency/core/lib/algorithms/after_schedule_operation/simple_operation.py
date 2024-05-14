@@ -21,6 +21,7 @@ class SimpleASOperation(BaseASOperation, abc.ABC):
     def __call__(self, system, scheduler_response):
 
         if scheduler_response is None:
+            print('schedule response is None')
             system.meta_data.update(self.default_metadata)
             default_execute_device = system.local_device
             system.task_pipeline = Task.set_execute_device(system.task_pipeline, default_execute_device)
@@ -30,4 +31,5 @@ class SimpleASOperation(BaseASOperation, abc.ABC):
             system.task_pipeline = Task.extract_pipeline_from_dict(pipeline)
             del scheduler_policy['pipeline']
             system.meta_data.update(scheduler_policy)
-            print(f'meta_data:{system.meta_data}')
+
+        print(f'meta_data:{system.meta_data}')
