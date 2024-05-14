@@ -73,6 +73,9 @@ class VideoGenerator(Generator):
     def process_full_frame_buffer(self, frame_buffer):
 
         LOGGER.debug(f'[Frame Buffer] buffer size: {len(frame_buffer)}')
+
+        frame_buffer = [self.process_frame(frame) for frame in frame_buffer]
+
         self.request_schedule_policy()
 
         self.task_id += 1
@@ -92,7 +95,6 @@ class VideoGenerator(Generator):
 
             frame = self.get_one_frame()
             if self.filter_frame(frame):
-                frame = self.process_frame(frame)
                 self.frame_buffer.append(frame)
 
             if len(self.frame_buffer) >= self.meta_data['buffer_size']:
