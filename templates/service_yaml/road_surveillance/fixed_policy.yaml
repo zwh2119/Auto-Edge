@@ -215,7 +215,7 @@ spec:
               - name: SCH_AGENT_NAME
                 value: fixed
               - name: SCH_AGENT_PARAMETERS
-                value:
+                value: "{'fixed_policy':{'resolution': '720p','fps': 30,'encoding': 'mp4v','batch_size': 8,'pipeline':0}}"
             ports:
               - containerPort: 9400
                 hostPort: 39400

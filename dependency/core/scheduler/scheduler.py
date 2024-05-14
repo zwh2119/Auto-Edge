@@ -8,6 +8,8 @@ class Scheduler:
         self.schedule_table = {}
         self.resource_table = {}
 
+        self.cloud_device = Context.get_parameter('cloud_name')
+
         self.config_extraction = Context.get_algorithm('SCH_CONFIG')
         self.scenario_extraction = Context.get_algorithm('SCH_SCENARIO')
         self.startup_policy = Context.get_algorithm('SCH_STARTUP')
@@ -21,7 +23,7 @@ class Scheduler:
         return self.startup_policy(info)
 
     def add_scheduler_agent(self, source_id):
-        agent = Context.get_algorithm('SCH_AGENT')
+        agent = Context.get_algorithm('SCH_AGENT', system=self)
         threading.Thread(target=agent.run, args=(self,)).start()
         self.schedule_table[source_id] = agent
 

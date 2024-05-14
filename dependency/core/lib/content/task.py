@@ -44,7 +44,8 @@ class Task:
                 service.set_execute_device(in_service['execute_device'])
             pipeline_flow.append(service)
 
-        pipeline_flow.append(Service('end'))
+        if pipeline_flow and pipeline_flow[-1].get_service_name() != 'end':
+            pipeline_flow.append(Service('end'))
 
         return pipeline_flow
 
@@ -52,8 +53,6 @@ class Task:
     def extract_dict_from_pipeline(pipeline_flow: list):
         pipeline_list = []
         for service in pipeline_flow:
-            if service.get_service_name() == 'end':
-                continue
             pipeline = {'service_name': service.get_service_name(),
                         'execute_device': service.get_execute_device()}
             pipeline_list.append(pipeline)
@@ -141,7 +140,7 @@ class Task:
         total_time = 0
         delay_info += f'[Delay Info] Source:{self.get_source_id()}  Task:{self.get_task_id()}\n'
         for service in self.__pipeline_flow:
-            delay_info += f'stage[{service.get_service_name()}] -> (device:{service.get_execute_device()})    '   \
+            delay_info += f'stage[{service.get_service_name()}] -> (device:{service.get_execute_device()})    ' \
                           f'execute delay:{service.get_execute_time():.4f}s    ' \
                           f'transmit delay:{service.get_transmit_time():.4f}s\n'
             total_time += service.get_service_total_time()
