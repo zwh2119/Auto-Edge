@@ -13,6 +13,6 @@ class FixedStartupPolicy(BaseStartupPolicy, abc.ABC):
             'resolution': '1080p',
             'fps': 30,
             'encoding': 'mp4v',
-            'batch_size': 8,
+            'buffer_size': 8,
             'pipeline': info['pipeline']
         }
