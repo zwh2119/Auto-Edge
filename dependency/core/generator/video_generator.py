@@ -95,6 +95,7 @@ class VideoGenerator(Generator):
 
             frame = self.get_one_frame()
             if self.filter_frame(frame):
+                LOGGER.debug('[not Filtered] a frame..')
                 self.frame_buffer.append(frame)
             else:
                 LOGGER.debug('[Filtered] filter a frame..')
