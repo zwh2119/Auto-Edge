@@ -23,8 +23,10 @@ class FixedAgent(BaseAgent, abc.ABC):
         pipe_seg = policy['pipeline']
         pipeline = info['pipeline']
         print(f'pipeline: {pipeline}')
+        print(f'pipe_seg:{pipe_seg}')
         pipeline = [p.update({'execute_device': edge_device}) for p in pipeline[:pipe_seg]] + \
                    [p.update({'execute_device': cloud_device}) for p in pipeline[pipe_seg:]]
+        print(f'after pipeline: {pipeline}')
 
         policy.update({'pipeline': pipeline})
         return policy
