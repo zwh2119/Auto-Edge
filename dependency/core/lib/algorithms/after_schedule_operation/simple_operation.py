@@ -30,3 +30,4 @@ class SimpleASOperation(BaseASOperation, abc.ABC):
             system.task_pipeline = Task.extract_pipeline_from_dict(pipeline)
             del scheduler_policy['pipeline']
             system.meta_data.update(scheduler_policy)
+            print(f'meta_data:{system.meta_data}')
