@@ -21,15 +21,15 @@ class SimpleFilter(BaseFilter, abc.ABC):
 
         self.frame_count += 1
         if fps_mode == 'skip' and self.frame_count % skip_frame_interval == 0:
-            LOGGER.debug('[filter return] False')
+            LOGGER.debug(f'[filter return] frame: {self.frame_count} result: False')
             return False
 
         if fps_mode == 'remain' and self.frame_count % remain_frame_interval != 0:
-            LOGGER.debug('[filter return] False')
+            LOGGER.debug(f'[filter return] frame: {self.frame_count} result: False')
 
             return False
 
-        LOGGER.debug('[filter return] True')
+        LOGGER.debug(f'[filter return] frame: {self.frame_count} result: True')
 
         return True
 
