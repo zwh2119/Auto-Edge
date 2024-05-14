@@ -1,7 +1,6 @@
 import os
 
 from .class_factory import ClassFactory, ClassType
-from .log import LOGGER
 
 
 class Context:
@@ -51,6 +50,6 @@ class Context:
             'method': al_name,
             'param': al_params
         }
-        LOGGER.debug(f'algorithm:{algorithm_dict}')
+        print(f'algorithm:{algorithm_dict}')
 
         return algorithm_dict
