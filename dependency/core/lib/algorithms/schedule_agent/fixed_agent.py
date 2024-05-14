@@ -22,6 +22,7 @@ class FixedAgent(BaseAgent, abc.ABC):
         cloud_device = self.cloud_device
         pipe_seg = policy['pipeline']
         pipeline = info['pipeline']
+        print(f'pipeline: {pipeline}')
         pipeline = [p.update({'execute_device': edge_device}) for p in pipeline[:pipe_seg]] + \
                    [p.update({'execute_device': cloud_device}) for p in pipeline[pipe_seg:]]
 
