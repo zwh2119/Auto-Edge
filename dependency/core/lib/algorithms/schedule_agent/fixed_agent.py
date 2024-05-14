@@ -1,6 +1,5 @@
 import abc
 from core.lib.common import ClassFactory, ClassType
-from core.lib.common import LOGGER
 
 from .base_agent import BaseAgent
 
@@ -12,7 +11,6 @@ class FixedAgent(BaseAgent, abc.ABC):
 
     def __init__(self, system, fixed_policy: dict = None):
         self.cloud_device = system.cloud_device
-        LOGGER.debug(f'fixed policy: {fixed_policy}')
         self.fixed_policy = fixed_policy
 
     def get_schedule_plan(self, info):

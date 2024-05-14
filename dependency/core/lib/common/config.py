@@ -50,6 +50,5 @@ class Context:
             'method': al_name,
             'param': al_params
         }
-        print(f'algorithm:{algorithm_dict}')
 
         return algorithm_dict

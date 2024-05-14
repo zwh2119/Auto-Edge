@@ -16,26 +16,26 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/generator:v2.0.0
-            imagePullPolicy: IfNotPresent
-            name: generator
-            env:
-              - name: scheduler_port
-                value: "39400"
-              - name: controller_port
-                value: "39200"
-              - name: scheduler_name
-                value: cloud.kubeedge
-              - name: GEN_FILTER_NAME
-                value: simple
-              - name: GEN_PROCESS_NAME
-                value: simple
-              - name: GEN_COMPRESS_NAME
-                value: simple
-              - name: GEN_BSO_NAME
-                value: simple
-              - name: GEN_ASO_NAME
-                value: simple
+            - image: onecheck/generator:v2.0.0
+              imagePullPolicy: IfNotPresent
+              name: generator
+              env:
+                - name: scheduler_port
+                  value: "39400"
+                - name: controller_port
+                  value: "39200"
+                - name: scheduler_name
+                  value: cloud.kubeedge
+                - name: GEN_FILTER_NAME
+                  value: simple
+                - name: GEN_PROCESS_NAME
+                  value: simple
+                - name: GEN_COMPRESS_NAME
+                  value: simple
+                - name: GEN_BSO_NAME
+                  value: simple
+                - name: GEN_ASO_NAME
+                  value: simple
     - file:
         path: "/home/nvidia/zwh/Auto-Edge-files/files"
       logLevel:
@@ -86,21 +86,21 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/controller:v2.0.0
-            imagePullPolicy: IfNotPresent
-            name: controller
-            env:
-              - name: service_port
-                value: '{"car_detection": 39001}'
-              - name: distributor_port
-                value: "39500"
-              - name: controller_port
-                value: "39200"
-              - name: distributor_name
-                value: cloud.kubeedge
-            ports:
-              - containerPort: 9200
-                hostPort: 39200
+            - image: onecheck/controller:v2.0.0
+              imagePullPolicy: IfNotPresent
+              name: controller
+              env:
+                - name: service_port
+                  value: '{"car_detection": 39001}'
+                - name: distributor_port
+                  value: "39500"
+                - name: controller_port
+                  value: "39200"
+                - name: distributor_name
+                  value: cloud.kubeedge
+              ports:
+                - containerPort: 9200
+                  hostPort: 39200
     - logLevel:
         level: "DEBUG"
       kubeConfig:
@@ -110,21 +110,21 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/controller:v2.0.0
-            imagePullPolicy: IfNotPresent
-            name: controller
-            env:
-              - name: service_port
-                value: '{"car_detection": 39001}'
-              - name: distributor_port
-                value: "39500"
-              - name: controller_port
-                value: "39200"
-              - name: distributor_name
-                value: cloud.kubeedge
-            ports:
-              - containerPort: 9200
-                hostPort: 39200
+            - image: onecheck/controller:v2.0.0
+              imagePullPolicy: IfNotPresent
+              name: controller
+              env:
+                - name: service_port
+                  value: '{"car_detection": 39001}'
+                - name: distributor_port
+                  value: "39500"
+                - name: controller_port
+                  value: "39200"
+                - name: distributor_name
+                  value: cloud.kubeedge
+              ports:
+                - containerPort: 9200
+                  hostPort: 39200
   cloudWorker:
     kubeConfig:
       path: "/home/hx/.kube"
@@ -134,9 +134,9 @@ spec:
         dnsPolicy: ClusterFirstWithHostNet
         containers:
           - image: onecheck/controller:v2.0.0
-            name:  controller
+            name: controller
             imagePullPolicy: IfNotPresent
-            env:  # user defined environments
+            env: # user defined environments
               - name: service_port
                 value: '{"car_detection": 39001}'
               - name: distributor_port
@@ -166,7 +166,7 @@ spec:
         dnsPolicy: ClusterFirstWithHostNet
         containers:
           - image: onecheck/distributor:v2.0.0
-            name:  distributor
+            name: distributor
             imagePullPolicy: IfNotPresent
             env: # user defined environments
               - name: "output_dir"
@@ -199,11 +199,9 @@ spec:
         dnsPolicy: ClusterFirstWithHostNet
         containers:
           - image: onecheck/scheduler:v2.0.0
-            name:  scheduler
+            name: scheduler
             imagePullPolicy: IfNotPresent
-            env:  # user defined environments
-              - name: user_constraint
-                value: "0.5"
+            env: # user defined environments
               - name: cloud_name
                 value: cloud.kubeedge
               - name: SCH_CONFIG_NAME
@@ -238,22 +236,22 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/monitor:v2.0.0
-            imagePullPolicy: IfNotPresent
-            name: monitor
-            env:
-              - name: interval
-                value: "5"
-              - name: iperf3_server
-                value: "False"
-              - name: iperf3_port
-                value: "35201"
-              - name: iperf3_server_name
-                value: cloud.kubeedge
-              - name: scheduler_name
-                value: cloud.kubeedge
-              - name: scheduler_port
-                value: "39400"
+            - image: onecheck/monitor:v2.0.0
+              imagePullPolicy: IfNotPresent
+              name: monitor
+              env:
+                - name: interval
+                  value: "5"
+                - name: iperf3_server
+                  value: "False"
+                - name: iperf3_port
+                  value: "35201"
+                - name: iperf3_server_name
+                  value: cloud.kubeedge
+                - name: scheduler_name
+                  value: cloud.kubeedge
+                - name: scheduler_port
+                  value: "39400"
     - logLevel:
         level: "DEBUG"
       kubeConfig:
@@ -263,22 +261,22 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/monitor:v2.0.0
-            imagePullPolicy: IfNotPresent
-            name: monitor
-            env:
-              - name: interval
-                value: "5"
-              - name: iperf3_server
-                value: "False"
-              - name: iperf3_port
-                value: "35202"
-              - name: iperf3_server_name
-                value: cloud.kubeedge
-              - name: scheduler_name
-                value: cloud.kubeedge
-              - name: scheduler_port
-                value: "39400"
+            - image: onecheck/monitor:v2.0.0
+              imagePullPolicy: IfNotPresent
+              name: monitor
+              env:
+                - name: interval
+                  value: "5"
+                - name: iperf3_server
+                  value: "False"
+                - name: iperf3_port
+                  value: "35202"
+                - name: iperf3_server_name
+                  value: cloud.kubeedge
+                - name: scheduler_name
+                  value: cloud.kubeedge
+                - name: scheduler_port
+                  value: "39400"
   cloudWorker:
     kubeConfig:
       path: "/home/hx/.kube"
@@ -288,9 +286,9 @@ spec:
         dnsPolicy: ClusterFirstWithHostNet
         containers:
           - image: onecheck/monitor:v2.0.0
-            name:  monitor
+            name: monitor
             imagePullPolicy: IfNotPresent
-            env:  # user defined environments
+            env: # user defined environments
               - name: interval
                 value: "5"
               - name: iperf3_server
@@ -329,27 +327,27 @@ spec:
           nodeName: edge1
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:v2.0.0
-            imagePullPolicy: IfNotPresent
-            name: car-detection
-            env:
-              - name: processor_type
-                value: "PRO_DETECTOR"
-              - name: PRO_DETECTOR_NAME
-                value: "car_detection"
-              - name: PRO_DETECTOR_PARAMETERS
-                value: "{'weights':'yolov5s.engine', 'plugin':'libmyplugins.so'}"
-              - name: controller_port
-                value: "39200"
-              - name: processor_inner_port
-                value: "9001"
-              - name: PRO_QUEUE_NAME
-                value: "simple"
-              - name: service_name
-                value: "car_detection"
-            ports:
-              - containerPort: 9001
-                hostPort: 39001
+            - image: onecheck/car-detection:v2.0.0
+              imagePullPolicy: IfNotPresent
+              name: car-detection
+              env:
+                - name: processor_type
+                  value: "PRO_DETECTOR"
+                - name: PRO_DETECTOR_NAME
+                  value: "car_detection"
+                - name: PRO_DETECTOR_PARAMETERS
+                  value: "{'weights':'yolov5s.engine', 'plugin':'libmyplugins.so'}"
+                - name: controller_port
+                  value: "39200"
+                - name: processor_inner_port
+                  value: "9001"
+                - name: PRO_QUEUE_NAME
+                  value: "simple"
+                - name: service_name
+                  value: "car_detection"
+              ports:
+                - containerPort: 9001
+                  hostPort: 39001
     - file:
         path: "/home/nvidia/zwh/Auto-Edge-files/model_lib"
       kubeConfig:
@@ -361,27 +359,27 @@ spec:
           nodeName: edge2
           dnsPolicy: ClusterFirstWithHostNet
           containers:
-          - image: onecheck/car-detection:v2.0.0
-            imagePullPolicy: IfNotPresent
-            name: car-detection
-            env:
-              - name: processor_type
-                value: "PRO_DETECTOR"
-              - name: PRO_DETECTOR_NAME
-                value: "car_detection"
-              - name: PRO_DETECTOR_PARAMETERS
-                value: "{'weights':'yolov5s.engine', 'plugin':'libmyplugins.so'}"
-              - name: controller_port
-                value: "39200"
-              - name: processor_inner_port
-                value: "9001"
-              - name: PRO_QUEUE_NAME
-                value: "simple"
-              - name: service_name
-                value: "car_detection"
-            ports:
-              - containerPort: 9001
-                hostPort: 39001
+            - image: onecheck/car-detection:v2.0.0
+              imagePullPolicy: IfNotPresent
+              name: car-detection
+              env:
+                - name: processor_type
+                  value: "PRO_DETECTOR"
+                - name: PRO_DETECTOR_NAME
+                  value: "car_detection"
+                - name: PRO_DETECTOR_PARAMETERS
+                  value: "{'weights':'yolov5s.engine', 'plugin':'libmyplugins.so'}"
+                - name: controller_port
+                  value: "39200"
+                - name: processor_inner_port
+                  value: "9001"
+                - name: PRO_QUEUE_NAME
+                  value: "simple"
+                - name: service_name
+                  value: "car_detection"
+              ports:
+                - containerPort: 9001
+                  hostPort: 39001
   cloudWorker:
     file:
       path: "/home/hx/zwh/Auto-Edge-files/model_lib"
@@ -393,7 +391,7 @@ spec:
         dnsPolicy: ClusterFirstWithHostNet
         containers:
           - image: onecheck/car-detection:v2.0.0
-            name:  car-detection
+            name: car-detection
             env:
               - name: processor_type
                 value: "PRO_DETECTOR"
