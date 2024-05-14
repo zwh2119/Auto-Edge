@@ -1,7 +1,7 @@
 import os
 
 from .class_factory import ClassFactory, ClassType
-from core.lib.common import LOGGER
+from .log import LOGGER
 
 
 class Context:
