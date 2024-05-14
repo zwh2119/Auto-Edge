@@ -1,3 +1,5 @@
+import threading
+
 import cv2
 
 from .generator import Generator
@@ -52,9 +54,9 @@ class VideoGenerator(Generator):
     def process_frame(self, frame):
         return self.frame_process(self, frame)
 
-    def compress_frames(self):
-        assert type(self.frame_buffer) is list and len(self.frame_buffer) > 0, 'Frame buffer is not list or is empty'
-        return self.frame_compress(self, self.frame_buffer)
+    def compress_frames(self, frame_buffer):
+        assert type(frame_buffer) is list and len(frame_buffer) > 0, 'Frame buffer is not list or is empty'
+        return self.frame_compress(self, frame_buffer)
 
     def submit_task_to_controller(self, compressed_path):
         self.current_task = Task(source_id=self.source_id,
@@ -67,6 +69,18 @@ class VideoGenerator(Generator):
                                  )
         self.record_total_start_ts()
         super().submit_task_to_controller(compressed_path)
+
+    def process_full_frame_buffer(self, frame_buffer):
+
+        LOGGER.debug(f'[Frame Buffer] buffer size: {len(frame_buffer)}')
+        self.request_schedule_policy()
+
+        self.task_id += 1
+        compressed_file_path = self.compress_frames(frame_buffer)
+
+        self.submit_task_to_controller(compressed_file_path)
+
+        FileOps.remove_file(compressed_file_path)
 
     def run(self):
         self.frame_buffer = []
@@ -82,15 +96,7 @@ class VideoGenerator(Generator):
                 self.frame_buffer.append(frame)
 
             if len(self.frame_buffer) >= self.meta_data['buffer_size']:
-                LOGGER.debug(f'[Frame Buffer] buffer size: {len(self.frame_buffer)}')
-
-                self.request_schedule_policy()
-
-                self.task_id += 1
-                compressed_file_path = self.compress_frames()
+                threading.Thread(target=self.process_full_frame_buffer, args=(self.frame_buffer.copy(),)).start()
                 self.frame_buffer = []
 
-                self.submit_task_to_controller(compressed_file_path)
-
-                FileOps.remove_file(compressed_file_path)
 

@@ -215,7 +215,12 @@ class BackendServer:
                     delay = task.calculate_total_time()
                     LOGGER.debug(task.get_delay_info())
 
-                    task_result = float(np.mean(task.get_scenario_data()['obj_num']))
+                    try:
+                        task_result = float(np.mean(task.get_scenario_data()['obj_num']))
+                    except Exception as e:
+                        LOGGER.debug(f'scenario: {task.get_scenario_data()}')
+                        LOGGER.exception(e)
+                        continue
 
                     content = task.get_content()
                     file_path = self.get_file_result(task.get_file_path())
