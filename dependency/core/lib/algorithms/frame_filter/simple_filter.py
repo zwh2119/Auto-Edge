@@ -32,7 +32,7 @@ class SimpleFilter(BaseFilter, abc.ABC):
     def get_fps_adjust_mode(fps_raw, fps):
         skip_frame_interval = 0
         remain_frame_interval = 0
-        if fps == fps_raw:
+        if fps >= fps_raw:
             fps_mode = 'same'
         elif fps < fps_raw // 2:
             fps_mode = 'remain'
