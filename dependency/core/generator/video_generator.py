@@ -95,10 +95,7 @@ class VideoGenerator(Generator):
 
             frame = self.get_one_frame()
             if self.filter_frame(frame):
-                LOGGER.debug('[not Filtered] a frame..')
                 self.frame_buffer.append(frame)
-            else:
-                LOGGER.debug('[Filtered] filter a frame..')
 
             if len(self.frame_buffer) >= self.meta_data['buffer_size']:
                 threading.Thread(target=self.process_full_frame_buffer, args=(self.frame_buffer.copy(),)).start()
