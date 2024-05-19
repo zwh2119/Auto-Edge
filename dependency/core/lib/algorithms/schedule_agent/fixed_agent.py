@@ -28,7 +28,7 @@ class FixedAgent(BaseAgent, abc.ABC):
         policy.update({'pipeline': pipeline})
         return policy
 
-    def run(self, scheduler):
+    def run(self):
         pass
 
     def update_scenario(self, scenario):

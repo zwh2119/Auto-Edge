@@ -24,7 +24,7 @@ class Scheduler:
 
     def add_scheduler_agent(self, source_id):
         agent = Context.get_algorithm('SCH_AGENT', system=self)
-        threading.Thread(target=agent.run, args=(self,)).start()
+        threading.Thread(target=agent.run).start()
         self.schedule_table[source_id] = agent
 
     def extract_scenario(self, task):

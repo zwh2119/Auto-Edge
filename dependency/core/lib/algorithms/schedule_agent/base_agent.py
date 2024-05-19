@@ -14,7 +14,7 @@ class BaseAgent(metaclass=abc.ABCMeta):
     def get_schedule_plan(self, info):
         raise NotImplementedError
 
-    def run(self, scheduler):
+    def run(self):
         raise NotImplementedError
 
 

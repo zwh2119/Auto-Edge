@@ -29,8 +29,13 @@ class HEIAgent(BaseAgent, abc.ABC):
     def get_schedule_plan(self, info):
         return self.schedule_plan
 
-    def run(self, scheduler):
-        pass
+    def run(self):
+        if self.mode == 'train':
+            pass
+        elif self.mode == 'inference':
+            pass
+        else:
+            assert None, f'Invalid execution mode: {self.mode}, only support ["train", "inference"]'
 
     def update_scenario(self, scenario):
         pass
