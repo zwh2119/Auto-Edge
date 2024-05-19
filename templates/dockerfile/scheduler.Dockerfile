@@ -1,4 +1,5 @@
-FROM python:3.8
+FROM pytorch/pytorch:2.0.0-cuda11.7-cudnn8-devel
+
 MAINTAINER Wenhui Zhou
 
 ARG dependency_dir=dependency

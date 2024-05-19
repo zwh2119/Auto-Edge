@@ -39,6 +39,9 @@ class HEIAgent(BaseAgent, abc.ABC):
         else:
             assert None, f'Invalid execution mode: {self.mode}, only support ["train", "inference"]'
 
+    def get_drl_state_buffer(self):
+        pass
+
     def add_resource_buffer(self, resource):
         self.resources.append(resource)
         while len(self.resources) > self.window_size:
