@@ -3,7 +3,6 @@ import torch
 import os
 
 
-
 class RandomBuffer(object):
     def __init__(self, state_dim, action_dim, max_size=int(1e6), device='cpu'):
         self.max_size = max_size

@@ -9,7 +9,7 @@
 
 Auto-Edge is an automated scheduling platform for edge computing in stream data processing. Auto-Edge supports pipeline service processing of multi data stream and focus on the scheduling policy in edge computing. It's developed based on KubeEdge and can be easily migrated.
 
-Auto-Edge is developed by **Dislab-AIoT** group from **Nanjin University**.
+
 
 ## Related Framework
 - [Docker Container](https://github.com/docker/docker-ce)
