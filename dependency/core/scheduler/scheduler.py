@@ -30,11 +30,6 @@ class Scheduler:
     def extract_scenario(self, task):
         return self.scenario_extraction(task)
 
-    def update_agent_resource(self, resource):
-        for source_id in self.schedule_table:
-            agent = self.schedule_table[source_id]
-            agent.update_resource(resource)
-
     def register_schedule_table(self, source_id):
         if source_id in self.schedule_table:
             return
@@ -73,7 +68,11 @@ class Scheduler:
         device = info['device']
         resource = info['resource']
         self.resource_table[device] = resource
-        self.update_agent_resource(resource)
+
+        for source_id in self.schedule_table:
+            agent = self.schedule_table[source_id]
+            agent.update_resource(resource)
+
         LOGGER.info(f'[Update Resource] Device {device}: {resource}')
 
     def get_scheduler_resource(self):

@@ -9,13 +9,17 @@ __all__ = ('HEIAgent',)
 @ClassFactory.register(ClassType.SCH_AGENT, alias='hei')
 class HEIAgent(BaseAgent, abc.ABC):
 
-    def __init__(self):
+    def __init__(self, system, window_size=10, mode='inference'):
         self.resources = []
         self.scenarios = []
+
+        self.window_size = window_size
+        self.mode = mode
+
         self.schedule_plan = None
 
     def get_schedule_plan(self, info):
-        pass
+        return self.schedule_plan
 
     def run(self, scheduler):
         pass
