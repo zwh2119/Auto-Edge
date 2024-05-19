@@ -5,35 +5,22 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions import Normal
 
+from .net_utils import build_net, build_conv1d_net
 
-def build_net(layer_shape, activation, output_activation):
-    """Build net with for loop"""
-    layers = []
-    for j in range(len(layer_shape) - 1):
-        act = activation if j < len(layer_shape) - 2 else output_activation
-        layers += [nn.Linear(layer_shape[j], layer_shape[j + 1]), act()]
-    return nn.Sequential(*layers)
+__all__ = ('SoftActorCritic',)
 
 
-def build_conv1d_net(input_shape, output_shape, kernel_size):
-    layers = [nn.Conv1d(in_channels=input_shape,
-                        out_channels=output_shape,
-                        kernel_size=kernel_size), nn.ReLU()]
-
-    return nn.Sequential(*layers)
-
-
-class ActorConv(nn.Module):
+class Actor(nn.Module):
     def __init__(self, state_dim, action_dim, hid_shape, conv_kernel_size,
                  conv_out_dim, h_acti=nn.ReLU, o_acti=nn.ReLU):
-        super(ActorConv, self).__init__()
+        super(Actor, self).__init__()
 
         self.conv_net = build_conv1d_net(state_dim[0], conv_out_dim, conv_kernel_size)
         # for i in range(state_dim[1]):
         #     self.conv_net.append(build_conv1d_net(state_dim[0], conv_out_dim, conv_kernel_size))
 
         # print('conv_out:', self._get_conv_out(state_dim))
-        layers = [self._get_conv_out(state_dim)] + list(hid_shape)
+        layers = [self._get_net_out(state_dim)] + list(hid_shape)
         self.a_net = build_net(layers, h_acti, o_acti)
         self.mu_layer = nn.Linear(layers[-1], action_dim)
         self.log_std_layer = nn.Linear(layers[-1], action_dim)
@@ -77,21 +64,21 @@ class ActorConv(nn.Module):
 
         return a, logp_pi_a
 
-    def _get_conv_out(self, shape):
+    def _get_net_out(self, shape):
         o = self.conv_net(torch.zeros(1, *shape))
         # print('conv_out:', o.view(1,-1).size())
         # print(int(np.prod(o.view(1,-1).size())))
         return int(np.prod(o.view(1, -1).size()))
 
 
-class QCriticConv(nn.Module):
+class Critic(nn.Module):
     def __init__(self, state_dim, action_dim, hid_shape, conv_kernel_size,
                  conv_out_dim):
-        super(QCriticConv, self).__init__()
+        super(Critic, self).__init__()
 
         self.conv_net = build_conv1d_net(state_dim[0], conv_out_dim, conv_kernel_size)
 
-        layers = [self._get_conv_out(state_dim) + action_dim] + list(hid_shape) + [1]
+        layers = [self._get_net_out(state_dim) + action_dim] + list(hid_shape) + [1]
 
         self.Q_1 = build_net(layers, nn.ReLU, nn.Identity)
         self.Q_2 = build_net(layers, nn.ReLU, nn.Identity)
@@ -111,12 +98,12 @@ class QCriticConv(nn.Module):
         q2 = self.Q_2(sa)
         return q1, q2
 
-    def _get_conv_out(self, shape):
+    def _get_net_out(self, shape):
         o = self.conv_net(torch.zeros(1, *shape))
         return int(np.prod(o.view(1, -1).size()))
 
 
-class SAC_Conv_Agent(object):
+class SoftActorCritic(object):
     def __init__(
             self,
             state_dim,
@@ -134,12 +121,12 @@ class SAC_Conv_Agent(object):
             device='cpu'
     ):
 
-        self.actor = ActorConv(state_dim, action_dim, hid_shape, conv_kernel_size,
-                               conv_out_dim).to(device)
+        self.actor = Actor(state_dim, action_dim, hid_shape, conv_kernel_size,
+                           conv_out_dim).to(device)
         self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=a_lr)
 
-        self.q_critic = QCriticConv(state_dim, action_dim, hid_shape, conv_kernel_size,
-                                    conv_out_dim).to(device)
+        self.q_critic = Critic(state_dim, action_dim, hid_shape, conv_kernel_size,
+                               conv_out_dim).to(device)
         self.q_critic_optimizer = torch.optim.Adam(self.q_critic.parameters(), lr=c_lr)
         self.q_critic_target = copy.deepcopy(self.q_critic)
         # Freeze target networks with respect to optimizers (only update via polyak averaging)
