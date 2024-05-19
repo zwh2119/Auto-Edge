@@ -211,9 +211,9 @@ spec:
               - name: SCH_STARTUP_NAME
                 value: fixed
               - name: SCH_AGENT_NAME
-                value: fixed
+                value: hei
               - name: SCH_AGENT_PARAMETERS
-                value: "{'fixed_policy':{'resolution': '720p','fps': 15,'encoding': 'mp4v','buffer_size': 8,'pipeline':-1}}"
+                value: "{}"
             ports:
               - containerPort: 9400
                 hostPort: 39400

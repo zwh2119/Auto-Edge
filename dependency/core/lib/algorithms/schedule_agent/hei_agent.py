@@ -1,4 +1,6 @@
 import abc
+import numpy as np
+
 from core.lib.common import ClassFactory, ClassType
 
 from .base_agent import BaseAgent
@@ -37,8 +39,21 @@ class HEIAgent(BaseAgent, abc.ABC):
         else:
             assert None, f'Invalid execution mode: {self.mode}, only support ["train", "inference"]'
 
+    def add_resource_buffer(self, resource):
+        self.resources.append(resource)
+        while len(self.resources) > self.window_size:
+            self.resources.pop(0)
+
+    def add_scenario_buffer(self, scenario):
+        self.scenarios.append(scenario)
+        while len(self.scenarios) > self.window_size:
+            self.scenarios.pop(0)
+
     def update_scenario(self, scenario):
-        pass
+        object_number = np.mean(scenario['obj_num'])
+        self.add_scenario_buffer(object_number)
 
     def update_resource(self, resource):
-        pass
+        bandwidth = resource['bandwidth']
+        if bandwidth != 0:
+            self.add_resource_buffer(bandwidth)
