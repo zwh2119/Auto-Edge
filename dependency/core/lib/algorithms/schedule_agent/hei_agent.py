@@ -1,7 +1,7 @@
 import abc
 import numpy as np
 
-from core.lib.common import ClassFactory, ClassType, LOGGER
+from core.lib.common import ClassFactory, ClassType, LOGGER, FileOps
 
 from .base_agent import BaseAgent
 
@@ -12,6 +12,7 @@ __all__ = ('HEIAgent',)
 class HEIAgent(BaseAgent, abc.ABC):
 
     def __init__(self, system,
+                 hyper_params: dict = None,
                  drl_params: dict = None,
                  window_size: int = 10,
                  mode: str = 'inference'):
@@ -28,8 +29,21 @@ class HEIAgent(BaseAgent, abc.ABC):
 
         self.nf_agent = None
 
+        self.drl_interval = hyper_params['drl_schedule_interval']
+        self.nf_interval = hyper_params['nf_schedule_interval']
+
         self.state_dim = drl_params['state_dim']
         self.action_dim = drl_params['action_dim']
+
+        self.model_dir = hyper_params['model_dir']
+        FileOps.create_directory(self.model_dir)
+
+        if hyper_params['load_model']:
+            self.drl_agent.load(self.model_dir, hyper_params['load_model_episode'])
+
+        self.total_steps = hyper_params['drl_total_steps']
+        self.update_interval = hyper_params['drl_update_interval']
+        self.update_after = hyper_params['drl_update_after']
 
         self.schedule_plan = None
 
@@ -45,9 +59,10 @@ class HEIAgent(BaseAgent, abc.ABC):
             assert None, f'Invalid execution mode: {self.mode}, only support ["train", "inference"]'
 
     def train_drl_agent(self):
-        LOGGER.info('[DRL Train] Start train drl agent..')
-        while True:
+        LOGGER.info('[DRL Train] Start train drl agent ..')
+        for step in range(self.total_steps):
             pass
+        LOGGER.info('[DRL Train] End train drl agent ..')
 
     def calculate_reward(self):
         pass
@@ -74,7 +89,7 @@ class HEIAgent(BaseAgent, abc.ABC):
         object_number = np.mean(scenario['obj_num'])
         object_size = np.mean(scenario['obj_size'])
         task_delay = scenario['delay']
-        self.add_scenario_buffer([object_number,object_size, task_delay])
+        self.add_scenario_buffer([object_number, object_size, task_delay])
 
     def update_resource(self, resource):
         bandwidth = resource['bandwidth']
