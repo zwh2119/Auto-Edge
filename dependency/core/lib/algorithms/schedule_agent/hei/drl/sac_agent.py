@@ -1,4 +1,6 @@
 import copy
+import os.path
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -118,7 +120,8 @@ class SoftActorCritic(object):
             batch_size=256,
             alpha=0.2,
             adaptive_alpha=True,
-            device='cpu'
+            device='cpu',
+            **param
     ):
 
         self.actor = Actor(state_dim, action_dim, hid_shape, conv_kernel_size,
@@ -206,10 +209,14 @@ class SoftActorCritic(object):
         for param, target_param in zip(self.q_critic.parameters(), self.q_critic_target.parameters()):
             target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
-    def save(self, episode):
-        torch.save(self.actor.state_dict(), "./model/sac_actor{}.pth".format(episode))
-        torch.save(self.q_critic.state_dict(), "./model/sac_q_critic{}.pth".format(episode))
+    def save(self, save_dir, episode):
+        assert os.path.exists(save_dir) and os.path.isdir(save_dir), f'Model saving directory "{save_dir}" error!'
 
-    def load(self, episode):
-        self.actor.load_state_dict(torch.load("./model/sac_actor{}.pth".format(episode)))
-        self.q_critic.load_state_dict(torch.load("./model/sac_q_critic{}.pth".format(episode)))
+        torch.save(self.actor.state_dict(), os.path.join(save_dir, f"sac_actor_{episode}.pth"))
+        torch.save(self.q_critic.state_dict(), os.path.join(save_dir, f"sac_q_critic_{episode}.pth"))
+
+    def load(self, load_dir, episode):
+        assert os.path.exists(load_dir) and os.path.isdir(load_dir), f'Model loading directory "{load_dir}" error!'
+
+        self.actor.load_state_dict(torch.load(os.path.join(load_dir, f"sac_actor_{episode}.pth")))
+        self.q_critic.load_state_dict(torch.load(os.path.join(load_dir, f"sac_q_critic_{episode}.pth")))

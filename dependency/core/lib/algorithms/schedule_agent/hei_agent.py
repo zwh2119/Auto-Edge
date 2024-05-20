@@ -1,7 +1,7 @@
 import abc
 import numpy as np
 
-from core.lib.common import ClassFactory, ClassType
+from core.lib.common import ClassFactory, ClassType, LOGGER
 
 from .base_agent import BaseAgent
 
@@ -24,7 +24,12 @@ class HEIAgent(BaseAgent, abc.ABC):
         self.mode = mode
 
         self.drl_agent = SoftActorCritic(**drl_params)
+        self.replay_buffer = RandomBuffer(**drl_params)
+
         self.nf_agent = None
+
+        self.state_dim = drl_params['state_dim']
+        self.action_dim = drl_params['action_dim']
 
         self.schedule_plan = None
 
@@ -33,15 +38,27 @@ class HEIAgent(BaseAgent, abc.ABC):
 
     def run(self):
         if self.mode == 'train':
-            pass
+            self.train_drl_agent()
         elif self.mode == 'inference':
             pass
         else:
             assert None, f'Invalid execution mode: {self.mode}, only support ["train", "inference"]'
 
-    def get_drl_state_buffer(self):
+    def train_drl_agent(self):
+        LOGGER.info('[DRL Train] Start train drl agent..')
+        while True:
+            pass
+
+    def calculate_reward(self):
+        pass
+
+    def get_state_buffer(self):
         resources = self.resources.copy()
         scenarios = self.scenarios.copy()
+
+        state = []
+
+        LOGGER.debug('[State Buffer]')
 
     def add_resource_buffer(self, resource):
         self.resources.append(resource)
@@ -55,9 +72,11 @@ class HEIAgent(BaseAgent, abc.ABC):
 
     def update_scenario(self, scenario):
         object_number = np.mean(scenario['obj_num'])
-        self.add_scenario_buffer(object_number)
+        object_size = np.mean(scenario['obj_size'])
+        task_delay = scenario['delay']
+        self.add_scenario_buffer([object_number,object_size, task_delay])
 
     def update_resource(self, resource):
         bandwidth = resource['bandwidth']
         if bandwidth != 0:
-            self.add_resource_buffer(bandwidth)
+            self.add_resource_buffer([bandwidth])
