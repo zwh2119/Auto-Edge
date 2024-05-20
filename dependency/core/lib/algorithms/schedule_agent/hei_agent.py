@@ -15,7 +15,7 @@ class HEIAgent(BaseAgent, abc.ABC):
                  drl_params: dict = None,
                  window_size: int = 10,
                  mode: str = 'inference'):
-        from hei import SoftActorCritic
+        from hei import SoftActorCritic, RandomBuffer
 
         self.resources = []
         self.scenarios = []
@@ -40,7 +40,8 @@ class HEIAgent(BaseAgent, abc.ABC):
             assert None, f'Invalid execution mode: {self.mode}, only support ["train", "inference"]'
 
     def get_drl_state_buffer(self):
-        pass
+        resources = self.resources.copy()
+        scenarios = self.scenarios.copy()
 
     def add_resource_buffer(self, resource):
         self.resources.append(resource)
