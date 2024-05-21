@@ -19,12 +19,10 @@ class HEIAgent(BaseAgent, abc.ABC):
                  drl_params: dict = None,
                  window_size: int = 10,
                  mode: str = 'inference'):
-        from hei import SoftActorCritic, RandomBuffer, Adapter, NegativeFeedback
-
-        self.resources = []
-        self.scenarios = []
+        from hei import SoftActorCritic, RandomBuffer, Adapter, NegativeFeedback, StateBuffer
 
         self.window_size = window_size
+        self.state_buffer = StateBuffer(self.window_size)
         self.mode = mode
 
         self.drl_agent = SoftActorCritic(**drl_params)
@@ -54,63 +52,17 @@ class HEIAgent(BaseAgent, abc.ABC):
 
         self.schedule_plan = None
 
-    def get_schedule_plan(self, info):
-        return self.schedule_plan
-
-    def run(self):
-        threading.Thread(target=self.run_nf_agent).start()
-
-        if self.mode == 'train':
-            self.train_drl_agent()
-        elif self.mode == 'inference':
-            self.inference_drl_agent()
-        else:
-            assert None, f'Invalid execution mode: {self.mode}, only support ["train", "inference"]'
-
-    def train_drl_agent(self):
-        LOGGER.info('[DRL Train] Start train drl agent ..')
-        state = self.reset_drl_env()
-        for step in range(self.total_steps):
-            action = self.drl_agent.select_action(state, deterministic=False, with_logprob=False)
-
-            next_state, reward, done, info = self.step_drl_env(action)
-            done = self.adapter.done_adapter(done, step)
-            self.replay_buffer.add(state, action, reward, next_state, done)
-            state = next_state
-
-            if step >= self.update_after and step % self.update_interval == 0:
-                for _ in range(self.update_interval):
-                    self.drl_agent.train(self.replay_buffer)
-
-            if step % self.save_interval:
-                self.drl_agent.save(self.model_dir, step)
-
-            if done:
-                state = self.reset_drl_env()
-
-        LOGGER.info('[DRL Train] End train drl agent ..')
-
-    def inference_drl_agent(self):
-        LOGGER.info('[DRL Inference] Start inference drl agent ..')
-
-        while True:
-            time.sleep(self.drl_schedule_interval)
-
-    def run_nf_agent(self):
-        LOGGER.info('[NF Inference] Start inference nf agent ..')
-
-        while True:
-            time.sleep(self.nf_schedule_interval)
-
     def get_drl_state_buffer(self):
 
         # TODO: normalization the state ?
-        resources = np.asarray(self.resources.copy())
-        scenarios = np.asarray(self.scenarios.copy())
+        resources = self.state_buffer.get_resource_buffer()
+        scenarios = self.state_buffer.get_scenario_buffer()
+
+        while len(resources) == 0 or len(scenarios) == 0:
+            time.sleep(2)
+            LOGGER.info('[Wait for State] State empty, wait for resource state or scenario state ..')
 
         state = np.array((scenarios[:, 0], scenarios[:, 1], scenarios[:, 2], resources[:, 0]))
-
-        LOGGER.debug('[State Buffer]')
 
         return state
 
@@ -147,23 +99,61 @@ class HEIAgent(BaseAgent, abc.ABC):
 
         return 0
 
-    def add_resource_buffer(self, resource):
-        self.resources.append(resource)
-        while len(self.resources) > self.window_size:
-            self.resources.pop(0)
+    def train_drl_agent(self):
+        LOGGER.info('[DRL Train] Start train drl agent ..')
+        state = self.reset_drl_env()
+        for step in range(self.total_steps):
+            action = self.drl_agent.select_action(state, deterministic=False, with_logprob=False)
 
-    def add_scenario_buffer(self, scenario):
-        self.scenarios.append(scenario)
-        while len(self.scenarios) > self.window_size:
-            self.scenarios.pop(0)
+            next_state, reward, done, info = self.step_drl_env(action)
+            done = self.adapter.done_adapter(done, step)
+            self.replay_buffer.add(state, action, reward, next_state, done)
+            state = next_state
+
+            if step >= self.update_after and step % self.update_interval == 0:
+                for _ in range(self.update_interval):
+                    self.drl_agent.train(self.replay_buffer)
+
+            if step % self.save_interval:
+                self.drl_agent.save(self.model_dir, step)
+
+            if done:
+                state = self.reset_drl_env()
+
+        LOGGER.info('[DRL Train] End train drl agent ..')
+
+    def inference_drl_agent(self):
+        LOGGER.info('[DRL Inference] Start inference drl agent ..')
+
+        while True:
+            time.sleep(self.drl_schedule_interval)
+
+    def run_nf_agent(self):
+        LOGGER.info('[NF Inference] Start inference nf agent ..')
+
+        while True:
+            time.sleep(self.nf_schedule_interval)
 
     def update_scenario(self, scenario):
         object_number = np.mean(scenario['obj_num'])
         object_size = np.mean(scenario['obj_size'])
         task_delay = scenario['delay']
-        self.add_scenario_buffer([object_number, object_size, task_delay])
+        self.state_buffer.add_scenario_buffer([object_number, object_size, task_delay])
 
     def update_resource(self, resource):
         bandwidth = resource['bandwidth']
         if bandwidth != 0:
-            self.add_resource_buffer([bandwidth])
+            self.state_buffer.add_resource_buffer([bandwidth])
+
+    def get_schedule_plan(self, info):
+        return self.schedule_plan
+
+    def run(self):
+        threading.Thread(target=self.run_nf_agent).start()
+
+        if self.mode == 'train':
+            self.train_drl_agent()
+        elif self.mode == 'inference':
+            self.inference_drl_agent()
+        else:
+            assert None, f'Invalid execution mode: {self.mode}, only support ["train", "inference"]'

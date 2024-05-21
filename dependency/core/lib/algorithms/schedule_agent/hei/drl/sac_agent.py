@@ -14,16 +14,12 @@ __all__ = ('SoftActorCritic',)
 
 class Actor(nn.Module):
     def __init__(self, state_dim, action_dim, hid_shape, conv_kernel_size,
-                 conv_out_dim, h_acti=nn.ReLU, o_acti=nn.ReLU):
+                 conv_out_dim, h_activation=nn.ReLU, o_activation=nn.ReLU):
         super(Actor, self).__init__()
 
         self.conv_net = build_conv1d_net(state_dim[0], conv_out_dim, conv_kernel_size)
-        # for i in range(state_dim[1]):
-        #     self.conv_net.append(build_conv1d_net(state_dim[0], conv_out_dim, conv_kernel_size))
-
-        # print('conv_out:', self._get_conv_out(state_dim))
         layers = [self._get_net_out(state_dim)] + list(hid_shape)
-        self.a_net = build_net(layers, h_acti, o_acti)
+        self.a_net = build_net(layers, h_activation, o_activation)
         self.mu_layer = nn.Linear(layers[-1], action_dim)
         self.log_std_layer = nn.Linear(layers[-1], action_dim)
 
@@ -68,8 +64,6 @@ class Actor(nn.Module):
 
     def _get_net_out(self, shape):
         o = self.conv_net(torch.zeros(1, *shape))
-        # print('conv_out:', o.view(1,-1).size())
-        # print(int(np.prod(o.view(1,-1).size())))
         return int(np.prod(o.view(1, -1).size()))
 
 
