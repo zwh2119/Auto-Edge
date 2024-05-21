@@ -105,15 +105,21 @@ class HEIAgent(BaseAgent, abc.ABC):
 
     def get_drl_state_buffer(self):
 
-        # TODO
-        resources = self.resources.copy()
-        scenarios = self.scenarios.copy()
+        # TODO: normalization the state ?
+        resources = np.asarray(self.resources.copy())
+        scenarios = np.asarray(self.scenarios.copy())
 
-        state = []
+        state = np.array((scenarios[:, 0], scenarios[:, 1], scenarios[:, 2], resources[:, 0]))
 
         LOGGER.debug('[State Buffer]')
 
         return state
+
+    def map_drl_action_to_decision(self, action):
+
+        # TODO
+
+        self.intermediate_decision = action
 
     def reset_drl_env(self):
         self.intermediate_decision = [0 for _ in range(self.action_dim)]
@@ -122,7 +128,7 @@ class HEIAgent(BaseAgent, abc.ABC):
 
     def step_drl_env(self, action):
 
-        # TODO
+        self.map_drl_action_to_decision(action)
 
         time.sleep(self.drl_schedule_interval)
 
