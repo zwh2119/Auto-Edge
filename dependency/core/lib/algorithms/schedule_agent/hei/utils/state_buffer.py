@@ -25,6 +25,14 @@ class StateBuffer:
     def get_scenario_buffer(self):
         return np.array(self.scenarios.copy())
 
+    def get_state_buffer(self):
+
+        # TODO: normalization the state ?
+        resources = self.resources.copy()
+        scenarios = self.scenarios.copy()
+        if len(resources) == 0 or len(scenarios) == 0:
+            return None
+
     def clear_state_buffer(self):
         self.resources.clear()
         self.scenarios.clear()

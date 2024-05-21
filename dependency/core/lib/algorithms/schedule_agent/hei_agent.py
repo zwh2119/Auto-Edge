@@ -53,18 +53,12 @@ class HEIAgent(BaseAgent, abc.ABC):
         self.schedule_plan = None
 
     def get_drl_state_buffer(self):
-
-        # TODO: normalization the state ?
-        resources = self.state_buffer.get_resource_buffer()
-        scenarios = self.state_buffer.get_scenario_buffer()
-
-        while len(resources) == 0 or len(scenarios) == 0:
-            time.sleep(2)
+        while True:
+            state = self.state_buffer.get_state_buffer()
+            if state is not None:
+                return state
             LOGGER.info('[Wait for State] State empty, wait for resource state or scenario state ..')
-
-        state = np.array((scenarios[:, 0], scenarios[:, 1], scenarios[:, 2], resources[:, 0]))
-
-        return state
+            time.sleep(1)
 
     def map_drl_action_to_decision(self, action):
         """
