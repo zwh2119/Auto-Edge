@@ -72,7 +72,6 @@ class HEIAgent(BaseAgent, abc.ABC):
         state = self.reset_drl_env()
         for step in range(self.total_steps):
             action = self.drl_agent.select_action(state, deterministic=False, with_logprob=False)
-            action = self.adapter.action_adapter(action)
 
             next_state, reward, done, info = self.step_drl_env(action)
             done = self.adapter.done_adapter(done, step)
@@ -116,10 +115,13 @@ class HEIAgent(BaseAgent, abc.ABC):
         return state
 
     def map_drl_action_to_decision(self, action):
+        """
+        map [-1, 1] to {-1, 0, 1}
+        """
 
-        # TODO
+        # TODO: consider change to stochastic find result with distribution
 
-        self.intermediate_decision = action
+        self.intermediate_decision = [int(np.sign(a)) if abs(a) > 0.3 else 0 for a in action]
 
     def reset_drl_env(self):
         self.intermediate_decision = [0 for _ in range(self.action_dim)]
