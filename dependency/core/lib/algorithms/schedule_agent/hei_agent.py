@@ -86,10 +86,10 @@ class HEIAgent(BaseAgent, abc.ABC):
 
         return state, reward, done, info
 
-    def calculate_drl_reward(self):
+    @staticmethod
+    def calculate_drl_reward():
 
         # TODO
-
         return 0
 
     def train_drl_agent(self):

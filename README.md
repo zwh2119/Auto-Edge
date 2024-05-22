@@ -67,6 +67,12 @@ Meanwhile, `service processor` can be equipped with user-defined application ser
 - **Support parallel processing of multiple data streams**: The platform supports parallel processing of multiple data streams (for example, cameras at different intersections process traffic flow tasks at the same time). These tasks do not distinguish between data streams during the processing stage and are processed equivalently.
 
 
+## Preparation
+### Devices Preparation
+ntp time synchronization
+
+### System Preparation
+
 ## Guides
 
 
