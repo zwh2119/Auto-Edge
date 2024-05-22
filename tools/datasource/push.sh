@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# 显示帮助信息
 function show_help() {
     echo "Usage: $0 <input_file> <specific_address>"
     echo
@@ -15,7 +14,6 @@ function show_help() {
     exit 1
 }
 
-# 检查是否提供了足够的参数
 if [ "$#" -ne 2 ]; then
     show_help
 fi
@@ -23,6 +21,5 @@ fi
 rtsp_url="rtsp://127.0.0.1/$2"
 
 while true; do
-    ffmpeg -i "$1" -rtsp_transport tcp -vcodec h264 -f rtsp "$rtsp_url"
+    ffmpeg -re  -i "$1" -c:v copy  -f rtsp  "$rtsp_url"
 done
-

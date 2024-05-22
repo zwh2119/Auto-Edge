@@ -36,6 +36,7 @@ class NegativeFeedback:
         self.pipeline_index = next(
             i for i, service in enumerate(pipeline) if service['execute_device'] == self.cloud_device)
 
+        # TODO: should increase / decrease equally?
         for idx, knob_name in enumerate(self.schedule_knobs):
             knob_decision = meta_decisions[idx]
             knob_index = getattr(self, f'{knob_name}_index')
