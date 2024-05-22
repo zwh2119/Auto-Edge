@@ -15,11 +15,13 @@ __all__ = ('HEIAgent',)
 class HEIAgent(BaseAgent, abc.ABC):
 
     def __init__(self, system,
-                 hyper_params: dict = None,
-                 drl_params: dict = None,
                  window_size: int = 10,
                  mode: str = 'inference'):
         from hei import SoftActorCritic, RandomBuffer, Adapter, NegativeFeedback, StateBuffer
+
+        drl_params = system.drl_params
+        hyper_params = system.hyper_params
+        drl_params['state_dim'] = [drl_params['state_dim'], window_size]
 
         self.window_size = window_size
         self.state_buffer = StateBuffer(self.window_size)
@@ -80,17 +82,17 @@ class HEIAgent(BaseAgent, abc.ABC):
         time.sleep(self.drl_schedule_interval)
 
         state = self.get_drl_state_buffer()
-        reward = self.calculate_drl_reward()
+        reward = self.calculate_drl_reward(state)
         done = False
         info = ''
 
         return state, reward, done, info
 
     @staticmethod
-    def calculate_drl_reward():
+    def calculate_drl_reward(state):
 
-        # TODO
-        return 0
+        # delay as reward calculation
+        return - state[2].mean()
 
     def train_drl_agent(self):
         LOGGER.info('[DRL Train] Start train drl agent ..')
@@ -102,6 +104,8 @@ class HEIAgent(BaseAgent, abc.ABC):
             done = self.adapter.done_adapter(done, step)
             self.replay_buffer.add(state, action, reward, next_state, done)
             state = next_state
+
+            LOGGER.info(f'[DRL Train Data] Step:{step}  Reward:{reward}')
 
             if step >= self.update_after and step % self.update_interval == 0:
                 for _ in range(self.update_interval):

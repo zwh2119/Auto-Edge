@@ -15,10 +15,10 @@ class Scheduler:
         self.policy_extraction = Context.get_algorithm('SCH_POLICY')
         self.startup_policy = Context.get_algorithm('SCH_STARTUP')
 
-        self.extract_configuration(Context.get_file_path(FileNameConstant.SCHEDULE_CONFIG.value))
+        self.extract_configuration()
 
-    def extract_configuration(self, config_path):
-        self.config_extraction(self, config_path)
+    def extract_configuration(self):
+        self.config_extraction(self)
 
     def get_startup_policy(self, info):
         return self.startup_policy(info)

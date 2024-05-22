@@ -14,5 +14,7 @@ class AutoEdgeConstant(Enum):
 
 class FileNameConstant(Enum):
     SCHEDULE_CONFIG = 'scheduler_config.yaml'
+    HEI_DRL_CONFIG = 'drl_parameters.yaml'
+    HEI_HYPER_CONFIG = 'hyper_parameters.yaml'
     GENERATOR_CONFIG = 'generator_config.yaml'
     DISTRIBUTE_RECORD_DIR = 'record_data'

@@ -1,0 +1,9 @@
+hyper_params:
+  drl_schedule_interval: 5
+  nf_schedule_interval: 1
+  model_dir: '/home/model'
+  load_model: false
+  drl_total_steps: 10000
+  drl_save_interval: 500
+  drl_update_interval: 20
+  drl_update_after: 100

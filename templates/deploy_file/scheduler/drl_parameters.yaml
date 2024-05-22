@@ -1,0 +1,4 @@
+drl_params:
+  state_dim: 4
+  action_dim: 4
+  device: 'cuda:1'

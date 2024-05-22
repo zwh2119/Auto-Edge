@@ -205,15 +205,17 @@ spec:
               - name: cloud_name
                 value: cloud.kubeedge
               - name: SCH_CONFIG_NAME
-                value: simple
+                value: hei
               - name: SCH_SCENARIO_NAME
                 value: simple
               - name: SCH_STARTUP_NAME
                 value: fixed
+              - name: SCH_POLICY_NAME
+                value: simple
               - name: SCH_AGENT_NAME
                 value: hei
               - name: SCH_AGENT_PARAMETERS
-                value: "{}"
+                value: "{'window_size':10, mode:'train'}"
             ports:
               - containerPort: 9400
                 hostPort: 39400
