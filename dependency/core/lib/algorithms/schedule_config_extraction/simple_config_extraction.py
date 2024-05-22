@@ -13,3 +13,5 @@ class SimpleConfigExtraction(BaseConfigExtraction, abc.ABC):
         scheduler.fps_list = configs['fps']
         scheduler.resolution_list = configs['resolution']
         scheduler.buffer_size_list = configs['buffer_size']
+
+        scheduler.schedule_knobs = ['resolution', 'fps', 'buffer_size', 'pipeline']

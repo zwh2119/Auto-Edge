@@ -11,8 +11,6 @@ class SimplePolicyExtraction(BasePolicyExtraction, abc.ABC):
     def __call__(self, task):
         policy = {}
         meta_data = task.get_metadata()
-        policy['fps'] = meta_data['fps']
-        policy['resolution'] = meta_data['resolution']
-        policy['buffer_size'] = meta_data['buffer_size']
+        policy.update(meta_data)
 
         return policy
