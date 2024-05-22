@@ -7,6 +7,7 @@ class Task:
     def __init__(self,
                  source_id: int,
                  task_id: int,
+                 source_device: str,
                  pipeline: list = None,
                  flow_index: int = 0,
                  metadata: dict = None,
@@ -17,6 +18,7 @@ class Task:
                  file_path: str = None):
         self.__source_id = source_id
         self.__task_id = task_id
+        self.__source_device = source_device
 
         self.__metadata = metadata
 
@@ -73,6 +75,9 @@ class Task:
 
     def get_task_id(self):
         return self.__task_id
+
+    def get_source_device(self):
+        return self.__source_device
 
     def get_pipeline(self):
         return self.__pipeline_flow
@@ -193,6 +198,7 @@ class Task:
         return json.dumps({
             'source_id': task.get_source_id(),
             'task_id': task.get_task_id(),
+            'source_device': task.get_source_device(),
             'pipeline': pipeline_serialize,
             'cur_flow_index': task.get_flow_index(),
             'meta_data': task.get_metadata(),
@@ -210,8 +216,9 @@ class Task:
         for s in data['pipeline']:
             service = Service.deserialize(s)
             pipeline.append(service)
-        return Task(data['source_id'],
-                    data['task_id'],
+        return Task(source_id=data['source_id'],
+                    task_id=data['task_id'],
+                    source_device=data['source_device'],
                     pipeline=pipeline,
                     flow_index=data['cur_flow_index'],
                     metadata=data['meta_data'],

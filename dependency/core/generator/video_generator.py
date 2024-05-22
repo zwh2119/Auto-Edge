@@ -61,6 +61,7 @@ class VideoGenerator(Generator):
     def submit_task_to_controller(self, compressed_path):
         self.current_task = Task(source_id=self.source_id,
                                  task_id=self.task_id,
+                                 source_device=self.local_device,
                                  pipeline=self.task_pipeline,
                                  metadata=self.meta_data,
                                  raw_metadata=self.raw_meta_data,
@@ -100,5 +101,3 @@ class VideoGenerator(Generator):
             if len(self.frame_buffer) >= self.meta_data['buffer_size']:
                 threading.Thread(target=self.process_full_frame_buffer, args=(self.frame_buffer.copy(),)).start()
                 self.frame_buffer = []
-
-

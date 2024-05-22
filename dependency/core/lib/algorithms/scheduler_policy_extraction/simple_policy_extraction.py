@@ -16,5 +16,6 @@ class SimplePolicyExtraction(BasePolicyExtraction, abc.ABC):
 
         pipeline = task.get_pipeline_dicts()
         policy['pipeline'] = pipeline
+        policy['edge_device'] = task.get_source_device()
 
         return policy
