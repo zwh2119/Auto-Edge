@@ -15,5 +15,6 @@ class SimplePolicyExtraction(BasePolicyExtraction, abc.ABC):
         policy.update(meta_data)
 
         pipeline = task.get_pipeline_dicts()
+        policy['pipeline'] = pipeline
 
         return policy
