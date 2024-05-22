@@ -22,6 +22,7 @@ class ClassType:
     SCH_STARTUP = 'scheduler_startup_policy'
     SCH_CONFIG = 'scheduler_config_extraction'
     SCH_SCENARIO = 'scheduler_scenario_extraction'
+    SCH_POLICY = 'scheduler_policy_extraction'
 
     PRO_DETECTOR = 'processor_detector'
     PRO_QUEUE = 'processor_queue'

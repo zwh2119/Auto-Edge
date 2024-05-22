@@ -148,6 +148,9 @@ class HEIAgent(BaseAgent, abc.ABC):
         if bandwidth != 0:
             self.state_buffer.add_resource_buffer([bandwidth])
 
+    def update_latest_policy(self, policy):
+        pass
+
     def get_schedule_plan(self, info):
         return self.schedule_plan
 

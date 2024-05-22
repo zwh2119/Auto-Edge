@@ -12,6 +12,7 @@ class Scheduler:
 
         self.config_extraction = Context.get_algorithm('SCH_CONFIG')
         self.scenario_extraction = Context.get_algorithm('SCH_SCENARIO')
+        self.policy_extraction = Context.get_algorithm('SCH_POLICY')
         self.startup_policy = Context.get_algorithm('SCH_STARTUP')
 
         self.extract_configuration(Context.get_file_path(FileNameConstant.SCHEDULE_CONFIG.value))
@@ -55,8 +56,10 @@ class Scheduler:
             LOGGER.warning(f'Scheduler agent for source {source_id} not exists!')
             return
         scenario = self.extract_scenario(task)
+        policy = self.policy_extraction(task)
         agent = self.schedule_table[source_id]
         agent.update_scenario(scenario)
+        agent.update_latest_policy(policy)
         LOGGER.info(f'[Update Scenario] Source {source_id}: {scenario}')
 
     def register_resource_table(self, device):

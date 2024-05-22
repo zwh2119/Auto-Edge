@@ -11,6 +11,9 @@ class BaseAgent(metaclass=abc.ABCMeta):
     def update_resource(self, resource):
         raise NotImplementedError
 
+    def update_latest_policy(self, policy):
+        raise NotImplementedError
+
     def get_schedule_plan(self, info):
         raise NotImplementedError
 

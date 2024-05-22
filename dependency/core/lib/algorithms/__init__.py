@@ -7,5 +7,6 @@ from . import schedule_config_extraction
 from . import schedule_scenario_extraction
 from . import schedule_agent
 from . import schedule_startup_policy
+from . import scheduler_policy_extraction
 from . import task_queue
 
