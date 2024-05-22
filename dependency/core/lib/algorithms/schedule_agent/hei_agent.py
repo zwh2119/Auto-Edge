@@ -2,8 +2,6 @@ import abc
 import threading
 import time
 
-import numpy as np
-
 from core.lib.common import ClassFactory, ClassType, LOGGER, FileOps
 
 from .base_agent import BaseAgent
@@ -67,6 +65,7 @@ class HEIAgent(BaseAgent, abc.ABC):
         """
         map [-1, 1] to {-1, 0, 1}
         """
+        import numpy as np
 
         self.intermediate_decision = [int(np.sign(a)) if abs(a) > 0.3 else 0 for a in action]
 
@@ -143,6 +142,7 @@ class HEIAgent(BaseAgent, abc.ABC):
             self.schedule_plan = self.nf_agent(self.latest_policy, self.intermediate_decision)
 
     def update_scenario(self, scenario):
+        import numpy as np
         object_number = np.mean(scenario['obj_num'])
         object_size = np.mean(scenario['obj_size'])
         task_delay = scenario['delay']

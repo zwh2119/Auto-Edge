@@ -104,7 +104,7 @@ class BackendServer:
             {
                 'name': 'road_surveillance',
                 'display': '交通路面监控',
-                'yaml': 'road_surveillance/fixed_policy.yaml',
+                'yaml': 'road_surveillance/hei.yaml',
                 'word': 'car',
                 'visualizing_prompt': ' - 路面监控画面',
                 'result_title_prompt': ' - 实时车流数量',
