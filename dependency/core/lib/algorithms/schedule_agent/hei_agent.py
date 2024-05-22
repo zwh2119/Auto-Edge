@@ -118,9 +118,18 @@ class HEIAgent(BaseAgent, abc.ABC):
 
     def inference_drl_agent(self):
         LOGGER.info('[DRL Inference] Start inference drl agent ..')
-
+        state = self.reset_drl_env()
+        cur_step = 0
         while True:
             time.sleep(self.drl_schedule_interval)
+            cur_step += 1
+            action = self.drl_agent.select_action(state, deterministic=False, with_logprob=False)
+            next_state, reward, done, info = self.step_drl_env(action)
+            done = self.adapter.done_adapter(done, cur_step)
+            state = next_state
+            if done:
+                state = self.reset_drl_env()
+                cur_step = 0
 
     def run_nf_agent(self):
         LOGGER.info('[NF Inference] Start inference nf agent ..')

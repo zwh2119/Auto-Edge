@@ -1,4 +1,5 @@
 import numpy as np
+from core.lib.common import LOGGER
 
 
 class StateBuffer:
@@ -35,8 +36,14 @@ class StateBuffer:
             self.clear_state_buffer()
             return None
 
+        LOGGER.debug(f'[Resource Buffer] length: {len(resources)}, content: {resources}')
+        LOGGER.debug(f'[Scenario Buffer] length: {len(scenarios)}, content: {scenarios}')
+
         resources = np.array(self.resample_buffer(resources, self.window_size))
         scenarios = np.array(self.resample_buffer(scenarios, self.window_size))
+
+        LOGGER.debug(f'[Resample Resource Buffer] length: {len(resources)}, content: {resources}')
+        LOGGER.debug(f'[Resample Scenario Buffer] length: {len(scenarios)}, content: {scenarios}')
 
         state = np.array((scenarios[:, 0], scenarios[:, 1], scenarios[:, 2], resources[:, 0]))
         self.clear_state_buffer()
