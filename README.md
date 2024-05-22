@@ -191,6 +191,6 @@ we use the following devices to deploy Auto-Edge system. Other devices can also 
 - 2024.02.12 `AutoEdge` - `v1.2.0`: add hook functions 
 - 2024.05.07 `AutoEdge` - `v1.3.0`: add backend server and datasource
 - 2024.05.13 `AutoEdge` - `v2.0.0`: complete the second formal version of Auto-Edge
-
+- 2024.05.22 `AutoEdge` - `v2.1.0`: add scheduler of hierarchical embodied intelligence
 
 ## Citation

@@ -29,7 +29,7 @@ class HEIAgent(BaseAgent, abc.ABC):
         self.replay_buffer = RandomBuffer(**drl_params)
         self.adapter = Adapter
 
-        self.nf_agent = NegativeFeedback()
+        self.nf_agent = NegativeFeedback(system)
 
         self.drl_schedule_interval = hyper_params['drl_schedule_interval']
         self.nf_schedule_interval = hyper_params['nf_schedule_interval']
@@ -64,8 +64,6 @@ class HEIAgent(BaseAgent, abc.ABC):
         """
         map [-1, 1] to {-1, 0, 1}
         """
-
-        # TODO: consider change to stochastic find result with distribution
 
         self.intermediate_decision = [int(np.sign(a)) if abs(a) > 0.3 else 0 for a in action]
 
@@ -136,7 +134,8 @@ class HEIAgent(BaseAgent, abc.ABC):
 
         while True:
             time.sleep(self.nf_schedule_interval)
-            # TODO
+
+            self.nf_agent()
 
     def update_scenario(self, scenario):
         object_number = np.mean(scenario['obj_num'])
