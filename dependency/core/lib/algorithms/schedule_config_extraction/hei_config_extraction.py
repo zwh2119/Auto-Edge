@@ -19,5 +19,5 @@ class HEIConfigExtraction(BaseConfigExtraction, abc.ABC):
         drl_parameters_config_path = Context.get_file_path(FileNameConstant.HEI_DRL_CONFIG.value)
         scheduler.drl_params = YamlOps.read_yaml(drl_parameters_config_path)['drl_params']
 
-        hyper_parameters_config_path = Context.get_file_path(FileNameConstant.HEI_HYPER_CONFIG)
+        hyper_parameters_config_path = Context.get_file_path(FileNameConstant.HEI_HYPER_CONFIG.value)
         scheduler.hyper_params = YamlOps.read_yaml(hyper_parameters_config_path)['hyper_params']
