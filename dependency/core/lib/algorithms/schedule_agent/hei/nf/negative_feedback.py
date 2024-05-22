@@ -4,5 +4,7 @@ class NegativeFeedback:
         self.resolution_list = system.resolution_list
         self.buffer_size_list = system.buffer_size_list
 
-    def __call__(self, ):
+        self.schedule_knobs = ['resolution', 'fps', 'buffer_size', 'pipeline']
+
+    def __call__(self, latest_policy, meta_decision):
         pass

@@ -50,6 +50,7 @@ class HEIAgent(BaseAgent, abc.ABC):
 
         self.intermediate_decision = [0 for _ in range(self.action_dim)]
 
+        self.latest_policy = None
         self.schedule_plan = None
 
     def get_drl_state_buffer(self):
@@ -135,7 +136,7 @@ class HEIAgent(BaseAgent, abc.ABC):
         while True:
             time.sleep(self.nf_schedule_interval)
 
-            self.nf_agent()
+            self.schedule_plan = self.nf_agent(self.latest_policy, self.intermediate_decision)
 
     def update_scenario(self, scenario):
         object_number = np.mean(scenario['obj_num'])
@@ -149,7 +150,7 @@ class HEIAgent(BaseAgent, abc.ABC):
             self.state_buffer.add_resource_buffer([bandwidth])
 
     def update_latest_policy(self, policy):
-        pass
+        self.latest_policy = policy
 
     def get_schedule_plan(self, info):
         return self.schedule_plan
