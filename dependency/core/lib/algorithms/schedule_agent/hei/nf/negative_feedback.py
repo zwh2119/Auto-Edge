@@ -33,9 +33,8 @@ class NegativeFeedback:
         self.resolution_index = self.resolution_list.index(resolution)
         self.fps_index = self.fps_list.index(fps)
         self.buffer_size_index = self.buffer_size_list.index(buffer_size)
-        LOGGER.debug(f'pipeline: {pipeline}')
         self.pipeline_index = next((i for i, service in enumerate(pipeline)
-                                   if service['execute_device'] == self.cloud_device))
+                                    if service['execute_device'] == self.cloud_device), len(pipeline) - 1)
 
         # TODO: should increase / decrease equally?
         for idx, knob_name in enumerate(self.schedule_knobs):
@@ -56,6 +55,18 @@ class NegativeFeedback:
                 assert None, f'Invalid Knob schedule decision {knob_decision} of Knob {knob_name}'
 
             setattr(self, f'{knob_name}_index', updated_knob_index)
+
+        schedule_policy = {}
+        schedule_policy.update(latest_policy)
+        schedule_policy['resolution'] = self.resolution_list[self.resolution_index]
+        schedule_policy['fps'] = self.fps_list[self.fps_index]
+        schedule_policy['buffer_size'] = self.buffer_size_list[self.buffer_size_index]
+        schedule_policy['pipeline'] = [{**p, 'execute_device': self.edge_device} for p in
+                                       pipeline[:self.pipeline_index]] + \
+                                      [{**p, 'execute_device': self.cloud_device} for p in
+                                       pipeline[self.pipeline_index:]]
+
+        return schedule_policy
 
     @staticmethod
     def increase_knob(knob_index, knob_list):
