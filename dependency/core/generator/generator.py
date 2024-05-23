@@ -53,8 +53,6 @@ class Generator:
     def submit_task_to_controller(self, compressed_file, source_id, task_id):
         assert self.current_task, 'Task is empty when submit to controller!'
 
-        LOGGER.debug(f'[Test] source: {source_id}  task {task_id}')
-
         dst_device = self.current_task.get_current_stage_device()
         controller_ip = NodeInfo.hostname2ip(dst_device)
         controller_address = get_merge_address(controller_ip,
