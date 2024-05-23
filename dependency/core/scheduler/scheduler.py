@@ -24,7 +24,7 @@ class Scheduler:
         return self.startup_policy(info)
 
     def add_scheduler_agent(self, source_id):
-        agent = Context.get_algorithm('SCH_AGENT', system=self)
+        agent = Context.get_algorithm('SCH_AGENT', system=self, agent_id=source_id)
         threading.Thread(target=agent.run).start()
         self.schedule_table[source_id] = agent
 

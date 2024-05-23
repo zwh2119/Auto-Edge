@@ -67,7 +67,8 @@ class Generator:
                                      'multipart/form-data')}
                      )
         LOGGER.info(f'[To Controller {dst_device}] source: {self.current_task.get_source_id()}  '
-                    f'task: {self.current_task.get_task_id()}')
+                    f'task: {self.current_task.get_task_id()}  '
+                    f'file: {self.current_task.get_file_path()}')
 
     def run(self):
         assert None, 'Base Generator should not be invoked directly!'

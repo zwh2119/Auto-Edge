@@ -1,8 +1,9 @@
 import abc
+import os.path
 import threading
 import time
 
-from core.lib.common import ClassFactory, ClassType, LOGGER, FileOps
+from core.lib.common import ClassFactory, ClassType, LOGGER, FileOps, Context
 
 from .base_agent import BaseAgent
 
@@ -13,9 +14,12 @@ __all__ = ('HEIAgent',)
 class HEIAgent(BaseAgent, abc.ABC):
 
     def __init__(self, system,
+                 agent_id: int,
                  window_size: int = 10,
                  mode: str = 'inference'):
         from .hei import SoftActorCritic, RandomBuffer, Adapter, NegativeFeedback, StateBuffer
+
+        self.agent_id = agent_id
 
         drl_params = system.drl_params.copy()
         hyper_params = system.hyper_params.copy()
@@ -37,7 +41,7 @@ class HEIAgent(BaseAgent, abc.ABC):
         self.state_dim = drl_params['state_dim']
         self.action_dim = drl_params['action_dim']
 
-        self.model_dir = hyper_params['model_dir']
+        self.model_dir = Context.get_file_path(os.path.join(hyper_params['model_dir'], f'agent_{self.agent_id}'))
         FileOps.create_directory(self.model_dir)
 
         if hyper_params['load_model']:

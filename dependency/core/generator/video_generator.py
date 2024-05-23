@@ -73,7 +73,7 @@ class VideoGenerator(Generator):
 
     def process_full_frame_buffer(self, frame_buffer, source_id, task_id):
 
-        LOGGER.debug(f'[Frame Buffer] buffer size: {len(frame_buffer)}')
+        LOGGER.debug(f'[Frame Buffer] (source {source_id}/task {task_id}) buffer size: {len(frame_buffer)}')
 
         frame_buffer = [self.process_frame(frame) for frame in frame_buffer]
 
