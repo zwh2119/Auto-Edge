@@ -58,9 +58,9 @@ class VideoGenerator(Generator):
         assert type(frame_buffer) is list and len(frame_buffer) > 0, 'Frame buffer is not list or is empty'
         return self.frame_compress(self, frame_buffer, source_id, task_id)
 
-    def submit_task_to_controller(self, compressed_path):
-        self.current_task = Task(source_id=self.source_id,
-                                 task_id=self.task_id,
+    def submit_task_to_controller(self, compressed_path, source_id, task_id):
+        self.current_task = Task(source_id=source_id,
+                                 task_id=task_id,
                                  source_device=self.local_device,
                                  pipeline=self.task_pipeline,
                                  metadata=self.meta_data,
@@ -81,7 +81,7 @@ class VideoGenerator(Generator):
 
         compressed_file_path = self.compress_frames(frame_buffer, source_id, task_id)
 
-        self.submit_task_to_controller(compressed_file_path)
+        self.submit_task_to_controller(compressed_file_path, source_id, task_id)
 
         FileOps.remove_file(compressed_file_path)
 
