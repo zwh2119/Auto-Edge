@@ -10,13 +10,7 @@ ARG code_dir=components/generator
 # Required to build Ubuntu 20.04 without user prompts with DLFW container
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && \
-    apt-get install -y tzdata
-
 ENV TZ=Asia/Shanghai
-
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
-    echo $TZ > /etc/timezone
 
 # Install python3
 RUN apt-get install -y --no-install-recommends \
