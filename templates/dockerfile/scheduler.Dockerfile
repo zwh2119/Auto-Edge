@@ -7,7 +7,13 @@ ARG lib_dir=dependency/core/lib
 ARG base_dir=dependency/core/scheduler
 ARG code_dir=components/scheduler
 
+RUN apt-get update && \
+    apt-get install -y tzdata
+
 ENV TZ=Asia/Shanghai
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone
 
 COPY ${lib_dir}/requirements.txt ./lib_requirements.txt
 COPY ${base_dir}/requirements.txt ./base_requirements.txt

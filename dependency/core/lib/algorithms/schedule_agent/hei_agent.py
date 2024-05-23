@@ -69,6 +69,8 @@ class HEIAgent(BaseAgent, abc.ABC):
 
         self.intermediate_decision = [int(np.sign(a)) if abs(a) > 0.3 else 0 for a in action]
 
+        LOGGER.info(f'[DRL Decision] Action: {action}   Decision:{self.intermediate_decision}')
+
     def reset_drl_env(self):
         self.intermediate_decision = [0 for _ in range(self.action_dim)]
 
@@ -140,6 +142,7 @@ class HEIAgent(BaseAgent, abc.ABC):
             time.sleep(self.nf_schedule_interval)
 
             self.schedule_plan = self.nf_agent(self.latest_policy, self.intermediate_decision)
+            LOGGER.debug([f'[NF Update] schedule: {self.schedule_plan}'])
 
     def update_scenario(self, scenario):
         import numpy as np
