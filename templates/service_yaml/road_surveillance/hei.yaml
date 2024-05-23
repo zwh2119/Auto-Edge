@@ -243,7 +243,7 @@ spec:
               name: monitor
               env:
                 - name: interval
-                  value: "5"
+                  value: "3"
                 - name: iperf3_server
                   value: "False"
                 - name: iperf3_port
