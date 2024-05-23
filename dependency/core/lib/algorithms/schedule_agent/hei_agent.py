@@ -142,7 +142,7 @@ class HEIAgent(BaseAgent, abc.ABC):
             time.sleep(self.nf_schedule_interval)
 
             self.schedule_plan = self.nf_agent(self.latest_policy, self.intermediate_decision)
-            LOGGER.debug([f'[NF Update] schedule: {self.schedule_plan}'])
+            LOGGER.debug(f'[NF Update] schedule: {self.schedule_plan}')
 
     def update_scenario(self, scenario):
         import numpy as np

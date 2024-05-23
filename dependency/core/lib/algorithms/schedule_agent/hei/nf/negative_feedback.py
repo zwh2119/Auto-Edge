@@ -19,7 +19,7 @@ class NegativeFeedback:
             f'decision length {len(meta_decisions)} is not equal to number schedule knobs {len(self.schedule_knobs)} !'
 
         if latest_policy is None:
-            LOGGER.info('[Lack Latest Policy] No latest policy, none decision make ..')
+            LOGGER.info('[NF Lack Latest Policy] No latest policy, none decision make ..')
             return None
 
         resolution = latest_policy['resolution']
