@@ -1,4 +1,5 @@
 import threading
+import multiprocessing
 
 import cv2
 
@@ -99,6 +100,6 @@ class VideoGenerator(Generator):
 
             if len(self.frame_buffer) >= self.meta_data['buffer_size']:
                 self.task_id += 1
-                threading.Thread(target=self.process_full_frame_buffer,
-                                 args=(self.frame_buffer.copy(), self.source_id, self.task_id)).start()
+                multiprocessing.Process(target=self.process_full_frame_buffer,
+                                        args=(self.frame_buffer.copy(), self.source_id, self.task_id)).start()
                 self.frame_buffer = []
