@@ -69,7 +69,7 @@ class VideoGenerator(Generator):
                                  file_path=compressed_path
                                  )
         self.record_total_start_ts()
-        super().submit_task_to_controller(compressed_path)
+        super().submit_task_to_controller(compressed_path, source_id, task_id)
 
     def process_full_frame_buffer(self, frame_buffer, source_id, task_id):
 
