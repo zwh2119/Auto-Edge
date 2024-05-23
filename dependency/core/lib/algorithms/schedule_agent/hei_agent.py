@@ -17,8 +17,8 @@ class HEIAgent(BaseAgent, abc.ABC):
                  mode: str = 'inference'):
         from .hei import SoftActorCritic, RandomBuffer, Adapter, NegativeFeedback, StateBuffer
 
-        drl_params = system.drl_params
-        hyper_params = system.hyper_params
+        drl_params = system.drl_params.copy()
+        hyper_params = system.hyper_params.copy()
         drl_params['state_dim'] = [drl_params['state_dim'], window_size]
 
         LOGGER.debug(f'state_dim: {drl_params["state_dim"]}')

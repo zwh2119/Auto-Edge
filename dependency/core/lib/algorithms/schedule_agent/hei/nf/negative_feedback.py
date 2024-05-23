@@ -3,15 +3,15 @@ from core.lib.common import LOGGER
 
 class NegativeFeedback:
     def __init__(self, system):
-        self.fps_list = system.fps_list
-        self.resolution_list = system.resolution_list
-        self.buffer_size_list = system.buffer_size_list
+        self.fps_list = system.fps_list.copy()
+        self.resolution_list = system.resolution_list.copy()
+        self.buffer_size_list = system.buffer_size_list.copy()
         self.pipeline_list = None
 
         self.cloud_device = system.cloud_device
         self.edge_device = None
 
-        self.schedule_knobs = system.schedule_knobs
+        self.schedule_knobs = system.schedule_knobs.copy()
 
     def __call__(self, latest_policy: dict, meta_decisions: list):
 
