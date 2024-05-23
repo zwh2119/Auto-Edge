@@ -15,7 +15,7 @@ class HEIAgent(BaseAgent, abc.ABC):
     def __init__(self, system,
                  window_size: int = 10,
                  mode: str = 'inference'):
-        from hei import SoftActorCritic, RandomBuffer, Adapter, NegativeFeedback, StateBuffer
+        from .hei import SoftActorCritic, RandomBuffer, Adapter, NegativeFeedback, StateBuffer
 
         drl_params = system.drl_params
         hyper_params = system.hyper_params
