@@ -72,10 +72,10 @@ class NegativeFeedback:
     def increase_knob(knob_index, knob_list):
         assert 0 <= knob_index < len(knob_list), \
             f'Index of Knob is out of range (index:{knob_index}, range:[0,{len(knob_list) - 1}])'
-        return max(knob_index + 1, len(knob_list) - 1)
+        return min(knob_index + 1, len(knob_list) - 1)
 
     @staticmethod
     def decrease_knob(knob_index, knob_list):
         assert 0 <= knob_index < len(knob_list), \
             f'Index of Knob is out of range (index:{knob_index}, range:[0,{len(knob_list) - 1}])'
-        return min(knob_index - 1, 0)
+        return max(knob_index - 1, 0)
