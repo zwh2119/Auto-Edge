@@ -215,7 +215,7 @@ spec:
               - name: SCH_AGENT_NAME
                 value: hei
               - name: SCH_AGENT_PARAMETERS
-                value: "{'window_size':10, mode:'train'}"
+                value: "{'window_size':10, 'mode':'train'}"
             ports:
               - containerPort: 9400
                 hostPort: 39400
