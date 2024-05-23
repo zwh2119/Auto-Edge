@@ -21,6 +21,8 @@ class HEIAgent(BaseAgent, abc.ABC):
         hyper_params = system.hyper_params
         drl_params['state_dim'] = [drl_params['state_dim'], window_size]
 
+        LOGGER.debug(f'state_dim: {drl_params["state_dim"]}')
+
         self.window_size = window_size
         self.state_buffer = StateBuffer(self.window_size)
         self.mode = mode
