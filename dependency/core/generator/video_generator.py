@@ -54,9 +54,9 @@ class VideoGenerator(Generator):
     def process_frame(self, frame):
         return self.frame_process(self, frame)
 
-    def compress_frames(self, frame_buffer):
+    def compress_frames(self, frame_buffer, source_id, task_id):
         assert type(frame_buffer) is list and len(frame_buffer) > 0, 'Frame buffer is not list or is empty'
-        return self.frame_compress(self, frame_buffer)
+        return self.frame_compress(self, frame_buffer, source_id, task_id)
 
     def submit_task_to_controller(self, compressed_path):
         self.current_task = Task(source_id=self.source_id,
@@ -71,7 +71,7 @@ class VideoGenerator(Generator):
         self.record_total_start_ts()
         super().submit_task_to_controller(compressed_path)
 
-    def process_full_frame_buffer(self, frame_buffer):
+    def process_full_frame_buffer(self, frame_buffer, source_id, task_id):
 
         LOGGER.debug(f'[Frame Buffer] buffer size: {len(frame_buffer)}')
 
@@ -79,8 +79,7 @@ class VideoGenerator(Generator):
 
         self.request_schedule_policy()
 
-        self.task_id += 1
-        compressed_file_path = self.compress_frames(frame_buffer)
+        compressed_file_path = self.compress_frames(frame_buffer, source_id, task_id)
 
         self.submit_task_to_controller(compressed_file_path)
 
@@ -99,5 +98,7 @@ class VideoGenerator(Generator):
                 self.frame_buffer.append(frame)
 
             if len(self.frame_buffer) >= self.meta_data['buffer_size']:
-                threading.Thread(target=self.process_full_frame_buffer, args=(self.frame_buffer.copy(),)).start()
+                self.task_id += 1
+                threading.Thread(target=self.process_full_frame_buffer,
+                                 args=(self.frame_buffer.copy(), self.source_id, self.task_id)).start()
                 self.frame_buffer = []
