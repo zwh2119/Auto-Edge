@@ -32,6 +32,7 @@ class DetectorProcessor(Processor):
             LOGGER.critical('ERROR: image list length is 0')
             LOGGER.critical(f'Source: {task.get_source_id()}, Task: {task.get_task_id()}')
             LOGGER.critical(f'file_path: {task.get_file_path()}')
+            return None
         result = self.infer(image_list)
         task = self.get_scenario(result, task)
         task.set_content(convert_ndarray_to_list(result))
