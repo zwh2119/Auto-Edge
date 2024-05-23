@@ -7,6 +7,8 @@ ARG lib_dir=dependency/core/lib
 ARG base_dir=dependency/core/scheduler
 ARG code_dir=components/scheduler
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && \
     apt-get install -y tzdata
 
