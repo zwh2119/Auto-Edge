@@ -457,7 +457,7 @@ async def install_service(data=Body(...)):
 
     task_name = server.get_pipeline_label(pipeline)
 
-    policy = server.find_policy_by_id(policy_id)
+
 
     cur_task = None
 
@@ -468,6 +468,11 @@ async def install_service(data=Body(...)):
 
     if cur_task is None:
         return {'state': 'fail', 'msg': '服务不存在'}
+
+    policy = server.find_policy_by_id(policy_id)
+
+    if policy is None:
+        return {'state': 'fail', 'msg': '调度策略不存在'}
 
     yaml_file = os.path.join(server.templates_path, cur_task['yaml'], policy['yaml'])
     LOGGER.info(f'yaml_file: {yaml_file}')

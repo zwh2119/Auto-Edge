@@ -2,7 +2,9 @@ from core.lib.common import LOGGER
 
 
 class NegativeFeedback:
-    def __init__(self, system):
+    def __init__(self, system, agent_id):
+        self.agent_id = agent_id
+
         self.fps_list = system.fps_list.copy()
         self.resolution_list = system.resolution_list.copy()
         self.buffer_size_list = system.buffer_size_list.copy()
@@ -19,7 +21,7 @@ class NegativeFeedback:
             f'decision length {len(meta_decisions)} is not equal to number schedule knobs {len(self.schedule_knobs)} !'
 
         if latest_policy is None:
-            LOGGER.info('[NF Lack Latest Policy] No latest policy, none decision make ..')
+            LOGGER.info(f'[NF Lack Latest Policy] (agent {self.agent_id}) No latest policy, none decision make ..')
             return None
 
         resolution = latest_policy['resolution']
@@ -43,16 +45,16 @@ class NegativeFeedback:
             knob_list = getattr(self, f'{knob_name}_list')
             if knob_decision == 1:
                 updated_knob_index = self.increase_knob(knob_index, knob_list)
-                LOGGER.info(f'[NF Schedule] Knob {knob_name} increase: index {knob_index}->{updated_knob_index}')
+                LOGGER.info(f'[NF Schedule] (agent {self.agent_id}) Knob {knob_name} increase: index {knob_index}->{updated_knob_index}')
             elif knob_decision == -1:
                 updated_knob_index = self.decrease_knob(knob_index, knob_list)
-                LOGGER.info(f'[NF Schedule] Knob {knob_name} decrease: index {knob_index}->{updated_knob_index}')
+                LOGGER.info(f'[NF Schedule] (agent {self.agent_id}) Knob {knob_name} decrease: index {knob_index}->{updated_knob_index}')
             elif knob_decision == 0:
                 updated_knob_index = knob_index
-                LOGGER.info(f'[NF Schedule] Knob {knob_name} remain same: index {knob_index}')
+                LOGGER.info(f'[NF Schedule] (agent {self.agent_id}) Knob {knob_name} remain same: index {knob_index}')
             else:
                 updated_knob_index = 0
-                assert None, f'Invalid Knob schedule decision {knob_decision} of Knob {knob_name}'
+                assert None, f'(agent {self.agent_id}) Invalid Knob schedule decision {knob_decision} of Knob {knob_name}'
 
             setattr(self, f'{knob_name}_index', updated_knob_index)
 

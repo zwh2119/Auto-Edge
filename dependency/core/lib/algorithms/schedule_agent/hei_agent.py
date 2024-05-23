@@ -33,7 +33,7 @@ class HEIAgent(BaseAgent, abc.ABC):
         self.replay_buffer = RandomBuffer(**drl_params)
         self.adapter = Adapter
 
-        self.nf_agent = NegativeFeedback(system)
+        self.nf_agent = NegativeFeedback(system, agent_id)
 
         self.drl_schedule_interval = hyper_params['drl_schedule_interval']
         self.nf_schedule_interval = hyper_params['nf_schedule_interval']
@@ -62,7 +62,7 @@ class HEIAgent(BaseAgent, abc.ABC):
             state = self.state_buffer.get_state_buffer()
             if state is not None:
                 return state
-            LOGGER.info('[Wait for State] State empty, wait for resource state or scenario state ..')
+            LOGGER.info(f'[Wait for State] (agent {self.agent_id}) State empty, wait for resource state or scenario state ..')
             time.sleep(1)
 
     def map_drl_action_to_decision(self, action):
@@ -73,7 +73,7 @@ class HEIAgent(BaseAgent, abc.ABC):
 
         self.intermediate_decision = [int(np.sign(a)) if abs(a) > 0.3 else 0 for a in action]
 
-        LOGGER.info(f'[DRL Decision] Action: {action}   Decision:{self.intermediate_decision}')
+        LOGGER.info(f'[DRL Decision] (agent {self.agent_id}) Action: {action}   Decision:{self.intermediate_decision}')
 
     def reset_drl_env(self):
         self.intermediate_decision = [0 for _ in range(self.action_dim)]
@@ -100,7 +100,7 @@ class HEIAgent(BaseAgent, abc.ABC):
         return - state[2].mean()
 
     def train_drl_agent(self):
-        LOGGER.info('[DRL Train] Start train drl agent ..')
+        LOGGER.info(f'[DRL Train] (agent {self.agent_id}) Start train drl agent ..')
         state = self.reset_drl_env()
         for step in range(self.total_steps):
             action = self.drl_agent.select_action(state, deterministic=False, with_logprob=False)
@@ -110,10 +110,11 @@ class HEIAgent(BaseAgent, abc.ABC):
             self.replay_buffer.add(state, action, reward, next_state, done)
             state = next_state
 
-            LOGGER.info(f'[DRL Train Data] Step:{step}  Reward:{reward}')
+            LOGGER.info(f'[DRL Train Data] (agent {self.agent_id}) Step:{step}  Reward:{reward}')
 
             if step >= self.update_after and step % self.update_interval == 0:
                 for _ in range(self.update_interval):
+                    LOGGER.info(f'[DRL Train] (agent {self.agent_id}) Train drl agent with replay buffer')
                     self.drl_agent.train(self.replay_buffer)
 
             if step % self.save_interval:
@@ -122,10 +123,10 @@ class HEIAgent(BaseAgent, abc.ABC):
             if done:
                 state = self.reset_drl_env()
 
-        LOGGER.info('[DRL Train] End train drl agent ..')
+        LOGGER.info(f'[DRL Train] (agent {self.agent_id}) End train drl agent ..')
 
     def inference_drl_agent(self):
-        LOGGER.info('[DRL Inference] Start inference drl agent ..')
+        LOGGER.info(f'[DRL Inference] (agent {self.agent_id}) Start inference drl agent ..')
         state = self.reset_drl_env()
         cur_step = 0
         while True:
@@ -140,13 +141,13 @@ class HEIAgent(BaseAgent, abc.ABC):
                 cur_step = 0
 
     def run_nf_agent(self):
-        LOGGER.info('[NF Inference] Start inference nf agent ..')
+        LOGGER.info(f'[NF Inference] (agent {self.agent_id}) Start inference nf agent ..')
 
         while True:
             time.sleep(self.nf_schedule_interval)
 
             self.schedule_plan = self.nf_agent(self.latest_policy, self.intermediate_decision)
-            LOGGER.debug(f'[NF Update] schedule: {self.schedule_plan}')
+            LOGGER.debug(f'[NF Update] (agent {self.agent_id}) schedule: {self.schedule_plan}')
 
     def update_scenario(self, scenario):
         import numpy as np
@@ -174,4 +175,4 @@ class HEIAgent(BaseAgent, abc.ABC):
         elif self.mode == 'inference':
             self.inference_drl_agent()
         else:
-            assert None, f'Invalid execution mode: {self.mode}, only support ["train", "inference"]'
+            assert None, f'(agent {self.agent_id}) Invalid execution mode: {self.mode}, only support ["train", "inference"]'
