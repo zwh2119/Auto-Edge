@@ -33,8 +33,9 @@ class NegativeFeedback:
         self.resolution_index = self.resolution_list.index(resolution)
         self.fps_index = self.fps_list.index(fps)
         self.buffer_size_index = self.buffer_size_list.index(buffer_size)
-        self.pipeline_index = next(
-            i for i, service in enumerate(pipeline) if service['execute_device'] == self.cloud_device)
+        LOGGER.debug(f'pipeline: {pipeline}')
+        self.pipeline_index = next((i for i, service in enumerate(pipeline)
+                                   if service['execute_device'] == self.cloud_device))
 
         # TODO: should increase / decrease equally?
         for idx, knob_name in enumerate(self.schedule_knobs):
