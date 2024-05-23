@@ -1,7 +1,5 @@
 from functools import wraps
-import signal
 import threading
-
 
 
 def reverse_key_value_in_dict(in_dict: dict) -> dict:
