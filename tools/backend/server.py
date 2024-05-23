@@ -104,7 +104,7 @@ class BackendServer:
             {
                 'name': 'road_surveillance',
                 'display': '交通路面监控',
-                'yaml': 'road_surveillance/fixed_policy.yaml',
+                'yaml': 'road_surveillance',
                 'word': 'car',
                 'visualizing_prompt': ' - 路面监控画面',
                 'result_title_prompt': ' - 实时车流数量',
@@ -120,6 +120,20 @@ class BackendServer:
                         ]
                     },
                 ]
+            },
+
+        ]
+
+        self.schedule_policies = [
+            {
+                'policy_id': 'fixed',
+                'policy_name': '固定策略',
+                'yaml': 'fixed_policy.yaml'
+            },
+            {
+                'policy_id': 'hei',
+                'policy_name': '分级具身智能算法',
+                'yaml': 'hei.yaml'
             },
 
         ]
@@ -181,6 +195,13 @@ class BackendServer:
         for pipeline in server.pipelines:
             if pipeline['dag_id'] == dag_id:
                 return pipeline['dag']
+        return None
+
+    def find_policy_by_id(self, policy_id):
+        for policy in self.schedule_policies:
+            if policy['policy_id'] == policy_id:
+                return policy
+
         return None
 
     def get_source_id(self):
@@ -356,6 +377,23 @@ async def get_all_task():
     return cur_pipelines
 
 
+@app.get('/policy')
+async def get_schedule_policy():
+    """
+    :return:
+    显示已有调度算法
+    {
+        policy_id:id,
+        policy_name：name}
+    """
+    cur_policy = []
+    for policy in server.schedule_policies:
+        cur_policy.append(
+            {'policy_id': policy['policy_id'],
+             'policy_name': policy['policy_name']})
+    return cur_policy
+
+
 @app.get('/get_task_stage/{dag_id}')
 async def get_service_stage(dag_id):
     """
@@ -394,7 +432,7 @@ async def install_service(data=Body(...)):
     body
     {
         "dag_id": (id),
-        "image_list": ["", ""]
+        "policy_id": (id)
     }
     :return:
     {'msg': 'service start successfully'}
@@ -411,13 +449,15 @@ async def install_service(data=Body(...)):
     data = json.loads(str(data, encoding='utf-8'))
 
     dag_id = int(data['dag_id'])
-    images = data['image_list']
+    policy_id = data['policy_id']
 
     pipeline = server.find_pipeline_by_id(dag_id)
     if pipeline is None:
         return {'state': 'fail', 'msg': '服务下装失败：流水线不存在'}
 
     task_name = server.get_pipeline_label(pipeline)
+
+    policy = server.find_policy_by_id(policy_id)
 
     cur_task = None
 
@@ -429,7 +469,7 @@ async def install_service(data=Body(...)):
     if cur_task is None:
         return {'state': 'fail', 'msg': '服务不存在'}
 
-    yaml_file = os.path.join(server.templates_path, cur_task['yaml'])
+    yaml_file = os.path.join(server.templates_path, cur_task['yaml'], policy['yaml'])
     LOGGER.info(f'yaml_file: {yaml_file}')
 
     try:
@@ -667,7 +707,6 @@ def submit_query(data=Body(...)):
 
     server.is_get_result = True
     threading.Thread(target=server.run_get_result).start()
-
 
     return {'state': 'success', 'msg': '数据流打开成功'}
 
