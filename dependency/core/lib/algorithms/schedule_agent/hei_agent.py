@@ -62,7 +62,8 @@ class HEIAgent(BaseAgent, abc.ABC):
             state = self.state_buffer.get_state_buffer()
             if state is not None:
                 return state
-            LOGGER.info(f'[Wait for State] (agent {self.agent_id}) State empty, wait for resource state or scenario state ..')
+            LOGGER.info(f'[Wait for State] (agent {self.agent_id}) State empty, '
+                        f'wait for resource state or scenario state ..')
             time.sleep(1)
 
     def map_drl_action_to_decision(self, action):
@@ -175,4 +176,5 @@ class HEIAgent(BaseAgent, abc.ABC):
         elif self.mode == 'inference':
             self.inference_drl_agent()
         else:
-            assert None, f'(agent {self.agent_id}) Invalid execution mode: {self.mode}, only support ["train", "inference"]'
+            assert None, f'(agent {self.agent_id}) Invalid execution mode: {self.mode}, ' \
+                         f'only support ["train", "inference"]'
