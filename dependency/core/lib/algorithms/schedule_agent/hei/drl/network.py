@@ -9,16 +9,22 @@ from .utils import format_input_state
 
 
 class SpecificConvFeatureExtractor(nn.Module):
-    def __init__(self, input_channels, hid_channels, kernel_size, output_features, activation=nn.ReLU):
+    def __init__(self, input_channels, hid_channels, kernel_size,
+                 input_series_length, output_features, activation=nn.ReLU):
         super(SpecificConvFeatureExtractor, self).__init__()
         self.conv = build_conv1d_net(input_channels, hid_channels, kernel_size, activation)
-        self.fc = nn.Linear(hid_channels[-1] * (10 - 2 * 2), output_features*input_channels)
+        self.fc = nn.Linear(self._get_net_out((input_channels, input_series_length)),
+                            output_features)
 
     def forward(self, x):
         x = self.conv(x)
-        x = x.view(x.size(0), -1)  # Flatten
+        x = x.view(x.size(0), -1)
         x = self.fc(x)
         return x
+
+    def _get_net_out(self, shape):
+        o = self.conv(torch.zeros(1, *shape))
+        return int(np.prod(o.view(1, -1).size()))
 
 
 class FeatureExtractor(nn.Module):
