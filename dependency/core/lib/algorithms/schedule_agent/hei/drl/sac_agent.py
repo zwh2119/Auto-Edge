@@ -30,12 +30,7 @@ class Actor(nn.Module):
         """Network with Enforcing Action Bounds"""
 
         conv_out = self.conv_net(state)
-        if len(conv_out.shape) == 2:
-            state_out = conv_out.view(1, -1)
-        elif len(conv_out.shape) == 3:
-            state_out = conv_out.view(conv_out.size(0), -1)
-        else:
-            state_out = conv_out
+        state_out = conv_out.view(1, -1)
 
         net_out = self.a_net(state_out)
         mu = self.mu_layer(net_out)
@@ -80,14 +75,8 @@ class Critic(nn.Module):
         self.Q_2 = build_net(layers, nn.ReLU, nn.Identity)
 
     def forward(self, state, action):
-
         conv_out = self.conv_net(state)
-        if len(conv_out.shape) == 2:
-            state_out = conv_out.view(1, -1)
-        elif len(conv_out.shape) == 3:
-            state_out = conv_out.view(conv_out.size(0), -1)
-        else:
-            state_out = conv_out
+        state_out = conv_out.view(1, -1)
 
         sa = torch.cat([state_out, action], 1)
         q1 = self.Q_1(sa)
