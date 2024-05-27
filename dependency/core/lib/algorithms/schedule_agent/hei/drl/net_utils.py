@@ -10,9 +10,12 @@ def build_net(layer_shape, activation, output_activation):
     return nn.Sequential(*layers)
 
 
-def build_conv1d_net(input_shape, output_shape, kernel_size):
-    layers = [nn.Conv1d(in_channels=input_shape,
-                        out_channels=output_shape,
-                        kernel_size=kernel_size), nn.ReLU()]
+def build_conv1d_net(input_channels, hid_channels, kernel_size, activation):
+    layers = []
+    for i in range(len(hid_channels)):
+        layers += [nn.Conv1d(in_channels=input_channels if i == 0 else hid_channels[i - 1],
+                             out_channels=hid_channels[i],
+                             kernel_size=kernel_size[i]),
+                   activation]
 
     return nn.Sequential(*layers)
