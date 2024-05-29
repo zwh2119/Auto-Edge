@@ -1,9 +1,7 @@
 
 drl_params:
-  action_dim: 4
+  action_dim: [1,3,4]
   device: cuda:2
-  hid_shape:
-  - 256
-  - 256
-  - 256
+  hid_shape: [256,256,256]
   state_dim: 4
+

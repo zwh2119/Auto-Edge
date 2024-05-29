@@ -155,7 +155,16 @@ class HEIAgent(BaseAgent, abc.ABC):
         object_number = np.mean(scenario['obj_num'])
         object_size = np.mean(scenario['obj_size'])
         task_delay = scenario['delay']
+
+        # TODO
+        resolution_decision = None
+        fps_decision = None
+        buffer_size_decision = None
+        pipeline_decision = None
+
         self.state_buffer.add_scenario_buffer([object_number, object_size, task_delay])
+        self.state_buffer.add_decision_buffer([resolution_decision, fps_decision,
+                                               buffer_size_decision, pipeline_decision])
 
     def update_resource(self, resource):
         bandwidth = resource['bandwidth']

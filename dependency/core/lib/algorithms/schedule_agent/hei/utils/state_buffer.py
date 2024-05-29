@@ -6,6 +6,7 @@ class StateBuffer:
     def __init__(self, window_size, max_size=10000):
         self.resources = []
         self.scenarios = []
+        self.decisions = []
 
         self.window_size = window_size
         self.max_size = max_size
@@ -20,19 +21,28 @@ class StateBuffer:
         while len(self.scenarios) > self.max_size:
             self.scenarios.pop(0)
 
+    def add_decision_buffer(self, decision):
+        self.decisions.append(decision)
+        while len(self.decisions) > self.max_size:
+            self.decisions.pop(0)
+
     def get_resource_buffer(self):
         return np.array(self.resources.copy())
 
     def get_scenario_buffer(self):
         return np.array(self.scenarios.copy())
 
+    def get_decision_buffer(self):
+        return np.array(self.decisions.copy())
+
     def get_state_buffer(self):
 
         # TODO: normalization the state ?
         resources = self.resources.copy()
         scenarios = self.scenarios.copy()
+        decisions = self.decisions.copy()
 
-        if len(resources) == 0 or len(scenarios) == 0:
+        if len(resources) == 0 or len(scenarios) == 0 or len(decisions) == 0:
             self.clear_state_buffer()
             return None
 
@@ -41,17 +51,19 @@ class StateBuffer:
 
         resources = np.array(self.resample_buffer(resources, self.window_size))
         scenarios = np.array(self.resample_buffer(scenarios, self.window_size))
+        decisions = np.array(self.resample_buffer(decisions, self.window_size))
 
         LOGGER.debug(f'[Resample Resource Buffer] length: {len(resources)}, content: {resources}')
         LOGGER.debug(f'[Resample Scenario Buffer] length: {len(scenarios)}, content: {scenarios}')
 
-        state = np.array((scenarios[:, 0], scenarios[:, 1], scenarios[:, 2], resources[:, 0]))
+        state = np.vstack((resources.T, scenarios.T, decisions.T))
         self.clear_state_buffer()
         return state
 
     def clear_state_buffer(self):
         self.resources.clear()
         self.scenarios.clear()
+        self.decisions.copy()
 
     @staticmethod
     def resample_buffer(buffer, size):

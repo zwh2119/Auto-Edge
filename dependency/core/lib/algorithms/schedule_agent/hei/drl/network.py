@@ -3,6 +3,7 @@ from torch.distributions import Normal
 import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
+from itertools import accumulate
 
 from .net_utils import build_net, build_conv1d_net
 from .utils import format_input_state
@@ -28,20 +29,46 @@ class SpecificConvFeatureExtractor(nn.Module):
 
 
 class FeatureExtractor(nn.Module):
-    def __init__(self):
+    def __init__(self, state_num_groups, window_size, hid_channels, kernel_size, state_features, activation):
         super(FeatureExtractor, self).__init__()
+        self.extractors = []
+        self.state_indexes = list(accumulate(state_num_groups))
+        for state_num in self.state_num_groups:
+            self.extractors.append(
+                SpecificConvFeatureExtractor(
+                    input_channels=state_num,
+                    hid_channels=hid_channels,
+                    kernel_size=kernel_size,
+                    input_series_length=window_size,
+                    output_features=state_features * state_num,
+                    activation=activation)
+            )
 
     def forward(self, state):
-        pass
+        state_splits = [state[:, start:end, :]
+                        for start, end in zip([0] + self.state_indexes[:-1], self.state_indexes)]
+        state_features = []
+        for extractor, group_state in zip(self.extractors, state_splits):
+            state_features.append(extractor(group_state))
+
+        return torch.cat(state_features, dim=1)
 
 
 class Actor(nn.Module):
-    def __init__(self, state_dim, action_dim, hid_shape, conv_kernel_size,
-                 conv_out_dim, h_activation=nn.ReLU, o_activation=nn.ReLU):
+    def __init__(self, state_dims, action_dim, hid_shape,
+                 conv_hid_channels, conv_kernel_size, conv_state_feature,
+                 conv_activation=nn.ReLU, h_activation=nn.ReLU, o_activation=nn.ReLU):
         super(Actor, self).__init__()
 
-        self.conv_net = build_conv1d_net(state_dim[0], conv_out_dim, conv_kernel_size)
-        layers = [self._get_net_out(state_dim)] + list(hid_shape)
+        self.feature_extractor = FeatureExtractor(
+            state_num_groups=state_dims[0],
+            window_size=state_dims[1],
+            hid_channels=conv_hid_channels,
+            kernel_size=conv_kernel_size,
+            state_features=conv_state_feature,
+            activation=conv_activation
+        )
+        layers = [self._get_net_out(state_dims)] + list(hid_shape)
         self.a_net = build_net(layers, h_activation, o_activation)
         self.mu_layer = nn.Linear(layers[-1], action_dim)
         self.log_std_layer = nn.Linear(layers[-1], action_dim)
@@ -53,11 +80,9 @@ class Actor(nn.Module):
         """Network with Enforcing Action Bounds"""
 
         state = format_input_state(state)
+        state_features = self.feature_extractor(state)
 
-        conv_out = self.conv_net(state)
-        state_out = conv_out.view(1, -1)
-
-        net_out = self.a_net(state_out)
+        net_out = self.a_net(state_features)
         mu = self.mu_layer(net_out)
         log_std = self.log_std_layer(net_out)
         log_std = torch.clamp(log_std, self.LOG_STD_MIN, self.LOG_STD_MAX)  # 总感觉这里clamp不利于学习
@@ -88,24 +113,31 @@ class Actor(nn.Module):
 
 
 class Critic(nn.Module):
-    def __init__(self, state_dim, action_dim, hid_shape, conv_kernel_size,
-                 conv_out_dim):
+    def __init__(self, state_dims, action_dim, hid_shape,
+                 conv_hid_channels, conv_kernel_size, conv_state_feature,
+                 conv_activation=nn.ReLU, h_activation=nn.ReLU, o_activation=nn.Identity):
         super(Critic, self).__init__()
 
-        self.conv_net = build_conv1d_net(state_dim[0], conv_out_dim, conv_kernel_size)
+        self.feature_extractor = FeatureExtractor(
+            state_num_groups=state_dims[0],
+            window_size=state_dims[1],
+            hid_channels=conv_hid_channels,
+            kernel_size=conv_kernel_size,
+            state_features=conv_state_feature,
+            activation=conv_activation
+        )
 
-        layers = [self._get_net_out(state_dim) + action_dim] + list(hid_shape) + [1]
+        layers = [self._get_net_out(state_dims) + action_dim] + list(hid_shape) + [1]
 
-        self.Q_1 = build_net(layers, nn.ReLU, nn.Identity)
-        self.Q_2 = build_net(layers, nn.ReLU, nn.Identity)
+        self.Q_1 = build_net(layers, h_activation, o_activation)
+        self.Q_2 = build_net(layers, h_activation, o_activation)
 
     def forward(self, state, action):
         format_input_state(state)
 
-        conv_out = self.conv_net(state)
-        state_out = conv_out.view(1, -1)
+        state_features = self.feature_extractor(state)
 
-        sa = torch.cat([state_out, action], 1)
+        sa = torch.cat([state_features, action], 1)
         q1 = self.Q_1(sa)
         q2 = self.Q_2(sa)
         return q1, q2

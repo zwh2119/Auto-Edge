@@ -13,12 +13,13 @@ __all__ = ('SoftActorCritic',)
 class SoftActorCritic(object):
     def __init__(
             self,
-            state_dim,
+            state_dims,
             action_dim,
             gamma=0.99,
             hid_shape=(256, 256),
-            conv_kernel_size=3,
-            conv_out_dim=128,
+            conv_kernel_size=(3, 3),
+            conv_hid_channels=(16, 64),
+            conv_state_features=64,
             a_lr=3e-4,
             c_lr=3e-4,
             tau=0.005,
@@ -29,12 +30,12 @@ class SoftActorCritic(object):
             **param
     ):
 
-        self.actor = Actor(state_dim, action_dim, hid_shape, conv_kernel_size,
-                           conv_out_dim).to(device)
+        self.actor = Actor(state_dims, action_dim, hid_shape,
+                           conv_hid_channels, conv_kernel_size, conv_state_features).to(device)
         self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=a_lr)
 
-        self.q_critic = Critic(state_dim, action_dim, hid_shape, conv_kernel_size,
-                               conv_out_dim).to(device)
+        self.q_critic = Critic(state_dims, action_dim, hid_shape,
+                               conv_hid_channels, conv_kernel_size, conv_state_features).to(device)
         self.q_critic_optimizer = torch.optim.Adam(self.q_critic.parameters(), lr=c_lr)
         self.q_critic_target = copy.deepcopy(self.q_critic)
         # Freeze target networks with respect to optimizers (only update via polyak averaging)
