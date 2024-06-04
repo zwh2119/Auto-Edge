@@ -59,7 +59,7 @@ class Scheduler:
         policy = self.policy_extraction(task)
         agent = self.schedule_table[source_id]
         agent.update_scenario(scenario)
-        agent.update_latest_policy(policy)
+        agent.update_policy(policy)
         LOGGER.info(f'[Update Scenario] Source {source_id}: {scenario}')
 
     def register_resource_table(self, device):

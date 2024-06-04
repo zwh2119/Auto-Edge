@@ -38,5 +38,5 @@ class FixedAgent(BaseAgent, abc.ABC):
     def update_resource(self, resource):
         pass
 
-    def update_latest_policy(self, policy):
+    def update_policy(self, policy):
         pass

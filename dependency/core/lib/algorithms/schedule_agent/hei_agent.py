@@ -156,22 +156,25 @@ class HEIAgent(BaseAgent, abc.ABC):
         object_size = np.mean(scenario['obj_size'])
         task_delay = scenario['delay']
 
-        # TODO
-        resolution_decision = None
-        fps_decision = None
-        buffer_size_decision = None
-        pipeline_decision = None
-
         self.state_buffer.add_scenario_buffer([object_number, object_size, task_delay])
-        self.state_buffer.add_decision_buffer([resolution_decision, fps_decision,
-                                               buffer_size_decision, pipeline_decision])
 
     def update_resource(self, resource):
         bandwidth = resource['bandwidth']
         if bandwidth != 0:
             self.state_buffer.add_resource_buffer([bandwidth])
 
-    def update_latest_policy(self, policy):
+    def update_policy(self, policy):
+        self.set_latest_policy(policy)
+
+        resolution_decision = None
+        fps_decision = None
+        buffer_size_decision = None
+        pipeline_decision = None
+
+        self.state_buffer.add_decision_buffer([resolution_decision, fps_decision,
+                                               buffer_size_decision, pipeline_decision])
+
+    def set_latest_policy(self, policy):
         self.latest_policy = policy
 
     def get_schedule_plan(self, info):
