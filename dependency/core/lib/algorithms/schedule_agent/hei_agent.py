@@ -20,6 +20,7 @@ class HEIAgent(BaseAgent, abc.ABC):
         from .hei import SoftActorCritic, RandomBuffer, Adapter, NegativeFeedback, StateBuffer
 
         self.agent_id = agent_id
+        self.system = system
 
         drl_params = system.drl_params.copy()
         hyper_params = system.hyper_params.copy()
@@ -166,11 +167,11 @@ class HEIAgent(BaseAgent, abc.ABC):
     def update_policy(self, policy):
         self.set_latest_policy(policy)
 
-        resolution_decision = None
-        fps_decision = None
-        buffer_size_decision = None
-        pipeline_decision = None
-
+        resolution_decision = self.system.resolution_list.index(policy['resolution'])
+        fps_decision = self.system.fps_list.index(policy['fps'])
+        buffer_size_decision = self.system.buffer_size_list.index(policy['buffer_size'])
+        pipeline_decision = next((i for i, service in enumerate(policy['pipeline'])
+                                  if service['execute_device'] == self.system.cloud_device), len(policy['pipeline']) - 1)
         self.state_buffer.add_decision_buffer([resolution_decision, fps_decision,
                                                buffer_size_decision, pipeline_decision])
 
