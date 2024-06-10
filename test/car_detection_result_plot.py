@@ -2,33 +2,51 @@ import os
 import shutil
 
 import cv2
-import matplotlib.pyplot as plt
-import matplotlib.image as pimg
-import numpy as np
+
+from car_detection_trt_for_test import CarDetection
+
 
 
 def plot_bbox(frame, boxes):
-    for x_min, y_min, x_max, y_max in boxes:
-        cv2.rectangle(frame, (int(x_min), int(y_min)), (int(x_max), int(y_max)), (0, 255, 0), 4)
+    colors = [
+        (109, 162,199),
+        (121, 112,242),
+        (187,151, 39),
+        (84, 179, 69),
 
-    cv2.imwrite('car_result.png',frame)
+    ]
+    boxes.sort(key=lambda x:x[0])
+    for index, (x_min, y_min, x_max, y_max) in enumerate(boxes):
+        print(boxes[index])
+        if index < len(boxes) * 0.1:
+            color = colors[0]
+        elif index < len(boxes) * 0.3:
+            color = colors[1]
+        elif index < len(boxes) * 0.6:
+            color = colors[2]
+        else:
+            color = colors[3]
+        cv2.rectangle(frame, (int(x_min), int(y_min)), (int(x_max), int(y_max)), color, 2)
+
+    cv2.imwrite('car_result.png', frame)
+
+
+def inference(frame):
+    weights = '/home/hx/zwh/Auto-Edge/batch_test/yolov5s_batch1.engine'
+    plugin = '/home/hx/zwh/Auto-Edge/batch_test/libbatch1plugins.so'
+    processor = CarDetection({'weights': weights, 'plugin_library': plugin})
+    output = processor([frame])
+    boxes = output['result'][0]
+    return boxes
 
 
 def main():
-    with open('/data/edge_computing_dataset/UA-DETRAC/train_gt.txt', 'r') as f:
-        gt = f.readlines()
-
-    base_dir = '/data/edge_computing_dataset/UA-DETRAC/Insight-MVT_Annotation_Train/'
-
-    i = gt[500]
-    info = i.split(' ')
-
-    image_path = base_dir + info[0]
+    image_path = '/data/edge_computing_dataset/UA-DETRAC/Insight-MVT_Annotation_Train/MVI_41073/img00707.jpg'
     shutil.copyfile(image_path, 'car_raw.png')
 
-    img = cv2.imread(base_dir + info[0])
-    bbox = [float(b) for b in info[1:]]
-    boxes = np.array(bbox, dtype=np.float32).reshape(-1, 4)
+    img = cv2.imread(image_path)
+    boxes = inference(img)
+
     plot_bbox(img, boxes)
 
     img = cv2.resize(img, (1920, 1080))
