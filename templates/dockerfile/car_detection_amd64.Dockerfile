@@ -1,4 +1,4 @@
-FROM onecheck/tensorrt:trt8_amd64
+FROM dockerhub.ifan.dev/onecheck/tensorrt:trt8_amd64
 
 LABEL authors="Wenhui Zhou"
 
