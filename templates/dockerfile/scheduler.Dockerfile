@@ -25,7 +25,7 @@ RUN pip3 install --upgrade pip && \
     pip install -r base_requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 COPY ${dependency_dir} /home/dependency
-ENV PYTHONPATH "/home/dependency"
+ENV PYTHONPATH="/home/dependency"
 
 WORKDIR /app
 COPY  ${code_dir}/* /app/
