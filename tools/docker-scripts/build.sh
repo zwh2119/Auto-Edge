@@ -125,9 +125,9 @@ build_image() {
     echo "Building image: $image_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
 
     if [ -z "$cache_option" ]; then
-        docker buildx build --platform "$platform" "$proxy_option" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" --push
+        eval docker buildx build --platform "$platform" "$proxy_option" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" --push
     else
-        docker buildx build  --platform "$platform" "$proxy_option" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
+        eval docker buildx build  --platform "$platform" "$proxy_option" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
     fi
 }
 
@@ -147,9 +147,9 @@ build_image_special() {
     echo "Building image: $temp_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
 
     if [ -z "$cache_option" ]; then
-         docker  buildx build  --platform="$platform" "$proxy_option"  -t "$temp_tag" -f "$dockerfile" "$context_dir" --push
+         eval docker  buildx build  --platform="$platform" "$proxy_option"  -t "$temp_tag" -f "$dockerfile" "$context_dir" --push
     else
-         docker  buildx build  --platform="$platform" "$proxy_option"  -t "$temp_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
+         eval docker  buildx build  --platform="$platform" "$proxy_option"  -t "$temp_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
     fi
 }
 
