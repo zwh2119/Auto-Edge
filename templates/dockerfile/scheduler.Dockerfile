@@ -1,6 +1,6 @@
 FROM pytorch/pytorch:2.0.0-cuda11.7-cudnn8-devel
 
-MAINTAINER Wenhui Zhou
+LABEL authors="Wenhui Zhou"
 
 ARG dependency_dir=dependency
 ARG lib_dir=dependency/core/lib

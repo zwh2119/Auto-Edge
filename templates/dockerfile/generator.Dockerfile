@@ -1,6 +1,7 @@
 FROM onecheck/opencv:latest
 
-MAINTAINER Wenhui Zhou
+
+LABEL authors="Wenhui Zhou"
 
 ARG dependency_dir=dependency
 ARG lib_dir=dependency/core/lib

@@ -1,5 +1,6 @@
 FROM  onecheck/tensorrt:trt8_aarch64
-MAINTAINER Wenhui Zhou
+
+LABEL authors="Wenhui Zhou"
 
 ARG dependency_dir=dependency
 ARG lib_dir=dependency/core/lib

@@ -1,5 +1,6 @@
 FROM  nvcr.io/nvidia/l4t-tensorflow:r32.4.3-tf1.15-py3
-MAINTAINER Wenhui Zhou
+
+LABEL authors="Wenhui Zhou"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
