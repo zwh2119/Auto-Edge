@@ -33,7 +33,17 @@ docker buildx version
 ```bash
 $ docker buildx create --name mybuilder --use
 mybuilder
+```
 
+或使用docker buildx构建镜像时需要使用代理:
+```bash
+
+$ docker buildx create --use --name mybuilder --driver-opt env.http_proxy=http://192.168.3.5:7890 --driver-opt env.https_proxy=http://192.168.3.5:7890
+mybuilder
+```
+
+查看已创建镜像：
+```bash
 $ docker buildx ls
 NAME/NODE    DRIVER/ENDPOINT             STATUS  BUILDKIT             PLATFORMS
 mybuilder *  docker-container                                         
