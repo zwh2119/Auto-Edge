@@ -13,9 +13,10 @@ Usage: ${0##*/} [--files [generator,distributor,controller,monitor,scheduler,car
                scheduler
                car-detection
                Default is to select all.
---tag          Specify the version tag for the Docker images. Default is "v1.0.0".
+--tag          Specify the version tag for the Docker images. Default is "v2.0.0".
 --repo         Specify the repository for the Docker images. Default is "onecheck".
 --no-cache     Build the Docker images without using cache.
+--proxy        Build the Docker images with proxy
 --help         Display this help message and exit.
 EOF
 }
@@ -50,6 +51,7 @@ SELECTED_FILES=""
 TAG="v2.0.0"  # Default tag
 REPO="onecheck"  # Default repository
 NO_CACHE=false  # Default is to use cache
+PROXY=""
 
 # Parse command line arguments
 while :; do
@@ -88,6 +90,15 @@ while :; do
         --no-cache)
             NO_CACHE=true
             ;;
+        --proxy)  # Handle the proxy argument
+            if [ "$2" ]; then
+                PROXY=$2
+                shift
+            else
+                echo 'ERROR: "--proxy" requires a non-empty option argument.'
+                exit 1
+            fi
+            ;;
         --)              # End of options
             shift
             break
@@ -106,12 +117,15 @@ build_image() {
     local image_tag="${REPO}/${image}:${TAG}"
     local context_dir="."
 
+    local proxy_option=""
+    [ -n "$PROXY" ] && proxy_option="--build-arg HTTP_PROXY=$PROXY --build-arg HTTPS_PROXY=$PROXY"
+
     echo "Building image: $image_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
 
     if [ -z "$cache_option" ]; then
-        docker buildx build --platform "$platform" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" --push
+        docker buildx build --platform "$platform" "$proxy_option" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" --push
     else
-        docker buildx build  --platform "$platform" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
+        docker buildx build  --platform "$platform" "$proxy_option" --build-arg GO_LDFLAGS="" -t "$image_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
     fi
 }
 
@@ -123,12 +137,15 @@ build_image_special() {
     local temp_tag="${REPO}/${image}:${TAG}-${platform##*/}"  # Temporary tag for the build
     local context_dir="."
 
+    local proxy_option=""
+    [ -n "$PROXY" ] && proxy_option="--build-arg HTTP_PROXY=$PROXY --build-arg HTTPS_PROXY=$PROXY"
+
     echo "Building image: $temp_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
 
     if [ -z "$cache_option" ]; then
-         docker  buildx build --platform="$platform"  -t "$temp_tag" -f "$dockerfile" "$context_dir" --push
+         docker  buildx build  --platform="$platform" "$proxy_option"  -t "$temp_tag" -f "$dockerfile" "$context_dir" --push
     else
-         docker  buildx build  --platform="$platform"  -t "$temp_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
+         docker  buildx build  --platform="$platform" "$proxy_option"  -t "$temp_tag" -f "$dockerfile" "$context_dir" "$cache_option" --push
     fi
 }
 
