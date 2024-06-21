@@ -1,4 +1,4 @@
-FROM dockerhub.ifan.dev/python:3.6
+FROM dockerhub.ifan.dev/library/python:3.6
 
 LABEL authors="Wenhui Zhou"
 
