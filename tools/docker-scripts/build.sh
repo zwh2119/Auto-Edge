@@ -118,7 +118,9 @@ build_image() {
     local context_dir="."
 
     local proxy_option=""
-    [ -n "$PROXY" ] && proxy_option="--build-arg HTTP_PROXY=$PROXY --build-arg HTTPS_PROXY=$PROXY"
+    if [ -n "$PROXY" ]; then
+      proxy_option="--build-arg HTTP_PROXY=$PROXY --build-arg HTTPS_PROXY=$PROXY"
+    fi
 
     echo "Building image: $image_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
 
@@ -138,7 +140,9 @@ build_image_special() {
     local context_dir="."
 
     local proxy_option=""
-    [ -n "$PROXY" ] && proxy_option="--build-arg HTTP_PROXY=$PROXY --build-arg HTTPS_PROXY=$PROXY"
+    if [ -n "$PROXY" ]; then
+      proxy_option="--build-arg HTTP_PROXY=$PROXY --build-arg HTTPS_PROXY=$PROXY"
+    fi
 
     echo "Building image: $temp_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
 
