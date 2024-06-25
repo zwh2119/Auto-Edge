@@ -1,4 +1,4 @@
-FROM dockerhub.ifan.dev/onecheck/opencv:latest
+FROM repo:5000/onecheck/opencv:latest
 
 
 LABEL authors="Wenhui Zhou"
