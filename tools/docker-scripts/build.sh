@@ -15,6 +15,7 @@ Usage: ${0##*/} [--files [generator,distributor,controller,monitor,scheduler,car
                Default is to select all.
 --tag          Specify the version tag for the Docker images. Default is "v2.0.0".
 --repo         Specify the repository for the Docker images. Default is "onecheck".
+--registry     Specify the registry of docker.
 --no-cache     Build the Docker images without using cache.
 --help         Display this help message and exit.
 EOF
@@ -50,6 +51,7 @@ SELECTED_FILES=""
 TAG="v2.0.0"  # Default tag
 REPO="onecheck"  # Default repository
 NO_CACHE=false  # Default is to use cache
+REGISTRY="repo:5000"
 
 # Parse command line arguments
 while :; do
@@ -85,6 +87,15 @@ while :; do
                 exit 1
             fi
             ;;
+        --registry)
+            if [ "$2" ]; then
+                REGISTRY=$2
+                shift
+            else
+                echo 'ERROR: "--repo" requires a non-empty option argument.'
+                exit 1
+            fi
+            ;;
         --no-cache)
             NO_CACHE=true
             ;;
@@ -103,7 +114,7 @@ build_image() {
     local platform=$2
     local dockerfile=$3
     local cache_option=$4  # --no-cache or empty
-    local image_tag="${REPO}/${image}:${TAG}"
+    local image_tag="${REGISTRY}/${REPO}/${image}:${TAG}"
     local context_dir="."
 
     echo "Building image: $image_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
@@ -120,7 +131,7 @@ build_image_special() {
     local platform=$2
     local dockerfile=$3
     local cache_option=$4  # --no-cache or empty
-    local temp_tag="${REPO}/${image}:${TAG}-${platform##*/}"  # Temporary tag for the build
+    local temp_tag="${REGISTRY}/${REPO}/${image}:${TAG}-${platform##*/}"  # Temporary tag for the build
     local context_dir="."
 
     echo "Building image: $temp_tag on platform: $platform using Dockerfile: $dockerfile with no-cache: $NO_CACHE"
@@ -136,7 +147,7 @@ create_and_push_manifest() {
     local image=$1
     local tag=$2
     local repo=$3
-    local manifest_tag="${repo}/${image}:${tag}"
+    local manifest_tag="${REGISTRY}/${repo}/${image}:${tag}"
 
     echo "Creating and pushing manifest for: $manifest_tag"
 
