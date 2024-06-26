@@ -1,4 +1,4 @@
-FROM 114.212.87.136:5000/pytorch/pytorch:2.0.0-cuda11.7-cudnn8-devel
+FROM 114.212.87.136:5000/onecheck/pytorch:2.0.0-cuda11.7-cudnn8-devel
 
 LABEL authors="Wenhui Zhou"
 
