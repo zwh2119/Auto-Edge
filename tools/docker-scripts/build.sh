@@ -51,7 +51,7 @@ SELECTED_FILES=""
 TAG="v2.0.0"  # Default tag
 REPO="onecheck"  # Default repository
 NO_CACHE=false  # Default is to use cache
-REGISTRY="repo:5000"
+REGISTRY="114.212.87.136:5000"
 
 # Parse command line arguments
 while :; do
