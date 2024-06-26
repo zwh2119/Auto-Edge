@@ -1,4 +1,4 @@
-FROM 114.212.87.136:5000/onecheck/tensorrt:trt8_amd64
+FROM repo:5000/onecheck/tensorrt:trt8_amd64
 
 LABEL authors="Wenhui Zhou"
 
