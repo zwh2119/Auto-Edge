@@ -1,4 +1,4 @@
-FROM repo:5000/onecheck/python:3.6
+FROM 114.212.87.136:5000/onecheck/python:3.6
 
 LABEL authors="Wenhui Zhou"
 

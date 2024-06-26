@@ -1,4 +1,4 @@
-FROM repo:5000/onecheck/opencv:latest
+FROM 114.212.87.136:5000/onecheck/opencv:latest
 
 
 LABEL authors="Wenhui Zhou"
